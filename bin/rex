@@ -1,0 +1,387 @@
+#!/opt/local/bin/perl -w
+
+#
+# (c) Jan Gehring <jan.gehring@gmail.com>
+# 
+# vim: set ts=3 sw=3 tw=0:
+# vim: set expandtab:
+
+
+use strict;
+use warnings;
+
+use FindBin;
+
+use Rex;
+use Rex::Config;
+use Rex::Group;
+use Rex::Batch;
+use Rex::Task;
+use Rex::Commands;
+
+# preload some modules
+use Rex::Commands::Run;
+use Rex::Commands::Fs;
+use Rex::Commands::File;
+use Rex::Commands::Download;
+use Rex::Commands::Upload;
+
+use Getopt::Std;
+
+$|++;
+
+my %opts;
+
+if($#ARGV < 0) {
+   @ARGV = qw(-h);
+}
+
+getopts('FThvdf:M:b:e:H:u:p:P:K:', \%opts);
+
+$Rex::Logger::debug = $opts{'d'};
+
+Rex::Logger::debug("Command Line Parameters");
+for my $param (keys %opts) {
+   Rex::Logger::debug("\t$param = " . $opts{$param});
+}
+
+if($opts{'h'}) {
+   print "(R)?ex - (Remote)? Execution\n";
+   printf "  %-15s %s\n", "-b", "Run batch";
+   printf "  %-15s %s\n", "-e", "Run the given code fragment";
+   printf "  %-15s %s\n", "-H", "Execute task on these hosts";
+   printf "  %-15s %s\n", "-u", "Username for the ssh connection";
+   printf "  %-15s %s\n", "-p", "Password for the ssh connection";
+   printf "  %-15s %s\n", "-P", "Private Keyfile for the ssh connection";
+   printf "  %-15s %s\n", "-K", "Public Keyfile for the ssh connection";
+   printf "  %-15s %s\n", "-T", "List all known tasks.";
+   printf "  %-15s %s\n", "-f", "Use this file instead of Rexfile";
+   printf "  %-15s %s\n", "-h", "Display this help";
+   printf "  %-15s %s\n", "-M", "Load Module instead of Rexfile";
+   printf "  %-15s %s\n", "-v", "Display (R)?ex Version";
+   printf "  %-15s %s\n", "-F", "Force. Don't regard lock file";
+   printf "  %-15s %s\n", "-d", "Debug";
+   print "\n";
+   CORE::exit 0;
+} elsif($opts{'v'}) {
+   print "(R)?ex " . $Rex::VERSION . "\n";
+   CORE::exit 0;
+}
+
+$::rexfile = "Rexfile";
+if($opts{'f'}) {
+   Rex::Logger::debug("Using Rexfile: " . $opts{'f'});
+   $::rexfile = $opts{'f'};
+}
+
+FORCE_SERVER: {
+
+   if($opts{'H'}) {
+      $::FORCE_SERVER = $opts{'H'};
+   }
+
+}
+
+if($opts{'e'}) {
+   Rex::Logger::debug("Executing command line code");
+   Rex::Logger::debug("\t" . $opts{'e'});
+
+   # execute the given code
+   my $code = "sub { \n";
+   $code   .= $opts{'e'} . "\n";
+   $code   .= "}";
+
+   $code = eval($code);
+
+   if($@) {
+      Rex::Logger::info("Error in eval line: $@\n");
+      exit 1;
+   }
+
+   my $pass_auth = 0;
+
+   if($opts{'u'}) {
+      Rex::Commands::user($opts{'u'});
+   }
+
+   if($opts{'p'}) {
+      Rex::Commands::password($opts{'p'});
+
+      unless($opts{'P'}) {
+         $pass_auth = 1;
+      }
+   }
+
+   if($opts{'P'}) {
+      Rex::Commands::private_key($opts{'P'});
+   }
+
+   if($opts{'K'}) {
+      Rex::Commands::public_key($opts{'K'});
+   }
+
+   if($pass_auth) {
+      pass_auth;
+   }
+
+   my @params = ();
+   if($opts{'H'}) {
+      push @params, split(/\s+/, $opts{'H'});
+   }
+   push @params, $code;
+   push @params, "eval-line-desc";
+   push @params, {};
+
+   Rex::Task->create_task("eval-line", @params);
+   Rex::Commands::do_task("eval-line");
+}
+elsif($opts{'M'}) {
+   Rex::Logger::debug("Loading Rex-Module: " . $opts{'M'});
+   my $mod = $opts{'M'};
+   $mod =~ s{::}{/}g;
+   require "$mod.pm";
+}
+elsif(-f $::rexfile) {
+   Rex::Logger::debug("$::rexfile exists");
+   if(-f "$::rexfile.lock" && ! exists $opts{'F'}) {
+      Rex::Logger::debug("Found $::rexfile.lock");
+      my $pid = eval { local(@ARGV, $/) = ("$::rexfile.lock"); <>; };
+      system("ps aux | awk -F' ' ' { print \$2 } ' | grep $pid >/dev/null 2>&1");
+      if($? == 0) {
+         Rex::Logger::info("Rexfile is in use by $pid.");
+         CORE::exit 1;
+      } else
+      {
+         Rex::Logger::info("Found stale lock file. Removing it.");
+         unlink("$::rexfile.lock");
+      }
+   }
+   
+   Rex::Logger::debug("Checking Rexfile Syntax...");
+   system("$^X -MRex::Commands -c $::rexfile");
+   if($? != 0) {
+      exit 1;
+   }
+
+   Rex::Logger::debug("Creating lock-file ($::rexfile.lock)");
+   open(my $f, ">$::rexfile.lock") or die($!);
+   print $f $$; 
+   close($f);
+
+   Rex::Logger::debug("Including/Parsing $::rexfile");
+   eval {
+      do($::rexfile);
+   };
+
+   if($@) { print $@ . "\n"; exit 1; }
+} else {
+   Rex::Logger::info("No Rexfile found");
+   CORE::exit 1;
+}
+
+#### check if some parameters should be overwritten from the command line
+CHECK_OVERWRITE: {
+
+   my $pass_auth = 0;
+
+   if($opts{'u'}) {
+      Rex::Commands::user($opts{'u'});
+   }
+
+   if($opts{'p'}) {
+      Rex::Commands::password($opts{'p'});
+
+      unless($opts{'P'}) {
+         $pass_auth = 1;
+      }
+   }
+
+   if($opts{'P'}) {
+      Rex::Commands::private_key($opts{'P'});
+   }
+
+   if($opts{'K'}) {
+      Rex::Commands::public_key($opts{'K'});
+   }
+
+   if($pass_auth) {
+      pass_auth;
+   }
+
+}
+
+
+Rex::Logger::debug("Initializing Logger from parameters found in $::rexfile");
+Rex::Logger::init;
+
+if($opts{'T'}) {
+   Rex::Logger::debug("Listing Tasks and Batches");
+   print "Tasks\n";
+   for my $task (Rex::Task->get_tasks) {
+      printf "  %-30s %s\n", $task, Rex::Task->get_desc($task);
+   }
+   print "Batches\n";
+   for my $batch (Rex::Batch->get_batchs) {
+      printf "  %-30s %s\n", $batch, Rex::Batch->get_desc($batch);
+   }
+}
+
+eval {
+   if($opts{'b'}) {
+      Rex::Logger::debug("Running batch: " . $opts{'b'});
+      my $batch = $opts{'b'};
+      if(Rex::Batch->is_batch($batch)) {
+         Rex::Batch->run($batch);
+      }
+   }
+
+   if(defined $ARGV[0]) {
+      for my $task (@ARGV) {
+         if(Rex::Task->is_task($task)) {
+            Rex::Logger::debug("Running task: $task");
+            Rex::Task->run($task);
+         }
+      }
+   }
+};
+
+if($@) {
+   Rex::Logger::info("Error running task/batch: $@");
+}
+
+# lock loeschen
+Rex::Logger::debug("Removing lockfile") if(! exists $opts{'F'});
+unlink("$::rexfile.lock")               if(! exists $opts{'F'});
+
+__END__
+
+=pod
+
+=head1 (R)?ex - (Remote)? Execution
+
+Rex is a tool to ease the execution of commands on multiple remote servers. You can define small tasks, chain tasks to batches, link them with servers or server groups, and execute them easily in your terminal.
+
+=head2 Command line options
+
+=over 4
+
+=item -b              Run batch
+
+=item -e              Run the give code fragment
+
+=item -H              Execute task on these hosts
+
+=item -u              Username for the ssh connection
+
+=item -p              Password for the ssh connection
+
+=item -P              Private Keyfile for the ssh connection
+
+=item -K              Public Keyfile for the ssh connection
+
+=item -T              List all known tasks.
+
+=item -f              Use this file instead of Rexfile
+
+=item -h              Display this help
+
+=item -M              Load Module instead of Rexfile
+
+=item -v              Display (R)?ex Version
+
+=item -F              Force. Don't regard lock file
+
+=item -d              Debug
+
+=back
+
+
+=head2 Rexfile
+
+If you run I<rex> it will read the file I<Rexfile> in the current working directory. A Rexfile consists 3 major parts.
+
+=head3 Authentication and Configuration
+
+In that part you define the user and password you want to use to log into your servers. You can even define timeouts or the paralellism of task exexecution.
+
+=head4 Simple Authentication
+
+B<Define the user>
+
+ user "<user>";
+
+B<Define the password>
+
+ password "<password>";
+
+B<Set password authentication>
+
+ pass_auth;
+
+
+=head4 Key Authentication
+
+B<Define Private Key>
+
+ private_key "/path/to/your/private/key.file";
+
+B<Define Public Key>
+
+ public_key "/path/to/your/public/key.file";
+
+=head4 Define Logging
+
+B<Log to a file>
+
+ logging to_file => "rex.log";
+
+B<Log to syslog>
+
+ logging to_syslog => "local0";
+
+=head4 Other Configuration parameters
+
+B<Define ssh timeout>
+
+ timeout 10;
+
+B<Define parallelism>
+
+ parallelism 2;
+
+=head3 Group your servers
+
+Rex gives you the possibility to B<group your servers>. So you don't need to type every servername multiple times.
+
+ group "frontends" => "frontend01", "frontend02", "frontend03", "frontend04";
+
+You can even B<define ranges> in the servernames:
+
+ group "frontends" => "frontend[01..04]";
+
+=head3 Your tasks
+
+B<Create a task description>
+
+ desc "This is a long description of a task";
+
+B<Create the task>
+
+ task "shortname", group => "frontends", sub {
+     run "uptime";
+ };
+
+B<or, if you don't have groups>
+
+ task "shortname", "frontend01", "frontend02", "frontend03", "frontend04", sub {
+     run "uptime";
+ };
+
+B<and with serverranges>
+
+ task "shortname", "frontend[01..04]", sub {
+     run "uptime";
+ };
+
+=cut
+

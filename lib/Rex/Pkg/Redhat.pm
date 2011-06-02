@@ -1,0 +1,79 @@
+#
+# (c) Jan Gehring <jan.gehring@gmail.com>
+# 
+# vim: set ts=3 sw=3 tw=0:
+# vim: set expandtab:
+
+package Rex::Pkg::Redhat;
+
+use strict;
+use warnings;
+
+use Rex::Commands::Run;
+
+sub new {
+   my $that = shift;
+   my $proto = ref($that) || $that;
+   my $self = { @_ };
+
+   bless($self, $proto);
+
+   return $self;
+}
+
+sub is_installed {
+   my ($self, $pkg) = @_;
+
+   Rex::Logger::debug("Checking if $pkg is installed");
+
+   run("rpm -ql $pkg");
+
+   unless($? == 0) {
+      Rex::Logger::debug("$pkg is NOT installed.");
+      return 0;
+   }
+   
+   Rex::Logger::debug("$pkg is installed.");
+   return 1;
+}
+
+sub install {
+   my ($self, $pkg, $option) = @_;
+
+   my $version = $option->{"version"} || "";
+
+   Rex::Logger::debug("Installing $pkg / $version");
+   my $f = run("yum -y install $pkg" . ($version?"-$version":""));
+
+   unless($? == 0) {
+      Rex::Logger::info("Error installing $pkg.");
+      Rex::Logger::debug($f);
+      return 0;
+   }
+
+   Rex::Logger::debug("$pkg successfully installed.");
+
+   return 1;
+}
+
+sub remove {
+   my ($self, $pkg) = @_;
+
+   Rex::Logger::debug("Removing $pkg");
+   my $f = run("yum -y erase $pkg");
+
+   unless($? == 0) {
+      Rex::Logger::info("Error removing $pkg.");
+      Rex::Logger::debug($f);
+      return 0;
+   }
+
+   Rex::Logger::debug("$pkg successfully removed.");
+
+   return 1;
+}
+
+
+
+
+1;
