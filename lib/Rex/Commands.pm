@@ -91,7 +91,7 @@ use base qw(Exporter);
             evaluate_hostname
             logging
             needs
-            say
+            say todo
             LOCAL
           );
 
@@ -231,6 +231,17 @@ sub task {
    push (@{"${class}::tasks"}, { name => $task_name_save, code => $_[-2] } );
    use strict;
    use warnings;
+
+   no strict 'refs';
+   my %sym_table = %{"${class}::"};
+   use strict;
+
+   if(! exists $sym_table{$task_name_save} && $task_name_save =~ m/^[a-zA-Z_][a-zA-Z0-9_]+$/) {
+      no strict 'refs';
+      Rex::Logger::debug("Registering task: ${class}::$task_name_save");
+      *{"${class}::$task_name_save"} = $_[-2];
+      use strict;
+   }
 
    Rex::Task->create_task($task_name, @_, $options);
 }
@@ -578,6 +589,11 @@ sub exit {
 sub say {
    return unless $_[0];
    print @_, "\n";
+}
+
+sub todo {
+   my ($package, $filename, $line) = caller;
+   Rex::Logger::info("TODO: $line: " . $package . " ($filename)");
 }
 
 1;

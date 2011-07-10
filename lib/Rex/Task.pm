@@ -15,6 +15,9 @@ use Sys::Hostname;
 
 use vars qw(%tasks);
 
+# will be set from Rex::Transaction::transaction()
+our $IN_TRANSACTION = 0;
+
 sub create_task {
    my $class     = shift;
    my $task_name = shift;
@@ -117,15 +120,19 @@ sub run {
    my $ret;
 
    Rex::Logger::info("Running task: $task");
+   # get servers belonging to the task
    my @server = @{$tasks{$task}->{'server'}};
    Rex::Logger::debug("\tserver: $_") for @server;
    
+   # overwrite servers if requested
+   # this is mostly for the rex agent
    if($server_overwrite) {
       @server = ($server_overwrite);
    }
 
    my($user, $pass, $pass_auth);
    if(ref($server[-1]) eq "HASH") {
+      # use extra defined credentials
       my $data = pop(@server);
       $user = $data->{'user'};
       $pass = $data->{'password'};
@@ -141,6 +148,8 @@ sub run {
 
    my $timeout = Rex::Config->get_timeout;
 
+   # parse cli parameter in the form
+   #    --key=value or --key
    my @params = @ARGV[1..$#ARGV];
    my %opts = ();
    for my $p (@params) {
@@ -151,22 +160,28 @@ sub run {
       $opts{$key} = 1;
    }
 
+   # get hostname
    my $hostname = hostname();
    my ($shortname) = ($hostname =~ m/^([^\.]+)\.?/);
    Rex::Logger::debug("My Hostname: " . $hostname);
    Rex::Logger::debug("My Shortname: " . $shortname);
 
    if(scalar(@server) > 0) {
+      # task should not run lokal
 
       my @children;
 
+      # create form manager object
       my $fm = Rex::Fork::Manager->new(max => Rex::Config->get_parallelism);
 
+      # iterate over the server and push the worker function to the fork manager's queue
       for my $server (@server) {
          Rex::Logger::debug("Next Server: $server");
-         $fm->add(sub {
+         # push it
+         my $forked_sub = sub {
             my $ssh;
 
+            # this must be a ssh connection
             if(! $tasks{$task}->{"no_ssh"} && $server ne "localhost" && $server ne $shortname) {
                $ssh = Net::SSH2->new;
 
@@ -180,7 +195,7 @@ sub run {
                CON_SSH:
                   unless($ssh->connect($server, 22, Timeout => Rex::Config->get_timeout)) {
                      ++$fail_connect;
-                     goto CON_SSH if($fail_connect < 3);
+                     goto CON_SSH if($fail_connect < 3); # try connecting 3 times
 
                      Rex::Logger::info("Can't connect to $server");
 
@@ -205,27 +220,42 @@ sub run {
 
             }
             else {
+               # this is a remote session without a ssh connection
+               # for example for libvirt.
 
                Rex::Logger::debug("This is a remote session with NO_SSH");
                Rex::push_connection({ssh => 0, server => $server});
 
             }
 
+            # run the task
             $ret = _exec($task, \%opts);
 
+            # disconnect if ssh connection
             if(! $tasks{$task}->{"no_ssh"} && $server ne "localhost" && $server ne $shortname) {
                Rex::Logger::debug("Disconnecting from $server");
-               $ssh->disconnect();
+               $ssh->disconnect() unless($IN_TRANSACTION);
             }
 
             # remove remote connection from the stack
             Rex::pop_connection();
 
-            CORE::exit; # exit child
-         }, 1); # [END] $fm->add
-      }
+            CORE::exit unless($IN_TRANSACTION); # exit child
+         }; # [END] $forked_sub
+
+         # add the worker (forked_sub) to the fork queue
+         unless($IN_TRANSACTION) {
+            # not inside a transaction, so lets fork happyly...
+            $fm->add($forked_sub, 1);
+         }
+         else {
+            # inside a transaction, no little small funny kids, ... and no chance to get zombies :(
+            &$forked_sub();
+         }
+      } # [END] for my $server
 
       Rex::Logger::debug("Waiting for children to finish");
+      # wait for all jobs to be finished
       $fm->wait_for_all;
 
    } else {

@@ -74,6 +74,8 @@ The install function can install packages (for CentOS, OpenSuSE and Debian) and 
  };
 
 =item installing a file
+ 
+ This is deprecated since 0.9. Please use L<File> I<file> instead.
 
  task "prepare", "server01", sub {
     install file => "/etc/passwd", {
@@ -140,6 +142,10 @@ sub install {
    }
 
    elsif($type eq "file") {
+
+      Rex::Logger::debug("The install file => ... call is deprecated. Please use 'file' instead.");
+      Rex::Logger::debug("This directive will be removed with (R)?ex 2.0");
+      Rex::Logger::debug("See http://rexify.org/api/Rex/Commands/File.pm for more information.");
    
       my $source    = $option->{"source"};
       my $on_change = $option->{"on_change"} || sub {};
