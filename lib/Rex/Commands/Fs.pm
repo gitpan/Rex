@@ -66,7 +66,8 @@ use base qw(Exporter);
             unlink rmdir mkdir stat readlink symlink ln rename mv chdir cd cp
             chown chgrp chmod
             is_file is_dir is_readable is_writeable is_writable
-            df du);
+            df du
+            mount umount);
 
 use vars qw(%file_handles);
 
@@ -733,6 +734,51 @@ sub cp {
    my ($source, $dest) = @_;
 
    run "cp -a $source $dest";
+}
+
+=item mount($device, $mount_point, @options)
+
+Mount devices.
+
+ task "mount", "server01", sub {
+    mount "/dev/sda5", "/tmp";
+    mount "/dev/sda6", "/mnt/sda6",
+               fs => "ext3",
+               options => [qw/noatime async/];
+ };
+
+=cut
+sub mount {
+   my ($device, $mount_point, @options) = @_;
+   my $option = { @options };
+
+   my $cmd = sprintf("mount %s %s %s %s", 
+                           $option->{"fs"}?"-t " . $option->{"fs"}:"",   # file system
+                           $option->{"options"}?" -o " . join(",", @{$option->{"options"}}):"",
+                           $device,
+                           $mount_point);
+
+   run $cmd;
+   if($? == 0) { return 1; }
+
+   return 0;
+}
+
+=item umount($mount_point)
+
+Unmount device.
+
+ task "umount", "server01", sub {
+    umount "/tmp";
+ };
+
+=cut
+sub umount {
+   my ($mount_point) = @_;
+   run "umount $mount_point";
+
+   if($? == 0) { return 1; }
+   return 0;
 }
 
 =back

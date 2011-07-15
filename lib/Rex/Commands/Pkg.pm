@@ -49,7 +49,7 @@ require Exporter;
 use base qw(Exporter);
 use vars qw(@EXPORT);
 
-@EXPORT = qw(install remove);
+@EXPORT = qw(install remove installed_packages);
 
 =item install($type, $data, $options)
 
@@ -75,7 +75,7 @@ The install function can install packages (for CentOS, OpenSuSE and Debian) and 
 
 =item installing a file
  
- This is deprecated since 0.9. Please use L<File> I<file> instead.
+This is deprecated since 0.9. Please use L<File> I<file> instead.
 
  task "prepare", "server01", sub {
     install file => "/etc/passwd", {
@@ -259,6 +259,26 @@ sub remove {
 
    }
 
+}
+
+=item installed_packages
+
+This function returns all installed packages and their version.
+
+ task "get-installed", "server1", sub {
+    
+     for my $pkg (installed_packages()) {
+        say "name     : " . $pkg->{"name"};
+        say "  version: " . $pkg->{"version"};
+     }
+     
+ };
+
+=cut
+
+sub installed_packages {
+   my $pkg = Rex::Pkg->get;
+   return $pkg->get_installed;
 }
 
 =back
