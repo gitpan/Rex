@@ -115,6 +115,9 @@ sub db {
 
    if($type eq "select") {
       my $sql = sprintf("SELECT %s FROM %s WHERE %s", $data->{"fields"} || "*", $table, $data->{"where"} || "1=1");
+      if(defined $data->{"order"}) {
+         $sql .= " ORDER BY " . $data->{"order"};
+      }
       Rex::Logger::debug("sql: $sql");
 
       my $sth = $dbh->prepare($sql);
@@ -143,6 +146,7 @@ sub db {
       my $sth = $dbh->prepare($sql);
       my $i=1;
       for my $key (keys %{$data}) {
+         $data->{$key} ||= '';
          Rex::Logger::debug("sql: binding: " . $data->{$key});
          $sth->bind_param($i, $data->{$key}) or die($sth->errstr);
          $i++;
@@ -191,6 +195,7 @@ sub import {
    my ($class, $opt) = @_;
 
    $dbh = DBI->connect($opt->{"dsn"}, $opt->{"user"}, $opt->{"password"} || "");  
+   $dbh->{mysql_auto_reconnect} = 1;
 
    my ($ns_register_to, $file, $line) = caller;   
 

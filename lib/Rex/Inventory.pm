@@ -14,6 +14,9 @@ use Rex::Inventory::Hal;
 use Rex::Commands::Network;
 use Rex::Commands::Run;
 use Rex::Commands::Gather;
+use Rex::Commands::LVM;
+
+use Rex::Inventory::HP::ACU;
 
 sub new {
    my $that = shift;
@@ -48,6 +51,57 @@ sub get {
    my @netstat    = netstat;
    my $default_gw = default_gateway;
 
+   my @pvs = pvs;
+   my @vgs = vgs;
+   my @lvs = lvs;
+
+   my @raid_controller;
+   if(my $hp_raid = Rex::Inventory::HP::ACU->get()) {
+      # hp raid entdeckt
+      for my $key (keys %{$hp_raid}) {
+
+         my %raid_shelfs;
+         for my $shelf (keys %{$hp_raid->{$key}->{"array"}}) {
+            my $shelf_data = $hp_raid->{$key}->{"array"}->{$shelf};
+
+            my @raid_logical_drives;
+            for my $l_drive (keys %{$hp_raid->{$key}->{"array"}->{$shelf}->{"logical_drive"}}) {
+               my $l_drive_data = $hp_raid->{$key}->{"array"}->{$shelf}->{"logical_drive"}->{$l_drive};
+               my ($size) = ($l_drive_data->{"size"} =~ m/^([0-9\.]+)/);
+               my $multi = 1024 * 1024 * 1024;
+               if($l_drive_data->{"size"} =~ m/TB$/) {
+                  $multi *= 1024;
+               }
+
+               push(@raid_logical_drives, {
+                     status => ($l_drive_data->{"status"} eq "OK"?1:0),
+                     raid_level => $l_drive_data->{"fault_tolerance"},
+                     size => sprintf("%i", $size * $multi),
+                     dev => $l_drive_data->{"disk_name"},
+                     shelf => $shelf,
+                  });
+            }
+
+            $raid_shelfs{$shelf} = {
+                  type => $shelf_data->{"interface_type"},
+                  status => ($shelf_data->{"status"} eq "OK"?1:0),
+                  logical_drives => \@raid_logical_drives,
+               };
+
+         }
+
+         push(@raid_controller, {
+                     type => $hp_raid->{$key}->{"description"},
+                     model => $hp_raid->{$key}->{"model"},
+                     serial_number => $hp_raid->{$key}->{"serial_number"},
+                     cache_status => ($hp_raid->{$key}->{"cache_status"} eq "OK"?1:0),
+                     shelfs => \%raid_shelfs,
+                  });
+
+
+      }
+   }
+
    return {
       base_board  => ($base_board?$base_board->get_all():{}),
       bios        => $bios->get_all(),
@@ -58,6 +112,14 @@ sub get {
       net         => sub { my $ret = []; push(@{$ret}, $_->get_all()) for @net_devs; return $ret; }->(),
       storage     => sub { my $ret = []; push(@{$ret}, $_->get_all()) for @storage; return $ret; }->(),
       volumes     => sub { my $ret = []; push(@{$ret}, $_->get_all()) for @volumes; return $ret; }->(),
+      raid        => {
+         controller => \@raid_controller,
+      },
+      lvm         => {
+         physical_volumes => \@pvs,
+         volume_groups    => \@vgs,
+         logical_volumes  => \@lvs,
+      },
       configuration => {
          network => {
             routes                => \@routes,
@@ -66,7 +128,7 @@ sub get {
             current_configuration => network_interfaces(),
          },
          host    => {
-            name   => [ run "hostname" ]->[0],
+            name   => [ run "hostname -s" ]->[0],
             domain => [ run "hostname -d" || qw() ]->[0],
             kernel => [ run "uname -r" || qw() ]->[0],
          },
