@@ -30,6 +30,8 @@ This module is the core commands module.
 
 =over 4
 
+=item * Cloud Management L<Rex::Commands::Cloud>
+
 =item * Cron Management L<Rex::Commands::Cron>
 
 =item * Database Commands L<Rex::Commands::DB>
@@ -45,6 +47,8 @@ This module is the core commands module.
 =item * Manipulation of /etc/hosts L<Rex::Commands::Host>
 
 =item * Get an inventory of your Hardware L<Rex::Commands::Inventory>
+
+=item * Manage your iptables rules L<Rex::Commands::Iptables>
 
 =item * Kernel Commands L<Rex::Commands::Kernel>
 
@@ -91,8 +95,8 @@ use vars qw(@EXPORT $current_desc $global_no_ssh);
 use base qw(Exporter);
 
 @EXPORT = qw(task desc group 
-            user password public_key private_key pass_auth no_ssh
-            get_random do_task batch timeout parallelism
+            user password sudo_password public_key private_key pass_auth no_ssh
+            get_random do_task batch timeout max_connect_retries parallelism
             exit
             evaluate_hostname
             logging
@@ -247,6 +251,12 @@ sub task {
       Rex::Logger::debug("Registering task: ${class}::$task_name_save");
       *{"${class}::$task_name_save"} = $_[-2];
       use strict;
+   } elsif($class ne "main" && $task_name_save =~ m/^[a-zA-Z_][a-zA-Z0-9_]+$/) {
+      # if not in main namespace, register the task as a sub
+      no strict 'refs';
+      Rex::Logger::debug("Registering task (not main namespace): ${class}::$task_name_save");
+      *{"${class}::$task_name_save"} = $_[-2];
+      use strict;
    }
 
    Rex::Task->create_task($task_name, @_, $options);
@@ -325,6 +335,16 @@ sub password {
    Rex::Config->set_password(@_);
 }
 
+=item sudo_password($password)
+
+Set the password for the sudo command.
+
+=cut
+
+sub sudo_password {
+   Rex::Config->set_sudo_password(@_);
+}
+
 =item timeout($seconds)
 
 Set the timeout for the ssh connection and other network related stuff.
@@ -333,6 +353,15 @@ Set the timeout for the ssh connection and other network related stuff.
 
 sub timeout {
    Rex::Config->set_timeout(@_);
+}
+
+=item max_connect_retries($count)
+
+Set the maximum number of connection retries.
+
+=cut
+sub max_connect_retries {
+   Rex::Config->set_connect_fails(@_);
 }
 
 =item get_random($count, @chars)
@@ -493,6 +522,21 @@ Depend on the I<uname> task in the package MyPkg. The I<uname> task will be call
 
 sub needs {
    my ($self, @args) = @_;
+
+   # if no namespace is given, use the current one
+   if(ref($self) eq "ARRAY") {
+      @args = @{ $self };
+      ($self) = caller;
+   }
+
+   if(! @args) {
+      @args = ($self);
+      ($self) = caller;
+   }
+
+   if(ref($args[0]) eq "ARRAY") {
+      @args = @{ $args[0] };
+   }
 
    Rex::Logger::debug("need to call tasks from $self");
 

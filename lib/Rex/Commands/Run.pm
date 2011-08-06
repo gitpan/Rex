@@ -15,6 +15,7 @@ With this module you can run a command.
 =head1 SYNOPSIS
 
  my $output = run "ls -l";
+ sudo "id";
 
 
 =head1 EXPORTED FUNCTIONS
@@ -34,11 +35,15 @@ use Data::Dumper;
 use Rex;
 use Rex::Logger;
 use Rex::Helper::SSH2;
+use Rex::Helper::SSH2::Expect;
+use Rex::Config;
+
+use Expect;
 
 use vars qw(@EXPORT);
 use base qw(Exporter);
 
-@EXPORT = qw(run can_run);
+@EXPORT = qw(run can_run sudo);
 
 =item run($command)
 
@@ -57,6 +62,7 @@ sub run {
 
    my @ret = ();
    my $out;
+   # no can_run($cmd) if there are parameters
    if(my $ssh = Rex::is_ssh()) {
       $out = net_ssh2_exec($ssh, "LC_ALL=C " . $cmd);
    } else {
@@ -97,6 +103,63 @@ sub can_run {
       run "which $cmd";
       if($? == 0) { return 1; }
    }
+}
+
+=item sudo($command)
+
+Run $command with I<sudo>. Define the password for sudo with I<sudo_password>.
+
+ task "eth1-down", sub {
+   sudo "ifconfig eth1 down";
+ };
+
+=cut
+sub sudo {
+   my ($cmd) = @_;
+
+   my $exp;
+   my $timeout       = Rex::Config->get_timeout;
+   my $sudo_password = Rex::Config->get_sudo_password;
+
+   if(my $ssh = Rex::is_ssh()) {
+      $exp = Rex::Helper::SSH2::Expect->new($ssh);
+   }
+   else {
+      $exp = Expect->new();
+   }
+
+   $exp->log_stdout(0);
+
+   my $cmd_out = "";
+   $exp->log_file(sub {
+      my ($str) = @_;
+      $cmd_out .= $str;
+   });
+
+   $exp->spawn("sudo", $cmd);
+
+   $exp->expect($timeout, [
+                              qr/Password:|\[sudo\] password for [^:]+:/i => sub {
+                                          Rex::Logger::debug("Sending password");
+                                          my ($exp, $line) = @_;
+                                          $exp->send($sudo_password . "\n");
+
+                                          unless(ref($exp) eq "Rex::Helper::SSH2::Expect") {
+                                             exp_continue;
+                                          }
+                                       },
+                          ]);
+
+   unless(ref($exp) eq "Rex::Helper::SSH2::Expect") {
+      $exp->soft_close;
+   }
+
+   chomp $cmd_out;
+
+   if(wantarray) {
+      return split(/\n/, $cmd_out);
+   }
+   return $cmd_out;
 }
 
 =back

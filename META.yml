@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Rex
-version:            0.11.1
+version:            0.12.0
 abstract:           ~
 author:  []
 license:            perl
@@ -10,9 +10,14 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
-    DBI:        0
-    Expect:     0
-    Net::SSH2:  0.33
+    DBI:                0
+    Digest::HMAC_SHA1:  0
+    Expect:             0
+    HTTP::Date:         0
+    LWP::UserAgent:     0
+    MIME::Base64:       0
+    Net::SSH2:          >0.33
+    XML::Simple:        0
 no_index:
     directory:
         - t
