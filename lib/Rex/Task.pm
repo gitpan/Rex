@@ -206,8 +206,6 @@ sub run {
             if(! $tasks{$task}->{"no_ssh"} && $server ne "localhost" && $server ne $shortname) {
                $ssh = Net::SSH2->new;
 
-               # push a remote connection
-               Rex::push_connection({ssh => $ssh, server => $server});
 
                my $fail_connect = 0;
 
@@ -224,6 +222,9 @@ sub run {
                      CORE::exit; # kind beenden
                   }
 
+               Rex::Logger::debug("Current Error-Code: " . $ssh->error());
+               Rex::Logger::info("Connected to $server, trying to authenticate.");
+
                my $auth_ret;
                if($pass_auth) {
                   $auth_ret = $ssh->auth_password($user, $pass);
@@ -234,11 +235,18 @@ sub run {
                                           $pass);
                }
 
+               # push a remote connection
+               Rex::push_connection({ssh => $ssh, server => $server, sftp => $ssh->sftp?$ssh->sftp:undef});
+
+               Rex::Logger::debug("Current Error-Code: " . $ssh->error());
+
                # auth unsuccessfull
                unless($auth_ret) {
                   Rex::Logger::info("Wrong username or password. Or wrong key.");
                   CORE::exit 1;
                }
+
+               Rex::Logger::debug("Successfull auth");
 
             }
             else {
@@ -246,7 +254,7 @@ sub run {
                # for example for libvirt.
 
                Rex::Logger::debug("This is a remote session with NO_SSH");
-               Rex::push_connection({ssh => 0, server => $server});
+               Rex::push_connection({ssh => 0, server => $server, sftp => 0});
 
             }
 
@@ -284,7 +292,7 @@ sub run {
 
       Rex::Logger::debug("This is not a remote session");
       # push a local connection
-      Rex::push_connection({ssh => 0, server => "<local>"});
+      Rex::push_connection({ssh => 0, server => "<local>", sftp => 0});
 
       $ret = _exec($task, \%opts);
 

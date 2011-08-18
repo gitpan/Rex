@@ -81,7 +81,7 @@ use base qw(Exporter);
 use vars qw(@EXPORT $VERSION @CONNECTION_STACK);
 
 @EXPORT = qw($VERSION);
-$VERSION = "0.12.2";
+$VERSION = "0.13.0";
 
 
 sub push_connection {
@@ -124,6 +124,20 @@ Returns 1 if the current connection is a ssh connection. 0 if not.
 sub is_ssh {
    if($CONNECTION_STACK[-1]) {
       return $CONNECTION_STACK[-1]->{"ssh"};
+   }
+
+   return 0;
+}
+
+=item get_sftp
+
+Returns the sftp object for the current ssh connection.
+
+=cut
+
+sub get_sftp {
+   if($CONNECTION_STACK[-1]) {
+      return $CONNECTION_STACK[-1]->{"sftp"};
    }
 
    return 0;

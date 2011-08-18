@@ -63,11 +63,12 @@ use vars qw(@EXPORT);
 use base qw(Exporter);
 
 @EXPORT = qw(list_files ls
-            unlink rmdir mkdir stat readlink symlink ln rename mv chdir cd cp
+            unlink rm rmdir mkdir stat readlink symlink ln rename mv chdir cd cp
             chown chgrp chmod
             is_file is_dir is_readable is_writeable is_writable
             df du
-            mount umount);
+            mount umount
+            glob);
 
 use vars qw(%file_handles);
 
@@ -91,15 +92,20 @@ sub list_files {
    }
 
    Rex::Logger::debug("Reading directory contents.");
-   if(my $ssh = Rex::is_ssh()) {
-      my $sftp = $ssh->sftp;
+   if(my $sftp = Rex::get_sftp()) {
       my $dir = $sftp->opendir($path);
+      unless($dir) {
+         die("Can't read $path");
+      }
 
       while(my $entry  = $dir->read) {
          push @ret, $entry->{'name'};
       }
    } else {
       opendir(my $dh, $path);
+      unless($dh) {
+         die("Can't read $path");
+      }
       while(my $entry = readdir($dh)) {
          next if ($entry =~ /^\.\.?$/);
          push @ret, $entry;
@@ -137,11 +143,10 @@ sub symlink {
 
    run "ln -snf $from $to";
 
-   if($? == 0) {
-      return 1;
+   if($? != 0) {
+      die("Can't link $from -> $to");
    }
 
-   return 0;
 }
 
 =item ln($from, $to)
@@ -169,17 +174,27 @@ sub unlink {
 
    Rex::Logger::debug("Unlinking files: " . join(", ", @files));
 
-   if(my $ssh = Rex::is_ssh()) {
+   if(my $sftp = Rex::get_sftp()) {
       for my $file (@files) {
          unless(is_file($file)) {
             Rex::Logger::info("unlink: $file not found");
             next;
          }
-         $ssh->sftp->unlink($file);
+         $sftp->unlink($file);
       }
    } else {
       CORE::unlink(@files);
    }
+}
+
+=item rm($file)
+
+This is an alias for unlink.
+
+=cut
+
+sub rm {
+   &unlink(@_);
 }
 
 =item rmdir($dir)
@@ -235,8 +250,8 @@ sub mkdir {
    my $not_recursive = $options->{"not_recursive"} || 0;
 
    if($not_recursive) {
-      if(my $ssh = Rex::is_ssh()) {
-         unless($ssh->sftp->mkdir($dir)) {
+      if(my $sftp = Rex::get_sftp()) {
+         unless($sftp->mkdir($dir)) {
             Rex::Logger::debug("Can't create directory $dir");
             die("Can't create directory $dir");
          }
@@ -266,8 +281,8 @@ sub mkdir {
       $str_part .= "$part";
 
       if(! is_dir($str_part) && ! is_file($str_part)) {
-         if(my $ssh = Rex::is_ssh()) {
-            unless($ssh->sftp->mkdir($str_part)) {
+         if(my $sftp = Rex::get_sftp()) {
+            unless($sftp->mkdir($str_part)) {
                Rex::Logger::debug("Can't create directory $dir");
                die("Can't create directory $dir");
             }
@@ -308,7 +323,7 @@ sub chown {
    }
 
    run "chown $recursive $user $file";
-   if($? == 0) { return 1; }
+   if($? != 0) { die("Can't chown $file"); }
 }
 
 =item chgrp($group, $file)
@@ -332,7 +347,7 @@ sub chgrp {
    }
 
    run "chgrp $recursive $group $file";
-   if($? == 0) { return 1; }
+   if($? != 0) { die("Can't chgrp $file"); }
 }
 
 =item chmod($mode, $file)
@@ -356,7 +371,7 @@ sub chmod {
    }
 
    run "chmod $recursive $mode $file";
-   if($? == 0) { return 1; }
+   if($? != 0) { die("Can't chmod $file"); }
 }
 
 
@@ -392,8 +407,8 @@ sub stat {
 
    Rex::Logger::debug("Getting fs stat from $_[0]");
 
-   if(my $ssh = Rex::is_ssh()) {
-      %ret = $ssh->sftp->stat($_[0]);
+   if(my $sftp = Rex::get_sftp()) {
+      %ret = $sftp->stat($_[0]);
       
       unless(%ret) {
          Rex::Logger::debug("Can't stat $_[0]");
@@ -438,12 +453,12 @@ This function tests if $file is a file. Returns 1 if true. 0 if false.
 sub is_file {
    Rex::Logger::debug("Checking if $_[0] is a file");
    
-   if(my $ssh = Rex::is_ssh()) {
-      if( $ssh->sftp->opendir($_[0]) ) {
+   if(my $sftp = Rex::get_sftp()) {
+      if( $sftp->opendir($_[0]) ) {
          return 0;
       }
 
-      if( ! $ssh->sftp->open($_[0], O_RDONLY) ) {
+      if( ! $sftp->open($_[0], O_RDONLY) ) {
          return 0;
       }
    } else {
@@ -473,8 +488,8 @@ This function tests if $dir is a directory. Returns 1 if true. 0 if false.
 sub is_dir {
    Rex::Logger::debug("Checking if $_[0] is a directory");
 
-   if(my $ssh = Rex::is_ssh()) {
-      if( ! $ssh->sftp->opendir($_[0]) ) {
+   if(my $sftp = Rex::get_sftp()) {
+      if( ! $sftp->opendir($_[0]) ) {
          return 0;
       }
    } else {
@@ -582,8 +597,8 @@ sub readlink {
    my $link;
    Rex::Logger::debug("Reading link of $_[0]");
 
-   if(my $ssh = Rex::is_ssh()) {
-      $link = $ssh->sftp->readlink($_[0]);
+   if(my $sftp = Rex::get_sftp()) {
+      $link = $sftp->readlink($_[0]);
    } else {
       $link = CORE::readlink($_[0]);
    }
@@ -612,17 +627,17 @@ sub rename {
    Rex::Logger::debug("Renaming $old to $new");
 
    my $ret;
-   if(my $ssh = Rex::is_ssh()) {
-      $ret = $ssh->sftp->rename($old, $new);
+   if(my $sftp = Rex::get_sftp()) {
+      $ret = $sftp->rename($old, $new);
    } else {
       $ret = CORE::rename($old, $new);
    }
 
    unless($ret) {
       Rex::Logger::info("Rename failed ($old -> $new)");
+      die("Rename failed $old -> $new");
    }
 
-   return $ret;
 }
 
 =item mv($old, $new)
@@ -734,6 +749,9 @@ sub cp {
    my ($source, $dest) = @_;
 
    run "cp -a $source $dest";
+   if($? != 0) {
+      die("Copy failed from $source to $dest");
+   }
 }
 
 =item mount($device, $mount_point, @options)
@@ -759,9 +777,7 @@ sub mount {
                            $mount_point);
 
    run $cmd;
-   if($? == 0) { return 1; }
-
-   return 0;
+   if($? != 0) { die("Mount failed of $mount_point"); }
 }
 
 =item umount($mount_point)
@@ -777,8 +793,29 @@ sub umount {
    my ($mount_point) = @_;
    run "umount $mount_point";
 
-   if($? == 0) { return 1; }
-   return 0;
+   if($? != 0) { die("Umount failed of $mount_point"); }
+}
+
+=item glob($glob)
+
+ task "glob", "server1", sub {
+    my @files_with_p = grep { is_file($_) } glob("/etc/p*");
+ };
+
+=cut
+sub glob {
+   my ($glob) = @_;
+
+   if(my $ssh = Rex::is_ssh()) {
+      my $content = run "perl -MData::Dumper -le'print Dumper [ glob(\"$glob\") ]'";
+      $content =~ s/^\$VAR1 =/return /;
+      my $tmp = eval $content;
+      return @{$tmp};
+   }
+   else {
+      return CORE::glob($glob);
+   }
+   
 }
 
 =back

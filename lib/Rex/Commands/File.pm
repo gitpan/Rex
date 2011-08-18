@@ -93,6 +93,10 @@ sub template {
    }
 
    my $template = Rex::Template->new;
+   if(! -f $file) {
+      die("$file not found");
+   }
+
    my $content = eval { local(@ARGV, $/) = ($file); <>; };
 
    my %merge1 = %{$param || {}};
@@ -128,7 +132,9 @@ sub file {
    my $on_change = $option->{"on_change"} || sub {};
 
    my ($new_md5, $old_md5);
-   $old_md5 = md5($file);
+   eval {
+      $old_md5 = md5($file);
+   };
 
    unless($file =~ m/^\//) {
       # path is relative
@@ -152,7 +158,9 @@ sub file {
       upload $option->{"source"}, "$file";
    }
 
-   $new_md5 = md5($file);
+   eval {
+      $new_md5 = md5($file);
+   };
 
    if(exists $option->{"mode"}) {
       chmod($option->{"mode"}, $file);
@@ -166,7 +174,10 @@ sub file {
       chown($option->{"owner"}, $file);
    }
 
-   unless($old_md5 eq $new_md5) {
+   unless($old_md5 && $new_md5 && $old_md5 eq $new_md5) {
+      $old_md5 ||= "";
+      $new_md5 ||= "";
+
       Rex::Logger::debug("File $file has been changed... Running on_change");
       Rex::Logger::debug("old: $old_md5");
       Rex::Logger::debug("new: $new_md5");
@@ -204,8 +215,8 @@ sub file_write {
 
    Rex::Logger::debug("Opening file: $file for writing.");
 
-   if(my $ssh = Rex::is_ssh()) {
-      $fh = $ssh->sftp->open($file, O_WRONLY | O_CREAT | O_TRUNC );
+   if(my $sftp = Rex::get_sftp()) {
+      $fh = $sftp->open($file, O_WRONLY | O_CREAT | O_TRUNC );
    } else {
       open($fh, ">", $file) or die($!);
    }
@@ -228,14 +239,14 @@ sub file_append {
 
    Rex::Logger::debug("Opening file: $file for appending.");
 
-   if(my $ssh = Rex::is_ssh()) {
+   if(my $sftp = Rex::get_sftp()) {
       if(is_file($file)) {
-         $fh = $ssh->sftp->open($file, O_WRONLY | O_APPEND );
+         $fh = $sftp->open($file, O_WRONLY | O_APPEND );
          my %stat = stat "$file";
          $fh->seek($stat{size});
       } 
       else {
-         $fh = $ssh->sftp->open($file, O_WRONLY | O_CREAT | O_TRUNC );
+         $fh = $sftp->open($file, O_WRONLY | O_CREAT | O_TRUNC );
       }
    } else {
       open($fh, ">>", $file) or die($!);
@@ -278,8 +289,8 @@ sub file_read {
 
    Rex::Logger::debug("Opening file: $file for reading.");
 
-   if(my $ssh = Rex::is_ssh()) {
-      $fh = $ssh->sftp->open($file, O_RDONLY);
+   if(my $sftp = Rex::get_sftp()) {
+      $fh = $sftp->open($file, O_RDONLY);
    } else {
       open($fh, "<", $file) or die($!);
    }
@@ -304,6 +315,9 @@ sub cat {
    my ($file) = @_;
 
    my $fh = file_read($file);
+   unless($fh) {
+      die("Can't open $file for reading");
+   }
    my $content = $fh->read_all;
    $fh->close;
 
@@ -324,18 +338,21 @@ sub delete_lines_matching {
 
    if(! is_file($file)) {
       Rex::Logger::info("File: $file not found.");
-      return;
+      die("$file not found");
    }
 
    if(! is_writable($file)) {
       Rex::Logger::info("File: $file not writable.");
-      return;
+      die("$file not writable");
    }
 
    my $nl = $/;
    my @content = split(/$nl/, cat ($file));
 
    my $fh = file_write $file;
+   unless($fh) {
+      die("Can't open $file for writing");
+   }
 
    OUT:
    for my $line (@content) {
@@ -369,12 +386,12 @@ sub append_if_no_such_line {
 
    if(! is_file($file)) {
       Rex::Logger::info("File: $file not found.");
-      return;
+      die("$file not found");
    }
 
    if(! is_writable($file)) {
       Rex::Logger::info("File: $file not writable.");
-      return;
+      die("$file not writable");
    }
 
    my $nl = $/;
@@ -394,6 +411,9 @@ sub append_if_no_such_line {
 
    push @content, $new_line;
    my $fh = file_write $file;
+   unless($fh) {
+      die("Can't open $file for writing");
+   }
    $fh->write(join($nl, @content));
    $fh->close;
 
