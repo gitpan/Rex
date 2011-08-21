@@ -9,6 +9,7 @@ package Rex::Pkg;
 use strict;
 use warnings;
 
+use Rex::Commands::Gather;
 use Rex::Hardware;
 use Rex::Hardware::Host;
 use Rex::Logger;
@@ -21,10 +22,6 @@ sub get {
 
    if(lc($host->{"operatingsystem"}) eq "centos" || lc($host->{"operatingsystem"}) eq "redhat") {
       $host->{"operatingsystem"} = "Redhat";
-   }
-
-   if($host->{"operatingsystem"} eq "Ubuntu") {
-      $host->{"operatingsystem"} = "Debian";
    }
 
    my $class = "Rex::Pkg::" . $host->{"operatingsystem"};
