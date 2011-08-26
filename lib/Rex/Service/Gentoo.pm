@@ -4,7 +4,7 @@
 # vim: set ts=3 sw=3 tw=0:
 # vim: set expandtab:
 
-package Rex::Service::Ubuntu;
+package Rex::Service::Gentoo;
 
 use strict;
 use warnings;
@@ -25,7 +25,7 @@ sub new {
 sub start {
    my($self, $service) = @_;
 
-   run "service $service start";
+   run "/etc/init.d/$service start";
 
    if($? == 0) {
       return 1;
@@ -37,7 +37,7 @@ sub start {
 sub restart {
    my($self, $service) = @_;
 
-   run "service $service restart";
+   run "/etc/init.d/$service restart";
 
    if($? == 0) {
       return 1;
@@ -49,7 +49,7 @@ sub restart {
 sub stop {
    my($self, $service) = @_;
 
-   run "service $service stop";
+   run "/etc/init.d/$service stop";
 
    if($? == 0) {
       return 1;
@@ -61,7 +61,7 @@ sub stop {
 sub reload {
    my($self, $service) = @_;
 
-   run "service $service reload";
+   run "/etc/init.d/$service reload";
 
    if($? == 0) {
       return 1;
@@ -73,13 +73,13 @@ sub reload {
 sub status {
    my($self, $service) = @_;
 
-   my @ret = run "service $service status";
+   run "/etc/init.d/$service status";
 
-   if(grep { /stop\// } @ret) {
-      return 0;
+   if($? == 0) {
+      return 1;
    }
 
-   return 1;
+   return 0;
 }
 
 sub ensure {
@@ -87,13 +87,12 @@ sub ensure {
 
    if($what =~  /^stop/) {
       $self->stop($service);
-      run "update-rc.d -f $service remove";
+      run "rc-update del $service";
    }
    elsif($what =~ /^start/) {
       $self->start($service);
-      run "update-rc.d $service defaults";
+      run "rc-update add $service";
    }
 }
-
 
 1;
