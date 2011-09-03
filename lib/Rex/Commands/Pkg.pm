@@ -41,6 +41,7 @@ use Rex::Hardware;
 use Rex::Commands::MD5;
 use Rex::Commands::Upload;
 use Rex::Commands::Run;
+use Rex::Config;
 
 use Data::Dumper;
 use Digest::MD5;
@@ -50,7 +51,7 @@ require Exporter;
 use base qw(Exporter);
 use vars qw(@EXPORT);
 
-@EXPORT = qw(install remove installed_packages update_package_db repository);
+@EXPORT = qw(install remove installed_packages update_package_db repository package_provider_for);
 
 =item install($type, $data, $options)
 
@@ -125,24 +126,7 @@ sub install {
    my ($type, $package, $option) = @_;
 
 
-   if($type eq "package") {
-
-      my $pkg = Rex::Pkg->get;
-
-      if(!ref($package)) {
-         $package = [$package];
-      }
-
-      for my $pkg_to_install (@{$package}) {
-         unless($pkg->is_installed($pkg_to_install)) {
-            Rex::Logger::info("Installing $pkg_to_install.");
-            $pkg->install($pkg_to_install, $option);
-         }
-      }
-
-   }
-
-   elsif($type eq "file") {
+   if($type eq "file") {
 
       Rex::Logger::debug("The install file => ... call is deprecated. Please use 'file' instead.");
       Rex::Logger::debug("This directive will be removed with (R)?ex 2.0");
@@ -226,10 +210,23 @@ sub install {
    
    }
 
-   else {
+   elsif($type eq "package") {
       
-      Rex::Logger::info("$type not supported.");
-      die("install $type not supported");
+      my $pkg;
+      
+      $pkg = Rex::Pkg->get;
+
+      if(!ref($package)) {
+         $package = [$package];
+      }
+
+      for my $pkg_to_install (@{$package}) {
+         unless($pkg->is_installed($pkg_to_install)) {
+            Rex::Logger::info("Installing $pkg_to_install.");
+            $pkg->install($pkg_to_install, $option);
+         }
+      }
+     
 
    }
 
@@ -260,7 +257,7 @@ sub remove {
       for my $_pkg (@{$package}) {
          if($pkg->is_installed($_pkg)) {
             Rex::Logger::info("Removing $_pkg.");
-            $pkg->remove($_pkg);
+            $pkg->remove($_pkg, $option);
          }
          else {
             Rex::Logger::info("$_pkg is not installed.");
@@ -358,6 +355,27 @@ sub repository {
    elsif($action eq "remove" || $action eq "delete") {
       $pkg->rm_repository(%data);
    }
+}
+
+=item package_provider_for $os => $type;
+
+To set an other package provider as the default, use this function.
+
+ user "root";
+     
+ group "db" => "db[01..10]";
+ package_provider_for SunOS => "blastwave";
+    
+ task "prepare", group => "db", sub {
+     install package => "vim";
+ };
+ 
+This example will install I<vim> on every db server. If the server is a Solaris (SunOS) it will use the I<blastwave> Repositories.
+
+=cut
+sub package_provider_for {
+   my ($os, $provider) = @_;
+   Rex::Config->set("package_provider", {$os => $provider});
 }
 
 =back

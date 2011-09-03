@@ -116,15 +116,14 @@ sub can_run {
       return 1;
    }
 
-   if($cmd =~ m/^\//) {
-      if(is_file($cmd)) {
-         return 1;
-      }
+   my @ret = run "which $cmd";
+   if($? != 0) { return 0; }
+
+   if( grep { /^no.*in/ } @ret ) {
+      return 0;
    }
-   else {
-      run "which $cmd";
-      if($? == 0) { return 1; }
-   }
+
+   return 1;
 }
 
 =item sudo($command)

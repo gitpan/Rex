@@ -9,6 +9,7 @@ package Rex::Pkg;
 use strict;
 use warnings;
 
+use Rex::Config;
 use Rex::Commands::Gather;
 use Rex::Hardware;
 use Rex::Hardware::Host;
@@ -18,7 +19,10 @@ use Data::Dumper;
 
 sub get {
 
+   my ($self) = @_;
+
    my $host = Rex::Hardware::Host->get();
+   my $pkg_provider_for = Rex::Config->get("package_provider") || {};
 
    #if(lc($host->{"operatingsystem"}) eq "centos" || lc($host->{"operatingsystem"}) eq "redhat") {
    if(is_redhat()) {
@@ -26,12 +30,24 @@ sub get {
    }
 
    my $class = "Rex::Pkg::" . $host->{"operatingsystem"};
+
+   my $provider;
+   if(exists $pkg_provider_for->{$host->{"operatingsystem"}}) {
+      $provider = $pkg_provider_for->{$host->{"operatingsystem"}};
+      $class .= "::$provider";
+   }
+
    eval "use $class";
 
    if($@) {
    
-      Rex::Logger::info("OS not supported (" . $host->{"operatingsystem"} . ")");
-      exit 1;
+      if($provider) {
+         Rex::Logger::info("Provider not supported (" . $provider . ")");
+      }
+      else {
+         Rex::Logger::info("OS not supported (" . $host->{"operatingsystem"} . ")");
+      }
+      die("OS/Provider not supported");
    
    }
 
