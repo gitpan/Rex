@@ -78,6 +78,8 @@ This module is the core commands module.
 
 =item * Manage user and group accounts L<Rex::Commands::User>
 
+=item * Manage your virtual environments L<Rex::Commands::Virtualization>
+
 =back
 
 =head1 EXPORTED FUNCTIONS
@@ -113,6 +115,8 @@ use base qw(Exporter);
             environment
             LOCAL
             path
+            set
+            get
           );
 
 =item no_ssh([$task])
@@ -367,7 +371,7 @@ Set the maximum number of connection retries.
 
 =cut
 sub max_connect_retries {
-   Rex::Config->set_connect_fails(@_);
+   Rex::Config->set_max_connect_fails(@_);
 }
 
 =item get_random($count, @chars)
@@ -384,7 +388,7 @@ sub get_random {
 	
 	srand();
 	my $ret = "";
-	for(0..$count) {
+	for(1..$count) {
 		$ret .= $chars[int(rand(scalar(@chars)-1))];
 	}
 	
@@ -657,10 +661,51 @@ Set the execution path for all commands.
 
 =cut
 sub path {
-   Rex::Config->set_path(@_);
+   Rex::Config->set_path([@_]);
+}
+
+=item set($key, $value)
+
+Set a configuration parameter. These Variables can be used in templates as well.
+
+ set database => "db01";
+      
+ task "prepare", sub {
+    my $db = get "database";
+ };
+
+Or in a template
+
+ DB: <%= $::database %>
+
+=cut
+sub set {
+   my ($key, $value) = @_;
+   Rex::Config->set($key, $value);
+}
+
+=item get($key, $value)
+
+Get a configuration parameter.
+
+ set database => "db01";
+      
+ task "prepare", sub {
+    my $db = get "database";
+ };
+
+Or in a template
+
+ DB: <%= $::database %>
+
+=cut
+sub get {
+   my ($key) = @_;
+   return Rex::Config->get($key);
 }
 
 =back
+
 
 =cut
 

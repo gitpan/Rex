@@ -56,6 +56,8 @@ use Rex::FS::File;
 use Rex::Commands::Fs;
 use Rex::Commands::Upload;
 use Rex::Commands::MD5;
+use Rex::Commands::Run;
+use Rex::Helper::Hash;
 
 use File::Basename qw(dirname);
 
@@ -65,7 +67,8 @@ use base qw(Exporter);
 @EXPORT = qw(file_write file_close file_read file_append 
                cat
                delete_lines_matching append_if_no_such_line
-               file template);
+               file template
+               extract);
 
 use vars qw(%file_handles);
 
@@ -102,6 +105,29 @@ sub template {
    my %merge1 = %{$param || {}};
    my %merge2 = Rex::Hardware->get(qw/ All /);
    my %template_vars = (%merge1, %merge2);
+
+   for my $info_key (qw(Network Host Kernel Memory Swap)) {
+
+      my $flatten_info = {};
+
+      if($info_key eq "Memory") {
+         hash_flatten($merge2{$info_key}, $flatten_info, "_", "memory");
+      }
+      elsif($info_key eq "Swap") {
+         hash_flatten($merge2{$info_key}, $flatten_info, "_", "swap");
+      }
+      elsif($info_key eq "Network") {
+         hash_flatten($merge2{$info_key}->{"networkconfiguration"}, $flatten_info, "_");
+      }
+      else {
+         hash_flatten($merge2{$info_key}, $flatten_info, "_");
+      }
+
+      for my $key (keys %{$flatten_info}) {
+         $template_vars{$key} = $flatten_info->{$key};
+      }
+
+   }
 
    return $template->parse($content, \%template_vars);
 }
@@ -419,6 +445,34 @@ sub append_if_no_such_line {
 
 }
 
+=item extract($file)
+
+This function extracts a file. Supported formats are .tar.gz, .tgz, .tar.Z, .tar.bz2, .tbz2, .zip, .gz, .bz2, .war, .jar.
+
+=cut
+sub extract {
+   my ($file) = @_;
+
+   if($file =~ m/\.tar\.gz$/ || $file =~ m/\.tgz$/ || $file =~ m/\.tar\.Z$/) {
+      run "gunzip -c $file | tar -xf -";
+   }
+   elsif($file =~ m/\.tar\.bz2/ || $file =~ m/\.tbz2/) {
+      run "bunzip2 -c $file | tar -xf -";
+   }
+   elsif($file =~ m/\.(zip|war|jar)$/) {
+      run "unzip -o $file";
+   }
+   elsif($file =~ m/\.gz$/) {
+      run "gunzip $file";
+   }
+   elsif($file =~ m/\.bz2$/) {
+      run "bunzip2 $file";
+   }
+   else {
+      Rex::Logger::info("File not supported.");
+      die("File ($file) not supported.");
+   }
+}
 
 =back
 
