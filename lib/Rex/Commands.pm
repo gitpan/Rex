@@ -105,7 +105,7 @@ use vars qw(@EXPORT $current_desc $global_no_ssh $environments);
 use base qw(Exporter);
 
 @EXPORT = qw(task desc group 
-            user password sudo_password public_key private_key pass_auth no_ssh
+            user password port sudo_password public_key private_key pass_auth no_ssh
             get_random do_task batch timeout max_connect_retries parallelism
             exit
             evaluate_hostname
@@ -345,6 +345,16 @@ sub password {
    Rex::Config->set_password(@_);
 }
 
+=item port($port)
+
+Set the port where the ssh server is listening.
+
+=cut
+
+sub port {
+   Rex::Config->set_port(@_);
+}
+
 =item sudo_password($password)
 
 Set the password for the sudo command.
@@ -491,7 +501,15 @@ With this function you can define the logging behaviour of (R)?ex.
 =cut
 
 sub logging {
-   my $args = { @_ };
+   my $args;
+
+   if($_[0] eq "-nolog" || $_[0] eq "nolog") {
+      $Rex::Logger::silent = 1 unless $Rex::Logger::debug;
+      return;
+   }
+   else {
+      $args = { @_ };
+   }
 
    if(exists $args->{'to_file'}) {
       Rex::Config->set_log_filename($args->{'to_file'});
@@ -622,11 +640,16 @@ Calling this task I<rex -E stage prepare> will execute on stagewww01.
 
 =cut
 sub environment {
-   my ($name, $code) = @_;
-   $environments->{$name} = $code;
+   if(@_) {
+      my ($name, $code) = @_;
+      $environments->{$name} = $code;
 
-   if(Rex::Config->get_environment eq $name) {
-      &$code();
+      if(Rex::Config->get_environment eq $name) {
+         &$code();
+      }
+   }
+   else {
+      return Rex::Config->get_environment;
    }
 }
 
@@ -680,8 +703,8 @@ Or in a template
 
 =cut
 sub set {
-   my ($key, $value) = @_;
-   Rex::Config->set($key, $value);
+   my ($key, @value) = @_;
+   Rex::Config->set($key, @value);
 }
 
 =item get($key, $value)

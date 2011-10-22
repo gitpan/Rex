@@ -37,7 +37,20 @@ With this module you can manipulate files.
  delete_lines_matching "/var/log/auth.log", matching => qr{Failed};
  delete_lines_matching "/var/log/auth.log", 
                         matching => "root", qr{Failed}, "nobody";
-
+    
+ file "/path/on/the/remote/machine",
+    source => "/path/on/local/machine";
+    
+ file "/path/on/the/remote/machine",
+    content => "foo bar";
+    
+ file "/path/on/the/remote/machine",
+    source => "/path/on/local/machine",
+    owner  => "root",
+    group  => "root",
+    mode   => 400,
+    on_change => sub { say "File was changed."; };
+ 
 =head1 EXPORTED FUNCTIONS
 
 =over 4
@@ -52,6 +65,7 @@ use Fcntl;
 
 require Exporter;
 use Data::Dumper;
+use Rex::Config;
 use Rex::FS::File;
 use Rex::Commands::Fs;
 use Rex::Commands::Upload;
@@ -93,6 +107,17 @@ sub template {
 
       Rex::Logger::debug("New filename: $d");
       $file = $d;
+   }
+
+   # if there is a file called filename.environment then use this file
+   # ex: 
+   # $content = template("files/hosts.tpl");
+   # 
+   # rex -E live ...
+   # will first look if files/hosts.tpl.live is available, if not it will
+   # use files/hosts.tpl
+   if(-f "$file." . Rex::Config->get_environment) {
+      $file = "$file." . Rex::Config->get_environment;
    }
 
    my $template = Rex::Template->new;
@@ -139,16 +164,25 @@ sub template {
 This function is the successor of I<install file>. Please use this function to upload files to you server.
 
  task "prepare", "server1", "server2", sub {
-    file "/etc/passwd",
-       source => "/files/etc/passwd";
-    
-    file "/etc/passwd",
-       content => template("/files/templates/etc/passwd.tpl");
-     
+    file "/file/on/remote/machine",
+       source => "/file/on/local/machine";
+       
+    file "/etc/hosts",
+       content => template("templates/etc/hosts.tpl"),
+       owner   => "user",
+       group   => "group",
+       mode    => 700,
+       on_change => sub { say "Something was changed." };
+        
+    file "/etc/motd",
+       content => `fortune`;
+      
     file "/etc/httpd/conf/httpd.conf",
        source => "/files/etc/httpd/conf/httpd.conf",
        on_change => sub { service httpd => "restart"; };
  };
+
+If I<source> is relative it will search from the location of your I<Rexfile>.
 
 =cut
 sub file {

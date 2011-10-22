@@ -35,7 +35,6 @@ sub create_task {
       $func = pop;
    }
 
-   my $group = 'ALL';
    my @server = ();
 
    if($::FORCE_SERVER) {
@@ -51,23 +50,32 @@ sub create_task {
 
       if(scalar(@_) >= 1) {
          if($_[0] eq "group") {
-            $group = $_[1];
-            if(Rex::Group->is_group($group)) {
-               Rex::Logger::debug("\tusing group: $group -> " . join(", ", Rex::Group->get_group($group)));
+            my $groups;
+            if(ref($_[1]) eq "ARRAY") {
+               $groups = $_[1];
+            }
+            else {
+               $groups = [ $_[1] ];
+            }
+            
+            for my $group (@{$groups}) {
+               if(Rex::Group->is_group($group)) {
+                  Rex::Logger::debug("\tusing group: $group -> " . join(", ", Rex::Group->get_group($group)));
 
-               for my $server_name (Rex::Group->get_group($group)) {
-                  if(ref($server_name) eq "CODE") {
-                     push(@server, $server_name);
+                  for my $server_name (Rex::Group->get_group($group)) {
+                     if(ref($server_name) eq "CODE") {
+                        push(@server, $server_name);
+                     }
+                     else {
+                        push(@server, Rex::Commands::evaluate_hostname($server_name));
+                     }
                   }
-                  else {
-                     push(@server, Rex::Commands::evaluate_hostname($server_name));
-                  }
+
+                  Rex::Logger::debug("\tserver: $_") for @server;
+               } else {
+                  Rex::Logger::info("Group $group not found!");
+                  exit 1;
                }
-
-               Rex::Logger::debug("\tserver: $_") for @server;
-            } else {
-               Rex::Logger::info("Group $group not found!");
-               exit 1;
             }
          } else {
             push @server, Rex::Commands::evaluate_hostname($_) for @_;
@@ -81,7 +89,13 @@ sub create_task {
       func => $func,
       server => [ @server ],
       desc => $desc,
-      no_ssh => ($options->{"no_ssh"}?1:0)
+      no_ssh => ($options->{"no_ssh"}?1:0),
+      auth => {
+         user        => Rex::Config->get_user,
+         password    => Rex::Config->get_password,
+         private_key => Rex::Config->get_private_key,
+         public_key  => Rex::Config->get_public_key,
+      },
    };
 
 }
@@ -137,6 +151,7 @@ sub run {
    my $ret;
 
    Rex::Logger::info("Running task: $task");
+
    # get servers belonging to the task
    my @server = @{$tasks{$task}->{'server'}};
    Rex::Logger::debug("\tserver: $_") for @server;
@@ -159,21 +174,26 @@ sub run {
       @server = ($server_overwrite);
    }
 
-   my($user, $pass, $pass_auth);
+   my($user, $pass, $private_key, $public_key);
    if(ref($server[-1]) eq "HASH") {
       # use extra defined credentials
       my $data = pop(@server);
       $user = $data->{'user'};
       $pass = $data->{'password'};
-      $pass_auth = 1;
+      if(exists $data->{"private_key"}) {
+         $private_key = $data->{"private_key"};
+         $public_key  = $data->{"public_key"};
+      }
    } else {
-      $user = Rex::Config->get_user;
-      $pass = Rex::Config->get_password;
-      $pass_auth = Rex::Config->get_password_auth;
+      $user = $tasks{$task}->{"auth"}->{"user"};
+      $pass = $tasks{$task}->{"auth"}->{"password"};
+      $private_key = $tasks{$task}->{"auth"}->{"private_key"};
+      $public_key  = $tasks{$task}->{"auth"}->{"public_key"};
    }
 
+   $user ||= "";
    Rex::Logger::debug("Using user: $user");
-   Rex::Logger::debug("Using password: " . ($pass?$pass:"<no password>"));
+   Rex::Logger::debug("Using password: " . ($pass?"***********":"<no password>"));
 
    my $timeout = Rex::Config->get_timeout;
 
@@ -214,17 +234,23 @@ sub run {
          my $forked_sub = sub {
             my $ssh;
 
-            # this must be a ssh connection
-            if(! $tasks{$task}->{"no_ssh"} && $server ne "localhost" && $server ne $shortname) {
-               $ssh = Net::SSH2->new;
+            # reconnect to logger
+            Rex::Logger::init();
 
+            # this must be a ssh connection
+            if(! $tasks{$task}->{"no_ssh"}) {
+               $ssh = Net::SSH2->new;
 
                my $fail_connect = 0;
 
-
-               Rex::Logger::info("Connecting to $server (" . $user . ")");
                CON_SSH:
-                  unless($ssh->connect($server, 22, Timeout => Rex::Config->get_timeout)) {
+                  my $port = Rex::Config->get_port || 22;
+                  if($server =~ m/^(.*?):(\d+)$/) {
+                     $server = $1;
+                     $port   = $2;
+                  }
+                  Rex::Logger::info("Connecting to $server:$port (" . $user . ")");
+                  unless($ssh->connect($server, $port, Timeout => Rex::Config->get_timeout)) {
                      ++$fail_connect;
                      sleep 1;
                      goto CON_SSH if($fail_connect < Rex::Config->get_max_connect_fails); # try connecting 3 times
@@ -238,14 +264,10 @@ sub run {
                Rex::Logger::info("Connected to $server, trying to authenticate.");
 
                my $auth_ret;
-               if($pass_auth) {
-                  $auth_ret = $ssh->auth_password($user, $pass);
-               } else {
-                  $auth_ret = $ssh->auth_publickey($user, 
-                                          Rex::Config->get_public_key, 
-                                          Rex::Config->get_private_key, 
-                                          $pass);
-               }
+               $auth_ret = $ssh->auth('username' => $user,
+                                      'password' => $pass,
+                                      'publickey' => $public_key,
+                                      'privatekey' => $private_key);
 
                # push a remote connection
                Rex::push_connection({ssh => $ssh, server => $server, sftp => $ssh->sftp?$ssh->sftp:undef, cache => Rex::Cache->new});
@@ -265,7 +287,7 @@ sub run {
                # this is a remote session without a ssh connection
                # for example for libvirt.
 
-               Rex::Logger::debug("This is a remote session with NO_SSH");
+               #Rex::Logger::debug("This is a remote session with NO_SSH");
                Rex::push_connection({ssh => 0, server => $server, sftp => 0, cache => Rex::Cache->new});
 
             }
@@ -282,7 +304,9 @@ sub run {
             # remove remote connection from the stack
             Rex::pop_connection();
 
-            CORE::exit unless($IN_TRANSACTION); # exit child
+            # close logger
+            Rex::Logger::shutdown();
+
          }; # [END] $forked_sub
 
          # add the worker (forked_sub) to the fork queue
@@ -302,6 +326,8 @@ sub run {
 
    } else {
 
+      Rex::Logger::init();
+
       Rex::Logger::debug("This is not a remote session");
       # push a local connection
       Rex::push_connection({ssh => 0, server => "<local>", sftp => 0, cache => Rex::Cache->new});
@@ -310,6 +336,8 @@ sub run {
 
       # remove local connection from stack
       Rex::pop_connection();
+
+      Rex::Logger::shutdown();
    }
 
    return $ret;

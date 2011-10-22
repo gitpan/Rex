@@ -11,12 +11,13 @@ use warnings;
 
 use Rex::Logger;
 
-use vars qw($user $password 
+use vars qw($user $password $port 
             $timeout $max_connect_fails
             $password_auth $public_key $private_key $parallelism $log_filename $log_facility $sudo_password
             $path
             $set_param
-            $environment);
+            $environment
+            $SET_HANDLER);
 
 sub set_path {
    my $class = shift;
@@ -38,6 +39,11 @@ sub set_user {
 sub set_password {
    my $class = shift;
    $password = shift;
+}
+
+sub set_port {
+   my $class = shift;
+   $port = shift;
 }
 
 sub set_sudo_password {
@@ -67,6 +73,11 @@ sub get_user {
 sub get_password {
    my $class = shift;
    return $password;
+}
+
+sub get_port {
+   my $class = shift;
+   return $port;
 }
 
 sub get_sudo_password {
@@ -155,12 +166,21 @@ sub set_environment {
 }
 
 sub get_environment {
-   return $environment;
+   return $environment || "";
 }
 
+sub register_set_handler {
+   my ($class, $handler_name, $code) = @_;
+   $SET_HANDLER->{$handler_name} = $code;
+}
 
 sub set {
    my ($class, $var, $data) = @_;
+
+   if(exists($SET_HANDLER->{$var})) {
+      shift; shift;
+      return &{ $SET_HANDLER->{$var} }(@_);
+   }
 
    if(ref($data) eq "HASH") {
       for my $key (keys %{$data}) {
