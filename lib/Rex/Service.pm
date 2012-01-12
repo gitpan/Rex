@@ -10,6 +10,7 @@ use strict;
 use warnings;
 
 use Rex::Config;
+use Rex::Commands::Run;
 use Rex::Commands::Gather;
 use Rex::Hardware;
 use Rex::Hardware::Host;
@@ -25,19 +26,28 @@ sub get {
 
    my $class = "Rex::Service::" . $host->{"operatingsystem"};
 
+   if(is_redhat() && can_run("systemctl")) {
+      $class = "Rex::Service::Redhat::systemd";
+   }
+
+   if(is_suse() && can_run("systemctl")) {
+      $class = "Rex::Service::SuSE::systemd";
+   }
+
    my $provider_for = Rex::Config->get("service_provider") || {};
    my $provider;
 
    if(exists $provider_for->{$host->{"operatingsystem"}}) {
       $provider = $provider_for->{$host->{"operatingsystem"}};
-      $class .= "::$provider";
+      $class .= "::\L$provider";
    }
 
+   Rex::Logger::debug("service using class: $class");
    eval "use $class";
 
    if($@) {
    
-      Rex::Logger::info("OS not supported");
+      Rex::Logger::info("OS (" . $host->{"operatingsystem"} . ") not supported");
       exit 1;
    
    }

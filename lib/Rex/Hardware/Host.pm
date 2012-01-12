@@ -72,6 +72,9 @@ sub get_operating_system {
 
    if($is_lsb) {
       if(my $ret = run "lsb_release -s -i") {
+         if($ret eq "SUSE LINUX") {
+            $ret = "SuSE";
+         }
          return $ret;
       }
    }
@@ -153,7 +156,7 @@ sub get_operating_system_version {
 
       chomp $content;
 
-      $content =~ m/(\d+\.\d+)/;
+      $content =~ m/(\d+(\.\d+)?)/;
 
       return $1;
 

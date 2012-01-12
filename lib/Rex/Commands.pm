@@ -105,7 +105,7 @@ use vars qw(@EXPORT $current_desc $global_no_ssh $environments);
 use base qw(Exporter);
 
 @EXPORT = qw(task desc group 
-            user password port sudo_password public_key private_key pass_auth no_ssh
+            user password port sudo_password public_key private_key pass_auth key_auth no_ssh
             get_random do_task batch timeout max_connect_retries parallelism
             exit
             evaluate_hostname
@@ -117,6 +117,7 @@ use base qw(Exporter);
             path
             set
             get
+            before after around
           );
 
 =item no_ssh([$task])
@@ -459,7 +460,7 @@ sub private_key {
 
 =item pass_auth
 
-If you want to user password authentication, then you need to call I<pass_auth>.
+If you want to use password authentication, then you need to call I<pass_auth>.
 
  user "root";
  password "root";
@@ -471,6 +472,22 @@ If you want to user password authentication, then you need to call I<pass_auth>.
 sub pass_auth {
    Rex::Config->set_password_auth(1);
 }
+
+=item key_auth
+
+If you want to use pubkey authentication, then you need to call I<key_auth>.
+
+ user "root";
+ password "root";
+ 
+ pass_auth;
+
+=cut
+
+sub key_auth {
+   Rex::Config->set_key_auth(1);
+}
+
 
 =item parallelism($count)
 
@@ -525,6 +542,8 @@ sub logging {
 =item needs($package [, @tasks])
 
 With I<needs> you can define dependencies between tasks. The "needed" tasks will be called with the same server configuration as the calling task.
+
+I<needs> will not execute before, around and after hooks.
 
 =over 4
 
@@ -729,8 +748,60 @@ sub get {
 
 =back
 
+=cut
+
+=item before($task => sub {})
+
+Run code before connecting to the server.
+
+ before mytask => sub {
+   my ($server) = @_;
+   run "vzctl start vm$server";
+ };
 
 =cut
+sub before {
+   my ($task, $code) = @_;
+   Rex::Task->modify_task($task, "before", $code);
+}
+
+=item after($task => sub {})
+
+Run code after the task is finished.
+
+ after mytask => sub {
+   my ($server, $failed) = @_;
+   if($failed) { say "Connection to $server failed."; }
+
+   run "vzctl stop vm$server";
+ };
+
+=cut
+sub after {
+   my ($task, $code) = @_;
+   Rex::Task->modify_task($task, "after", $code);
+}
+
+=item around($task => sub {})
+
+Run code before and after the task is finished.
+
+ around mytask => sub {
+   my ($server, $position) = @_;
+
+   unless($position) {
+      say "Before Task\n";
+   }
+   else {
+      say "After Task\n";
+   }
+ };
+
+=cut
+sub around {
+   my ($task, $code) = @_;
+   Rex::Task->modify_task($task, "around", $code);
+}
 
 ######### private functions
 
