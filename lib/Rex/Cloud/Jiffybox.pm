@@ -121,18 +121,6 @@ sub list_operating_systems {
    return $self->_result_to_array($data, "os_id");
 }
 
-=item run_instance(%data)
-
- $o->run_instance(
-   name         => "Name01",
-   plan_id      => 10,
-   image_id     => "ubuntu_8_4_lts_64bit",
-   password     => "...", # optional
-   key          => 1, # optional
-   metadata     => "{json...}" # optional
- );
-
-=cut
 sub run_instance {
    my ($self, %data) = @_;
 
@@ -177,6 +165,8 @@ sub run_instance {
    }
 
    $self->start_instance(instance_id => $instance_id);
+
+   return $data;
 
 }
 

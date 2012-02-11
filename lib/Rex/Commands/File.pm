@@ -71,7 +71,8 @@ use Rex::Commands::Fs;
 use Rex::Commands::Upload;
 use Rex::Commands::MD5;
 use Rex::Commands::Run;
-use Rex::Helper::Hash;
+use Rex::Helper::System;
+use Rex::File::Parser::Data;
 
 use File::Basename qw(dirname);
 
@@ -99,8 +100,8 @@ sub template {
    my ($file, @params) = @_;
    my $param = { @params };
 
-   unless($file =~ m/^\//) {
-      # path is relative
+   unless($file =~ m/^\// || $file =~ m/^\@/) {
+      # path is relative and no template
       Rex::Logger::debug("Relativ path $file");
       my ($caller_package, $caller_file, $caller_line) = caller;
       my $d = dirname($caller_file) . "/" . $file;
@@ -121,43 +122,37 @@ sub template {
    }
 
    my $template = Rex::Template->new;
-   if(! -f $file) {
+   my $content;
+
+   if(-f $file) {
+      $content = eval { local(@ARGV, $/) = ($file); <>; };
+   }
+   elsif($file =~ m/^\@/) {
+      my @caller = caller(0);
+      my $file_content = eval { local(@ARGV, $/) = ($caller[1]); <>; };
+      my ($data) = ($file_content =~ m/.*__DATA__(.*)/ms);
+      my $fp = Rex::File::Parser::Data->new(data => [ split(/\n/, $data) ]);
+      my $snippet_to_read = substr($file, 1);
+      $content = $fp->read($snippet_to_read);
+   }
+   else {
       die("$file not found");
    }
 
-   my $content = eval { local(@ARGV, $/) = ($file); <>; };
-
-   my %merge1 = %{$param || {}};
-   my %merge2 = Rex::Hardware->get(qw/ All /);
-   my %template_vars = (%merge1, %merge2);
-
-   for my $info_key (qw(Network Host Kernel Memory Swap)) {
-
-      my $flatten_info = {};
-
-      if($info_key eq "Memory") {
-         hash_flatten($merge2{$info_key}, $flatten_info, "_", "memory");
-      }
-      elsif($info_key eq "Swap") {
-         hash_flatten($merge2{$info_key}, $flatten_info, "_", "swap");
-      }
-      elsif($info_key eq "Network") {
-         hash_flatten($merge2{$info_key}->{"networkconfiguration"}, $flatten_info, "_");
-      }
-      else {
-         hash_flatten($merge2{$info_key}, $flatten_info, "_");
-      }
-
-      for my $key (keys %{$flatten_info}) {
-         $template_vars{$key} = $flatten_info->{$key};
-      }
-
-   }
+   my %template_vars = _get_std_template_vars($param);
 
    return $template->parse($content, \%template_vars);
 }
 
+sub _get_std_template_vars {
+   my ($param) = @_;
 
+   my %merge1 = %{$param || {}};
+   my %merge2 = Rex::Helper::System::info();
+   my %template_vars = (%merge1, %merge2);
+
+   return %template_vars;
+}
 
 =item file($file_name, %options)
 

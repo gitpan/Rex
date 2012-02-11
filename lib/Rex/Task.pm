@@ -131,7 +131,7 @@ sub get_tasks_for {
    for my $task_name (keys %tasks) {
       my @servers = @{$tasks{$task_name}->{"server"}};
 
-      if(grep { /^$host$/ } @servers) {
+      if( (grep { /^$host$/ } @servers) || $#servers == -1) {
          push @tasks, $task_name;
       }
    }
@@ -256,12 +256,12 @@ sub run {
 
             # before jobs
             for my $code (@{$tasks{$task}->{"before"}}) {
-               &$code($server);
+               &$code($server, \$server, \%opts);
             }
 
             # around jobs
             for my $code (@{$tasks{$task}->{"around"}}) {
-               &$code($server);
+               &$code($server, \$server, \%opts);
             }
 
             # this must be a ssh connection
@@ -397,14 +397,35 @@ sub run {
 
       Rex::Logger::init();
 
+      # before jobs
+      for my $code (@{$tasks{$task}->{"before"}}) {
+         &$code("<local>");
+      }
+
+      # around jobs
+      for my $code (@{$tasks{$task}->{"around"}}) {
+         &$code("<local>");
+      }
+
+
       Rex::Logger::debug("This is not a remote session");
       # push a local connection
       Rex::push_connection({ssh => 0, server => "<local>", sftp => 0, cache => Rex::Cache->new});
 
       $ret = _exec($task, \%opts);
 
+      # around jobs
+      for my $code (@{$tasks{$task}->{"around"}}) {
+         &$code("<local>");
+      }
+
       # remove local connection from stack
       Rex::pop_connection();
+
+      # around jobs
+      for my $code (@{$tasks{$task}->{"after"}}) {
+         &$code("<local>");
+      }
 
       Rex::Logger::shutdown();
    }

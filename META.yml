@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Rex
-version:            0.23.0
+version:            0.24.0
 abstract:           ~
 author:  []
 license:            GPL
@@ -17,8 +17,10 @@ requires:
     JSON::XS:           0
     LWP::UserAgent:     0
     MIME::Base64:       0
-    Net::SSH2:          >0.33
+    Net::SSH2:          0.33
     XML::Simple:        0
+resources:
+    repository:  https://github.com/krimdomu/Rex
 no_index:
     directory:
         - t
