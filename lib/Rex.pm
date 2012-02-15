@@ -77,13 +77,11 @@ use Net::SSH2;
 use Rex::Logger;
 use Rex::Cache;
 
-require Exporter;
-use base qw(Exporter);
+our (@EXPORT,
+      $VERSION,
+      @CONNECTION_STACK);
 
-use vars qw(@EXPORT $VERSION @CONNECTION_STACK);
-
-@EXPORT = qw($VERSION);
-$VERSION = "0.24.1";
+$VERSION = "0.25.2";
 
 sub push_connection {
    push @CONNECTION_STACK, $_[0];
@@ -152,6 +150,30 @@ sub get_cache {
    return Rex::Cache->new;
 }
 
+=item connect
+
+Use this function to create a connection if you use Rex as a library.
+
+ use Rex;
+ use Rex::Commands::Run;
+ use Rex::Commands::Fs;
+   
+ Rex::connect(
+    server      => "remotehost",
+    user        => "root",
+    password    => "f00b4r",
+    private_key => "/path/to/private/key/file",
+    public_key  => "/path/to/public/key/file",
+ );
+    
+ if(is_file("/foo/bar")) {
+    print "Do something...\n";
+ }
+     
+ my $output = run("upime");
+
+=cut
+
 sub connect {
 
    my ($param) = { @_ };
@@ -192,7 +214,6 @@ sub connect {
                               $param->{public_key}, 
                               $param->{private_key}, 
                               $pass);
-      print  "h: $auth_ret\n";
    }
    else {
       $auth_ret = $ssh->auth('username' => $user,
@@ -215,6 +236,55 @@ sub connect {
    }
 }
 
+
+sub import {
+   my ($class, $what) = @_;
+
+   $what ||= "";
+
+   my ($register_to, $file, $line) = caller;
+
+   if($what eq "-base" || $what eq "base") {
+      require Rex::Commands;
+      Rex::Commands->import(register_in => $register_to);
+
+      require Rex::Commands::Run;
+      Rex::Commands::Run->import(register_in => $register_to);
+
+      require Rex::Commands::Fs;
+      Rex::Commands::Fs->import(register_in => $register_to);
+
+      require Rex::Commands::File;
+      Rex::Commands::File->import(register_in => $register_to);
+
+      require Rex::Commands::Download;
+      Rex::Commands::Download->import(register_in => $register_to);
+
+      require Rex::Commands::Upload;
+      Rex::Commands::Upload->import(register_in => $register_to);
+
+      require Rex::Commands::Gather;
+      Rex::Commands::Gather->import(register_in => $register_to);
+
+      require Rex::Commands::Kernel;
+      Rex::Commands::Kernel->import(register_in => $register_to);
+
+      require Rex::Commands::Pkg;
+      Rex::Commands::Pkg->import(register_in => $register_to);
+
+      require Rex::Commands::Service;
+      Rex::Commands::Service->import(register_in => $register_to);
+
+      require Rex::Commands::Sysctl;
+      Rex::Commands::Sysctl->import(register_in => $register_to);
+
+      require Rex::Commands::Tail;
+      Rex::Commands::Tail->import(register_in => $register_to);
+
+      require Rex::Commands::Process;
+      Rex::Commands::Process->import(register_in => $register_to);
+   }
+}
 
 =back
 

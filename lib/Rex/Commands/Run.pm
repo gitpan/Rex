@@ -30,7 +30,8 @@ package Rex::Commands::Run;
 use strict;
 use warnings;
 
-require Exporter;
+#require Exporter;
+require Rex::Exporter;
 use Data::Dumper;
 use Rex;
 use Rex::Logger;
@@ -48,7 +49,7 @@ BEGIN {
 }
 
 use vars qw(@EXPORT);
-use base qw(Exporter);
+use base qw(Rex::Exporter);
 
 @EXPORT = qw(run can_run sudo);
 
@@ -116,7 +117,7 @@ sub can_run {
       return 1;
    }
 
-   my @ret = run "which $cmd";
+   my @ret = run "which $cmd >/dev/null 2>&1";
    if($? != 0) { return 0; }
 
    if( grep { /^no.*in/ } @ret ) {
