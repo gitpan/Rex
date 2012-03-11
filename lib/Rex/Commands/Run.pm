@@ -38,6 +38,7 @@ use Rex::Logger;
 use Rex::Helper::SSH2;
 use Rex::Helper::SSH2::Expect;
 use Rex::Config;
+use Rex::Interface::Exec;
 
 BEGIN {
    if($^O !~ m/^MSWin/) {
@@ -66,30 +67,10 @@ This function will execute the given command and returns the output.
 sub run {
    my $cmd = shift;
 
-   Rex::Logger::debug("Running command: $cmd");
+   my $path = join(":", Rex::Config->get_path());
 
-   my @ret = ();
-   my $out;
-   # no can_run($cmd) if there are parameters
-   if(my $ssh = Rex::is_ssh()) {
-      my @paths = Rex::Config->get_path;
-      my $path="";
-      if(@paths) {
-         $path = "PATH=" . join(":", @paths);
-      }
-      $out = net_ssh2_exec($ssh, "LC_ALL=C $path " . $cmd);
-   } else {
-      if($^O =~ m/^MSWin/) {
-         $out = qx{$cmd};
-      }
-      else {
-         $out = qx{LC_ALL=C $cmd};
-      }
-   }
-
-   Rex::Logger::debug($out);
-   Rex::Logger::debug("Returncode: $?");
-
+   my $exec = Rex::Interface::Exec->create;
+   my $out = $exec->exec($cmd, $path);
    chomp $out;
 
    if(wantarray) {
@@ -117,7 +98,7 @@ sub can_run {
       return 1;
    }
 
-   my @ret = run "which $cmd >/dev/null 2>&1";
+   my @ret = run "which $cmd";
    if($? != 0) { return 0; }
 
    if( grep { /^no.*in/ } @ret ) {
@@ -139,54 +120,28 @@ Run $command with I<sudo>. Define the password for sudo with I<sudo_password>.
 sub sudo {
    my ($cmd) = @_;
 
-   my $exp;
-   my $timeout       = Rex::Config->get_timeout;
-   my $sudo_password = Rex::Config->get_sudo_password;
+   if($cmd eq "on" || $cmd eq "-on") {
+      Rex::Logger::debug("Turning sudo globaly on");
+      Rex::global_sudo(1);
+      return;
+   }
 
-   if(my $ssh = Rex::is_ssh()) {
-      $exp = Rex::Helper::SSH2::Expect->new($ssh);
+   my $old_sudo = Rex::get_current_connection()->{use_sudo} || 0;
+   Rex::get_current_connection()->{use_sudo} = 1;
+
+   my $ret;
+
+   # if sudo is used with a code block
+   if(ref($cmd) eq "CODE") {
+      $ret = &$cmd();
    }
    else {
-      if($^O =~ m/^MSWin/) {
-         die("Expect not woring on windows");
-      }
-      else {
-         $exp = Expect->new();
-      }
+      $ret = run($cmd);
    }
 
-   $exp->log_stdout(0);
+   Rex::get_current_connection()->{use_sudo} = $old_sudo;
 
-   my $cmd_out = "";
-   $exp->log_file(sub {
-      my ($str) = @_;
-      $cmd_out .= $str;
-   });
-
-   $exp->spawn("sudo", $cmd);
-
-   $exp->expect($timeout, [
-                              qr/Password:|\[sudo\] password for [^:]+:/i => sub {
-                                          Rex::Logger::debug("Sending password");
-                                          my ($exp, $line) = @_;
-                                          $exp->send($sudo_password . "\n");
-
-                                          unless(ref($exp) eq "Rex::Helper::SSH2::Expect") {
-                                             exp_continue();
-                                          }
-                                       },
-                          ]);
-
-   unless(ref($exp) eq "Rex::Helper::SSH2::Expect") {
-      $exp->soft_close;
-   }
-
-   chomp $cmd_out;
-
-   if(wantarray) {
-      return split(/\n/, $cmd_out);
-   }
-   return $cmd_out;
+   return $ret;
 }
 
 =back

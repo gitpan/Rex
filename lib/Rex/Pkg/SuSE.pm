@@ -45,6 +45,14 @@ sub install {
       return 1;
    }
 
+   $self->update($pkg, $option);
+
+   return 1;
+}
+
+sub update {
+   my ($self, $pkg, $option) = @_;
+
    my $version = $option->{"version"} || "";
 
    Rex::Logger::debug("Installing $pkg / $version");
@@ -81,7 +89,7 @@ sub remove {
 sub get_installed {
    my ($self) = @_;
 
-   my @lines = run "rpm -qa --nosignature --nodigest --qf '\%{NAME} \%|EPOCH?{\%{EPOCH}}:{0}| \%{VERSION} \%{RELEASE} \%{ARCH}\\n'";
+   my @lines = run 'rpm -qa --nosignature --nodigest --qf "%{NAME} %|EPOCH?{%{EPOCH}}:{0}| %{VERSION} %{RELEASE} %{ARCH}\n"';
 
    my @pkg;
 

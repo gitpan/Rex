@@ -27,7 +27,7 @@ sub is_installed {
 
    Rex::Logger::debug("Checking if $pkg is installed");
 
-   run("dpkg -L $pkg 2>&1 >/dev/null");
+   run("dpkg -L $pkg");
 
    unless($? == 0) {
       Rex::Logger::debug("$pkg is NOT installed.");
@@ -46,10 +46,18 @@ sub install {
       return 1;
    }
 
+   $self->update($pkg, $option);
+
+   return 1;
+}
+
+sub update {
+   my ($self, $pkg, $option) = @_;
+
    my $version = $option->{'version'} || '';
 
    Rex::Logger::debug("Installing $pkg / $version");
-   my $f = run("DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::=\"--force-confold\" --force-yes -y install $pkg" . ($version?"=$version":""));
+   my $f = run("DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::=--force-confold --force-yes -y install $pkg" . ($version?"=$version":""));
 
    unless($? == 0) {
       Rex::Logger::info("Error installing $pkg.");
@@ -86,7 +94,7 @@ sub remove {
 sub get_installed {
    my ($self) = @_;
 
-   my @lines = run "dpkg-query -W --showformat '\${Status} \${Package}|\${Version}\\n'";
+   my @lines = run 'dpkg-query -W --showformat "\${Status} \${Package}|\${Version}\n"';
 
    my @pkg;
 

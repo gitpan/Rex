@@ -79,9 +79,10 @@ use Rex::Cache;
 
 our (@EXPORT,
       $VERSION,
-      @CONNECTION_STACK);
+      @CONNECTION_STACK,
+      $GLOBAL_SUDO);
 
-$VERSION = "0.25.3";
+$VERSION = "0.26.0";
 
 sub push_connection {
    push @CONNECTION_STACK, $_[0];
@@ -126,6 +127,26 @@ sub is_ssh {
    }
 
    return 0;
+}
+
+=item is_sudo
+
+Returns 1 if the current operation is executed within sudo. 
+
+=cut
+sub is_sudo {
+   if($GLOBAL_SUDO) { return 1; }
+
+   if($CONNECTION_STACK[-1]) {
+      return $CONNECTION_STACK[-1]->{"use_sudo"};
+   }
+
+   return 0;
+}
+
+sub global_sudo {
+   my ($on) = @_;
+   $GLOBAL_SUDO = $on;
 }
 
 =item get_sftp
@@ -284,7 +305,30 @@ sub import {
       require Rex::Commands::Process;
       Rex::Commands::Process->import(register_in => $register_to);
    }
+
+   # we are always strict
+   strict->import;
 }
+
+=back
+
+=head1 CONTRIBUTORS
+
+Many thanks to the contributors for their work (alphabetical order).
+
+=over 4
+
+=item Alexandr Ciornii
+
+=item Gilles Gaudin, for writing a french howto
+
+=item Hiroaki Nakamura
+
+=item Jeen Lee
+
+=item Jose Luis Martinez
+
+=item Sascha Guenther
 
 =back
 

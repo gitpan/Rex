@@ -43,7 +43,7 @@ if($#ARGV < 0) {
    @ARGV = qw(-h);
 }
 
-getopts('CcqFThvdE:o:f:M:b:e:H:u:p:P:K:', \%opts);
+getopts('CcqFThvdsS:E:o:f:M:b:e:H:u:p:P:K:G:', \%opts);
 
 if($opts{'d'}) {
    $Rex::Logger::debug = $opts{'d'};
@@ -68,6 +68,7 @@ if($opts{'h'}) {
    printf "  %-15s %s\n", "-e", "Run the given code fragment";
    printf "  %-15s %s\n", "-E", "Execute task on the given environment";
    printf "  %-15s %s\n", "-H", "Execute task on these hosts";
+   printf "  %-15s %s\n", "-G", "Execute task on these group";
    printf "  %-15s %s\n", "-u", "Username for the ssh connection";
    printf "  %-15s %s\n", "-p", "Password for the ssh connection";
    printf "  %-15s %s\n", "-P", "Private Keyfile for the ssh connection";
@@ -78,6 +79,8 @@ if($opts{'h'}) {
    printf "  %-15s %s\n", "-M", "Load Module instead of Rexfile";
    printf "  %-15s %s\n", "-v", "Display (R)?ex Version";
    printf "  %-15s %s\n", "-F", "Force. Don't regard lock file";
+   printf "  %-15s %s\n", "-s", "Use sudo for every command";
+   printf "  %-15s %s\n", "-S", "Password for sudo";
    printf "  %-15s %s\n", "-d", "Debug";
    printf "  %-15s %s\n", "-o", "Output Format";
    printf "  %-15s %s\n", "-c", "Turn cache ON";
@@ -198,6 +201,7 @@ elsif(-f $::rexfile) {
          } else
          {
             Rex::Logger::info("Found stale lock file. Removing it.");
+            Rex::global_sudo(0);
             unlink("$::rexfile.lock");
          }
       }
@@ -225,11 +229,24 @@ elsif(-f $::rexfile) {
    Rex::Logger::debug("Including/Parsing $::rexfile");
 
    Rex::Config->set_environment($opts{"E"}) if($opts{"E"});
+
+   # turn sudo on with cli option s is used
+   if(exists $opts{'s'}) {
+      sudo("on");
+   }
+   if(exists $opts{'S'}) {
+      sudo_password($opts{'S'});
+   }
    eval {
       do($::rexfile);
    };
 
    if($@) { print $@ . "\n"; exit 1; }
+
+   if($opts{'G'}) {
+      $::FORCE_SERVER = join(" ", Rex::Group->get_group($opts{'G'}));
+   }
+
 } else {
    Rex::Logger::info("No Rexfile found");
    CORE::exit 1;
@@ -349,6 +366,7 @@ if($output) {
 }
 
 # lock loeschen
+Rex::global_sudo(0);
 Rex::Logger::debug("Removing lockfile") if(! exists $opts{'F'});
 unlink("$::rexfile.lock")               if(! exists $opts{'F'});
 
@@ -372,6 +390,8 @@ Rex is a tool to ease the execution of commands on multiple remote servers. You 
 
 =item -H              Execute task on these hosts
 
+=item -G              Execute task on these group
+
 =item -u              Username for the ssh connection
 
 =item -p              Password for the ssh connection
@@ -387,6 +407,10 @@ Rex is a tool to ease the execution of commands on multiple remote servers. You 
 =item -h              Display this help
 
 =item -M              Load Module instead of Rexfile
+
+=item -s              Use sudo for every command
+
+=item -S              Password for sudo
 
 =item -v              Display (R)?ex Version
 

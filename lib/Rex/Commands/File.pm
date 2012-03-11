@@ -67,12 +67,13 @@ require Rex::Exporter;
 use Data::Dumper;
 use Rex::Config;
 use Rex::FS::File;
-use Rex::Commands::Fs;
 use Rex::Commands::Upload;
 use Rex::Commands::MD5;
-use Rex::Commands::Run;
-use Rex::Helper::System;
 use Rex::File::Parser::Data;
+
+use Rex::Interface::Exec;
+use Rex::Interface::File;
+use Rex::Interface::Fs;
 
 use File::Basename qw(dirname);
 
@@ -80,7 +81,7 @@ use vars qw(@EXPORT);
 use base qw(Rex::Exporter);
 
 @EXPORT = qw(file_write file_read file_append 
-               cat
+               cat sed
                delete_lines_matching append_if_no_such_line
                file template
                extract);
@@ -186,6 +187,8 @@ sub file {
 
    my $on_change = $option->{"on_change"} || sub {};
 
+   my $fs = Rex::Interface::Fs->create;
+
    my ($new_md5, $old_md5);
    eval {
       $old_md5 = md5($file);
@@ -202,6 +205,7 @@ sub file {
    }
 
    if(exists $option->{"content"}) {
+
       my $fh = file_write($file);
       my @lines = split(qr{$/}, $option->{"content"});
       for my $line (@lines) {
@@ -218,15 +222,15 @@ sub file {
    };
 
    if(exists $option->{"mode"}) {
-      chmod($option->{"mode"}, $file);
+      $fs->chmod($option->{"mode"}, $file);
    }
 
    if(exists $option->{"group"}) {
-      chgrp($option->{"group"}, $file);
+      $fs->chgrp($option->{"group"}, $file);
    }
 
    if(exists $option->{"owner"}) {
-      chown($option->{"owner"}, $file);
+      $fs->chown($option->{"owner"}, $file);
    }
 
    unless($old_md5 && $new_md5 && $old_md5 eq $new_md5) {
@@ -266,17 +270,11 @@ On failure it will die.
 
 sub file_write {
    my ($file) = @_;
-   my $fh;
 
    Rex::Logger::debug("Opening file: $file for writing.");
 
-   if(my $sftp = Rex::get_sftp()) {
-      $fh = $sftp->open($file, O_WRONLY | O_CREAT | O_TRUNC );
-   } else {
-      open($fh, ">", $file) or die($!);
-   }
-
-   unless($fh) {
+   my $fh = Rex::Interface::File->create;
+   if( ! $fh->open(">", $file)) {
       Rex::Logger::debug("Can't open $file for writing.");
       die("Can't open $file for writing.");
    }
@@ -290,24 +288,12 @@ sub file_write {
 
 sub file_append {
    my ($file) = @_;
-   my $fh;
 
    Rex::Logger::debug("Opening file: $file for appending.");
 
-   if(my $sftp = Rex::get_sftp()) {
-      if(is_file($file)) {
-         $fh = $sftp->open($file, O_WRONLY | O_APPEND );
-         my %stat = stat "$file";
-         $fh->seek($stat{size});
-      } 
-      else {
-         $fh = $sftp->open($file, O_WRONLY | O_CREAT | O_TRUNC );
-      }
-   } else {
-      open($fh, ">>", $file) or die($!);
-   }
+   my $fh = Rex::Interface::File->create;
 
-   unless($fh) {
+   if( ! $fh->open(">>", $file)) {
       Rex::Logger::debug("Can't open $file for appending.");
       die("Can't open $file for appending.");
    }
@@ -340,17 +326,12 @@ On failure it will die.
 
 sub file_read {
    my ($file) = @_;
-   my $fh;
 
    Rex::Logger::debug("Opening file: $file for reading.");
 
-   if(my $sftp = Rex::get_sftp()) {
-      $fh = $sftp->open($file, O_RDONLY);
-   } else {
-      open($fh, "<", $file) or die($!);
-   }
+   my $fh = Rex::Interface::File->create;
 
-   unless($fh) {
+   if( ! $fh->open("<", $file)) {
       Rex::Logger::debug("Can't open $file for reading.");
       die("Can't open $file for reading.");
    }
@@ -390,13 +371,14 @@ Delete lines that match $regexp in $file.
 =cut
 sub delete_lines_matching {
    my ($file, @m) = @_;
+   my $fs = Rex::Interface::Fs->create;
 
-   if(! is_file($file)) {
+   if(! $fs->is_file($file)) {
       Rex::Logger::info("File: $file not found.");
       die("$file not found");
    }
 
-   if(! is_writable($file)) {
+   if(! $fs->is_writable($file)) {
       Rex::Logger::info("File: $file not writable.");
       die("$file not writable");
    }
@@ -439,12 +421,14 @@ Append $new_line to $file if none in @regexp is found.
 sub append_if_no_such_line {
    my ($file, $new_line, @m) = @_;
 
-   if(! is_file($file)) {
+   my $fs = Rex::Interface::Fs->create;
+
+   if(! $fs->is_file($file)) {
       Rex::Logger::info("File: $file not found.");
       die("$file not found");
    }
 
-   if(! is_writable($file)) {
+   if(! $fs->is_writable($file)) {
       Rex::Logger::info("File: $file not writable.");
       die("$file not writable");
    }
@@ -478,33 +462,65 @@ sub append_if_no_such_line {
 
 This function extracts a file. Supported formats are .tar.gz, .tgz, .tar.Z, .tar.bz2, .tbz2, .zip, .gz, .bz2, .war, .jar.
 
+ task prepare => sub {
+    extract "/tmp/myfile.tar.gz",
+      chdir => "/etc";
+ };
+
 =cut
 sub extract {
-   my ($file) = @_;
+   my ($file, %option) = @_;
+
+   my $pre_cmd = "";
+   if($option{chdir}) {
+      $pre_cmd = "cd $option{chdir}; ";
+   }
+
+   my $exec = Rex::Interface::Exec->create;
+   my $cmd = "";
 
    if($file =~ m/\.tar\.gz$/ || $file =~ m/\.tgz$/ || $file =~ m/\.tar\.Z$/) {
-      run "gunzip -c $file | tar -xf -";
+      $cmd = "${pre_cmd}gunzip -c $file | tar -xf -";
    }
    elsif($file =~ m/\.tar\.bz2/ || $file =~ m/\.tbz2/) {
-      run "bunzip2 -c $file | tar -xf -";
+      $cmd = "${pre_cmd}bunzip2 -c $file | tar -xf -";
    }
    elsif($file =~ m/\.(zip|war|jar)$/) {
-      run "unzip -o $file";
+      $cmd = "${pre_cmd}unzip -o $file";
    }
    elsif($file =~ m/\.gz$/) {
-      run "gunzip $file";
+      $cmd = "${pre_cmd}gunzip $file";
    }
    elsif($file =~ m/\.bz2$/) {
-      run "bunzip2 $file";
+      $cmd = "${pre_cmd}bunzip2 $file";
    }
    else {
       Rex::Logger::info("File not supported.");
       die("File ($file) not supported.");
    }
+
+   $exec->exec($cmd);
+}
+
+=item sed($search, $replace, $file)
+
+Search some string in a file and replace it.
+
+ task sar => sub {
+    sed qr{search}, "replace", "/var/log/auth.log";
+ };
+
+=cut
+sub sed {
+   my ($search, $replace, $file) = @_;
+
+   my $content = cat($file);
+   $content =~ s/$search/$replace/gms;
+
+   file($file, content => $content);
 }
 
 =back
-
 
 =cut
 
