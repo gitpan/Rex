@@ -1,9 +1,9 @@
 --- #YAML:1.0
 name:               Rex
-version:            0.26.0
+version:            0.26.1
 abstract:           ~
 author:  []
-license:            GPL
+license:            Apache License 2.0
 distribution_type:  module
 configure_requires:
     ExtUtils::MakeMaker:  0
