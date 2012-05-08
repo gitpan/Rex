@@ -40,6 +40,10 @@ sub execute {
    my %ret = ();
    my ($k, $v);
 
+   if(ref($xml->{'capabilities'}->{'guest'}) ne "ARRAY") {
+      $xml->{'capabilities'}->{'guest'} = [ $xml->{'capabilities'}->{'guest'} ];
+   }
+
    for my $line (@{$xml->{'capabilities'}->{'guest'}}) {
 
       $ret{$line->{'arch'}->{'name'}} = 'true'        
