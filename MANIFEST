@@ -178,10 +178,12 @@ README
 t/01.t
 t/commands.t
 t/config.t
+t/file.t
 t/helper_hash.t
 t/host.t
 t/interface_fs_local.t
 t/needs.t
 t/shared.t
 t/task.t
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)
