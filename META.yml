@@ -19,6 +19,7 @@ no_index:
     - inc
 requires:
   DBI: 0
+  DB_File: 0
   Digest::HMAC_SHA1: 0
   Expect: 0
   HTTP::Date: 0
@@ -31,4 +32,4 @@ requires:
   YAML: 0
 resources:
   repository: https://github.com/krimdomu/Rex
-version: v0.30.1
+version: v0.30.2
