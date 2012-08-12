@@ -35,6 +35,7 @@ use Rex::Logger;
 use Rex::TaskList;
 use Rex::Interface::Connection;
 use Rex::Interface::Executor;
+use Rex::Group::Entry::Server;
 
 require Rex::Args;
 
@@ -151,7 +152,12 @@ sub server {
             push(@ret, &$srv());
          }
          else {
-            push(@ret, $srv);
+            if(ref($srv) eq "Rex::Group::Entry::Server") {
+               push(@ret, $srv->get_servers);
+            }
+            else {
+               push(@ret, $srv);
+            }
          }
       }
    }
@@ -159,7 +165,7 @@ sub server {
       push(@ret, &{ $self->{server} }());
    }
    else {
-      push(@ret, "<local>");
+      push(@ret, Rex::Group::Entry::Server->new(name => "<local>"));
    }
 
    return [@ret];
@@ -194,7 +200,7 @@ Returns the current server on which the tasks gets executed right now.
 =cut
 sub current_server {
    my ($self) = @_;
-   return $self->{current_server} || "<local>";
+   return $self->{current_server} || Rex::Group::Entry::Server->new(name => "<local>");
 }
 
 =item desc
@@ -247,6 +253,23 @@ sub is_local {
    return $self->is_remote() == 0 ? 1 : 0;
 }
 
+=item is_http
+
+Returns true (1) if the task gets executed over http protocol.
+
+=cut
+
+sub is_http {
+   my ($self) = @_;
+   return ($self->{"connection_type"} && lc($self->{"connection_type"}) eq "http");
+}
+
+sub is_https {
+   my ($self) = @_;
+   return ($self->{"connection_type"} && lc($self->{"connection_type"}) eq "https");
+}
+
+
 =item want_connect
 
 Returns true (1) if the task will establish a connection to a remote system.
@@ -273,7 +296,13 @@ Fake - will not create any connections. But it populates the connection properti
 sub get_connection_type {
    my ($self) = @_;
 
-   if($self->is_remote && $self->want_connect) {
+   if($self->is_http) {
+      return "HTTP";
+   }
+   elsif($self->is_https) {
+      return "HTTPS";
+   }
+   elsif($self->is_remote && $self->want_connect) {
       return "SSH";
    }
    elsif($self->is_remote) {
@@ -414,7 +443,30 @@ Set the authentication of the task.
 =cut
 sub set_auth {
    my ($self, $key, $value) = @_;
-   $self->{auth}->{$key} = $value;
+
+   if(scalar(@_) > 3) {
+      my $_d = shift;
+      $self->{auth} = { @_ };
+   }
+   else {
+      $self->{auth}->{$key} = $value;
+   }
+}
+
+=item merge_auth($server)
+
+Merges the authentication information from $server into the task.
+Tasks authentication information have precedence.
+
+=cut
+sub merge_auth {
+   my ($self, $server) = @_;
+
+   # merge auth hashs
+   # task auth as precedence
+   my %auth = $server->merge_auth($self->{auth});
+
+   return \%auth;
 }
 
 =item parallelism
@@ -446,16 +498,23 @@ Initiate the connection to $server.
 sub connect {
    my ($self, $server) = @_;
 
+   if(ref($server) ne "Rex::Group::Entry::Server") {
+      $server = Rex::Group::Entry::Server->new(name => $server);
+   }
    $self->{current_server} = $server;
 
-   Rex::Logger::debug("Using user: " . $self->user);
-   Rex::Logger::debug("Using password: " . ($self->password?"***********":"<no password>"));
+   my $user = $self->user;
+   my $password = $self->password;
+   my $public_key = "";
+   my $private_key = "";
 
-   $self->connection->connect(
-      user     => $self->user,
-      password => $self->password,
-      server   => $server,
-   );
+   my $auth = $self->merge_auth($server);
+
+   # task specific auth rules over all
+   my %connect_hash = %{ $auth };
+   $connect_hash{server} = $server;
+
+   $self->connection->connect(%connect_hash);
 
    if($self->connection->is_authenticated) {
       Rex::Logger::info("Successfull authenticated.");
@@ -472,6 +531,7 @@ sub connect {
          ssh    => $self->connection->get_connection_object, 
          server => $server, 
          cache => Rex::Cache->new(),
+         task  => $self,
    });
 
    $self->run_hook(\$server, "around");
@@ -510,6 +570,7 @@ sub get_data {
       around => $self->{around},
       name => $self->{name},
       executor => $self->{executor},
+      connection_type => $self->{connection_type},
    };
 }
 
@@ -529,6 +590,10 @@ sub run {
 
    if(ref($_[0])) {
       my ($self, $server, %options) = @_;
+
+      if(ref($server) ne "Rex::Group::Entry::Server") {
+         $server = Rex::Group::Entry::Server->new(name => $server);
+      }
 
       if(! $_[1]) {
          # run is called without any server.

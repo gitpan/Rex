@@ -101,6 +101,7 @@ require Rex::Exporter;
 use Rex::TaskList;
 use Rex::Logger;
 use Rex::Config;
+use Rex;
 
 use vars qw(@EXPORT $current_desc $global_no_ssh $environments $dont_register_tasks);
 use base qw(Rex::Exporter);
@@ -122,6 +123,8 @@ use base qw(Rex::Exporter);
             before after around
             logformat
             connection
+            auth
+            FALSE TRUE
           );
 
 =item no_ssh([$task])
@@ -201,6 +204,13 @@ sub task {
    my($class, $file, @tmp) = caller;
    my @_ARGS = @_;
 
+   if(! @_) {
+      if(my $t = Rex::get_current_connection) {
+         return $t->{task};
+      }
+      return;
+   }
+
    # for things like
    # no_ssh task ...
    if(wantarray) {
@@ -278,7 +288,6 @@ sub task {
 
    $options->{'dont_register'} = $dont_register_tasks;
    Rex::TaskList->create_task($task_name, @_, $options);
-
 }
 
 =item desc($description)
@@ -358,6 +367,51 @@ Set the password for the ssh connection (or for the private key file).
 sub password {
    Rex::Config->set_password(@_);
 }
+
+=item auth(for => $entity, %data)
+
+With this function you can modify/set special authentication parameters for tasks and groups. If you want to modify a task's or group's authentication you first have to create it.
+
+ group frontends => "web[01..10]";
+ group backends => "be[01..05]";
+      
+ auth for => "frontends" => 
+                  user => "root",
+                  password => "foobar";
+    
+ auth for => "backends" =>
+                  user => "admin",
+                  private_key => "/path/to/id_rsa",
+                  public_key => "/path/to/id_rsa.pub",
+                  sudo => TRUE;
+    
+ task "prepare", group => ["frontends", "backends"], sub {
+    # do something
+ };
+    
+ auth for => "prepare" =>
+                  user => "root";
+
+=cut
+sub auth {
+   my ($_d, $entity, %data) = @_;
+
+   my $group = Rex::Group->get_group_object($entity);
+   if(! $group) {
+      Rex::Logger::debug("No group $entity found, looking for a task.");
+      $group = Rex::TaskList->get_task($entity);
+   }
+
+   if(! $group) {
+      Rex::Logger::info("Group or Task $group not found.");
+      CORE::exit 1;
+   }
+
+   Rex::Logger::debug("Setting auth info for " . ref($group) . " $entity");
+   $group->set_auth(%data);
+}
+
+
 
 =item port($port)
 
@@ -483,6 +537,7 @@ If you want to use password authentication, then you need to call I<pass_auth>.
 =cut
 
 sub pass_auth {
+   if(wantarray) { return "pass"; }
    Rex::Config->set_password_auth(1);
 }
 
@@ -498,9 +553,9 @@ If you want to use pubkey authentication, then you need to call I<key_auth>.
 =cut
 
 sub key_auth {
+   if(wantarray) { return "key"; }
    Rex::Config->set_key_auth(1);
 }
-
 
 =item parallelism($count)
 
@@ -723,8 +778,19 @@ With the LOCAL function you can do local commands within a task that is defined 
 
 sub LOCAL (&) {
    my $cur_conn = Rex::get_current_connection();
-   Rex::push_connection({ssh => 0, server => $cur_conn->{"server"}});
+   my $local_connect = Rex::Interface::Connection->create("Local");
+
+   Rex::push_connection({
+         conn   => $local_connect,
+         ssh    => 0,
+         server => $cur_conn->{server}, 
+         cache => Rex::Cache->new(),
+         task  => task(),
+   });
+
+
    $_[0]->();
+
    Rex::pop_connection();
 }
 
@@ -937,6 +1003,14 @@ sub get_environments {
 sub say {
    return unless $_[0];
    print @_, "\n";
+}
+
+sub TRUE {
+   return 1;
+}
+
+sub FALSE {
+   return 0;
 }
 
 =back

@@ -228,7 +228,7 @@ elsif(-f $::rexfile) {
          {
             Rex::Logger::info("Found stale lock file. Removing it.");
             Rex::global_sudo(0);
-            unlink("$::rexfile.lock");
+            CORE::unlink("$::rexfile.lock");
          }
       }
       
@@ -269,11 +269,11 @@ elsif(-f $::rexfile) {
    }
 
    if(-f "vars.db") {
-      unlink("vars.db");
+      CORE::unlink("vars.db");
    }
 
    if(-f "vars.db.lock") {
-      unlink("vars.db.lock");
+      CORE::unlink("vars.db.lock");
    }
 
    eval {
@@ -339,7 +339,7 @@ CHECK_OVERWRITE: {
       }
 
       for my $task (Rex::TaskList->get_tasks) {
-         $task->set_password($opts{'p'});
+         Rex::TaskList->get_task($task)->set_password($opts{'p'});
       }
 
    }
@@ -349,6 +349,7 @@ CHECK_OVERWRITE: {
 
       for my $task (Rex::TaskList->get_tasks) {
          $task->set_auth("private_key", $opts{'P'});
+         Rex::TaskList->get_task($task)->set_auth("private_key", $opts{'P'});
       }
    }
 
@@ -356,7 +357,7 @@ CHECK_OVERWRITE: {
       Rex::Commands::public_key($opts{'K'});
 
       for my $task (Rex::TaskList->get_tasks) {
-         $task->set_auth("public_key", $opts{'K'});
+         Rex::TaskList->get_task($task)->set_auth("public_key", $opts{'K'});
       }
    }
 
@@ -404,7 +405,7 @@ if($opts{'T'}) {
 
    Rex::global_sudo(0);
    Rex::Logger::debug("Removing lockfile") if(! exists $opts{'F'});
-   unlink("$::rexfile.lock")               if(! exists $opts{'F'});
+   CORE::unlink("$::rexfile.lock")               if(! exists $opts{'F'});
    CORE::exit 0;
 }
 
@@ -434,15 +435,15 @@ if($@) {
 # lock loeschen
 Rex::global_sudo(0);
 Rex::Logger::debug("Removing lockfile") if(! exists $opts{'F'});
-unlink("$::rexfile.lock")               if(! exists $opts{'F'});
+CORE::unlink("$::rexfile.lock")               if(! exists $opts{'F'});
 
 # delete shared variable db
 if(-f "vars.db") {
-   unlink("vars.db");
+   CORE::unlink("vars.db");
 }
 
 if(-f "vars.db.lock") {
-   unlink("vars.db.lock");
+   CORE::unlink("vars.db.lock");
 }
 
 
