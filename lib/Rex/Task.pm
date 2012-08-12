@@ -469,6 +469,15 @@ sub merge_auth {
    return \%auth;
 }
 
+sub get_sudo_password {
+   my ($self) = @_;
+
+   my $server = $self->connection->server;
+   my %auth = $server->merge_auth($self->{auth});
+
+   return $auth{sudo_password};
+}
+
 =item parallelism
 
 Get the parallelism count of a task.
