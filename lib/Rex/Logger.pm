@@ -33,9 +33,16 @@ package Rex::Logger;
 use strict;
 use warnings;
 
+use Rex;
+
 my $no_color = 0;
 eval "use Term::ANSIColor";
 if($@) { $no_color = 1; }
+
+# no colors under windows
+if($^O =~ m/MSWin/) {
+   $no_color = 1;
+}
 
 my $has_syslog = 0;
 my $log_fh;
@@ -49,7 +56,7 @@ Setting this variable to 1 will enable debug logging.
 =cut
 our $debug = 0;
 
-=item $silen
+=item $silent
 
 If you set this variable to 1 nothing will be logged.
 
