@@ -49,12 +49,30 @@ sub create_user {
    }
 
    if($data->{"home"}) {
-      $cmd .= " -d " . $data->{"home"} . " -m ";
+      $cmd .= " -d " . $data->{"home"};
+      
+      if(
+         ! (
+            (exists $data->{"no-create-home"} && $data->{"no-create-home"})
+               ||
+            (exists $data->{"no_create_home"} && $data->{"no_create_home"})
+         )
+        ) {
+         if(! $self->get_uid($user)) {
+            $cmd .= " -m ";
+         }
+      }
+
+   }
+
+   if(exists $data->{shell}) {
+      $cmd .= " -s " . $data->{shell};
    }
 
    if($data->{"comment"}) {
       $cmd .= " -c \"" . $data->{"comment"} . "\" ";
    }
+
 
    if($data->{"expire"}) {
       $cmd .= " -e " . $data->{"expire"};

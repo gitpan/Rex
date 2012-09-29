@@ -39,6 +39,7 @@ our ($user, $password, $port,
             $environment,
             $connection_type,
             $distributor,
+            $template_function,
             $SET_HANDLER, $HOME_CONFIG, $HOME_CONFIG_YAML,
             %SSH_CONFIG_FOR);
 
@@ -325,6 +326,24 @@ sub get_distributor {
    return $distributor || "Base";
 }
 
+sub set_template_function {
+   my $class = shift;
+   ($template_function) = @_;
+}
+
+sub get_template_function {
+   if(ref($template_function) eq "CODE") {
+      return $template_function;
+   }
+
+   return sub {
+         my ($content, $template_vars) = @_;
+         use Rex::Template;
+         my $template = Rex::Template->new;
+         return $template->parse($content, $template_vars);
+   };
+}
+
 =item register_set_handler($handler_name, $code)
 
 Register a handler that gets called by I<set>.
@@ -409,6 +428,31 @@ sub register_config_handler {
    }
 }
 
+sub read_config_file {
+   my ($config_file) = @_;
+   $config_file ||= _home_dir() . "/.rex/config.yml";
+
+   if(-f $config_file) {
+      my $yaml = eval { local(@ARGV, $/) = ($config_file); <>; };
+      eval {
+         $HOME_CONFIG_YAML = Load($yaml);
+      };
+
+      if($@) {
+         print STDERR "Error loading $config_file\n";
+         print STDERR "$@\n";
+         exit 2;
+      }
+
+      for my $key (keys %{ $HOME_CONFIG }) {
+         if(exists $HOME_CONFIG_YAML->{$key}) {
+            my $code = $HOME_CONFIG->{$key};
+            &$code($HOME_CONFIG_YAML->{$key});
+         }
+      }
+   }
+}
+
 sub import {
    if(-f _home_dir() . "/.ssh/config") {
       my (@host, $in_host);
@@ -438,25 +482,7 @@ sub import {
       }
    }
 
-   if(-f _home_dir() . "/.rex/config.yml") {
-      my $yaml = eval { local(@ARGV, $/) = (_home_dir() . "/.rex/config.yml"); <>; };
-      eval {
-         $HOME_CONFIG_YAML = Load($yaml);
-      };
-
-      if($@) {
-         print STDERR "Error loading " . _home_dir() . "/.rex/config.yml\n";
-         print STDERR "$@\n";
-         exit 2;
-      }
-
-      for my $key (keys %{ $HOME_CONFIG }) {
-         if(exists $HOME_CONFIG_YAML->{$key}) {
-            my $code = $HOME_CONFIG->{$key};
-            &$code($HOME_CONFIG_YAML->{$key});
-         }
-      }
-   }
+   read_config_file();   
 }
 
 no strict 'refs';
@@ -484,7 +510,7 @@ __PACKAGE__->register_config_handler(base => sub {
    }
 });
 
-my @set_handler = qw/user password private_key public_key -keyauth -passwordauth -passauth parallelism sudo_password connection ca cert key distributor/;
+my @set_handler = qw/user password private_key public_key -keyauth -passwordauth -passauth parallelism sudo_password connection ca cert key distributor template_function/;
 for my $hndl (@set_handler) {
    __PACKAGE__->register_set_handler($hndl => sub {
       my ($val) = @_;

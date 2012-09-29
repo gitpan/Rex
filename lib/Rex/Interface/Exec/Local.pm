@@ -10,6 +10,7 @@ use strict;
 use warnings;
 
 use Rex::Logger;
+use Rex::Commands;
 
 sub new {
    my $that = shift;
@@ -28,6 +29,7 @@ sub exec {
 
    my $out;
 
+   Rex::Commands::profiler()->start("exec: $cmd");
    if($^O =~ m/^MSWin/) {
       $out = qx{$cmd};
    }
@@ -37,6 +39,7 @@ sub exec {
 
       $out = qx{LC_ALL=C $path $cmd};
    }
+   Rex::Commands::profiler()->end("exec: $cmd");
 
    Rex::Logger::debug($out);
 

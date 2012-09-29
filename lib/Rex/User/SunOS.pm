@@ -58,9 +58,21 @@ sub create_user {
    if(exists $data->{home}) {
       $cmd .= " -d " . $data->{home};
 
-      if(!is_dir($data->{home})) {
-         $cmd .= " -m";
+      if(
+         ! (
+            (exists $data->{"no-create-home"} && $data->{"no-create-home"})
+               ||
+            (exists $data->{"no_create_home"} && $data->{"no_create_home"})
+         )
+        ) {
+         if(! $self->get_uid($user)) {
+            $cmd .= " -m ";
+         }
       }
+   }
+
+   if(exists $data->{shell}) {
+      $cmd .= " -s " . $data->{shell};
    }
 
    if(exists $data->{comment}) {
@@ -68,7 +80,7 @@ sub create_user {
    }
 
    if(exists $data->{expire}) {
-      $cmd .= " -e '" . $data->{expiredate} . "'";
+      $cmd .= " -e '" . $data->{expire} . "'";
    }
 
    if(exists $data->{groups}) {

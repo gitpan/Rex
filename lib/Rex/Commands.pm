@@ -101,9 +101,10 @@ require Rex::Exporter;
 use Rex::TaskList;
 use Rex::Logger;
 use Rex::Config;
+use Rex::Profiler;
 use Rex;
 
-use vars qw(@EXPORT $current_desc $global_no_ssh $environments $dont_register_tasks);
+use vars qw(@EXPORT $current_desc $global_no_ssh $environments $dont_register_tasks $profiler);
 use base qw(Rex::Exporter);
 
 @EXPORT = qw(task desc group 
@@ -126,7 +127,9 @@ use base qw(Rex::Exporter);
             auth
             FALSE TRUE
             set_distributor
+            template_function
             report
+            make
           );
 
 =item no_ssh([$task])
@@ -580,6 +583,15 @@ sub set_distributor {
    Rex::Config->set_distributor($_[0]);
 }
 
+=item set_template_function(sub { ... })
+
+This function sets the template processing function. So it is possible to change the template engine. For example to Template::Toolkit.
+
+=cut
+sub template_function {
+   Rex::Config->set_template_function($_[0]);
+}
+
 =item logging
 
 With this function you can define the logging behaviour of (R)?ex.
@@ -961,6 +973,21 @@ sub connection {
    return Rex::get_current_connection()->{"conn"};
 }
 
+=item profiler
+
+Returns the profiler object for the current connection.
+
+=cut
+sub profiler {
+   my $c_profiler = Rex::get_current_connection()->{"profiler"};
+   unless($c_profiler) {
+      $c_profiler = $profiler || Rex::Profiler->new;
+      $profiler = $c_profiler;
+   }
+
+   return $c_profiler;
+}
+
 =item report($string)
 
 =cut
@@ -1038,6 +1065,10 @@ sub TRUE {
 
 sub FALSE {
    return 0;
+}
+
+sub make(&) {
+   return $_[0];
 }
 
 =back

@@ -38,6 +38,7 @@ use Rex::Logger;
 use Rex::Commands::Run;
 use Rex::Commands::File;
 use Rex::Commands::LVM;
+use Rex::Commands::Fs;
 
 @EXPORT = qw(clearpart partition);
 
@@ -96,7 +97,8 @@ Create a partition with mountpoint $mountpoint.
  partition "none",
     type   => "extended",
     ondisk => "sda",
-    grow   => 1;
+    grow   => 1,
+    mount  => TRUE,
     
  partition "swap",
     fstype => "swap",
@@ -177,6 +179,10 @@ sub partition {
    }
 
    run "partprobe";
+   while(! -e "/dev/$disk$part_num") {
+      Rex::Logger::debug("Waiting on /dev/$disk$part_num to appear...");
+      sleep 1;
+   }
 
    if(! exists $option{fstype} || $option{fstype} eq "non-fs" || $option{fstype} eq "none" || $option{fstype} eq "") {
       # nix
@@ -191,6 +197,17 @@ sub partition {
    }
    else {
       die("Can't format partition with $option{fstype}");
+   }
+
+   if(exists $option{mount} && $option{mount}) {
+      mount "$disk$part_num", $mountpoint,
+                  fs => $option{fstype};
+   }
+
+   if(exists $option{mount_persistent} && $option{mount_persistent}) {
+      mount "$disk$part_num", $mountpoint,
+                  fs => $option{fstype},
+                  persistent => 1;
    }
 
    return "$disk$part_num";

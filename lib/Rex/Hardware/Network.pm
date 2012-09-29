@@ -14,9 +14,19 @@ use Data::Dumper;
 use Rex::Commands::Gather;
 use Rex::Logger;
 
+require Rex::Hardware;
+
 sub get {
 
+   if(my $ret = Rex::Hardware->cache("Network")) {
+      return $ret;
+   }
+
    my $hw_class = _get_class();
+
+   unless($hw_class) {
+      return {};
+   }
 
    return {
  
@@ -47,6 +57,11 @@ sub _get_class {
 
    my $hw_class = "Rex::Hardware::Network::$os_type";
    eval "use $hw_class;";
+
+   if($@) {
+      Rex::Logger::debug("No network information on $os_type");
+      return;
+   }
 
    return $hw_class;
 }
