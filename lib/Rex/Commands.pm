@@ -110,11 +110,11 @@ use base qw(Rex::Exporter);
 
 @EXPORT = qw(task desc group 
             user password port sudo_password public_key private_key pass_auth key_auth no_ssh
-            get_random do_task batch timeout max_connect_retries parallelism
+            get_random batch timeout max_connect_retries parallelism
+            do_task run_task needs
             exit
             evaluate_hostname
             logging
-            needs
             include
             say
             environment
@@ -396,6 +396,10 @@ sub password {
 
 With this function you can modify/set special authentication parameters for tasks and groups. If you want to modify a task's or group's authentication you first have to create it.
 
+If you want to set special login information for a group you have to activate that feature first.
+
+ use Rex -feature => 0.31; # activate setting auth for a group
+  
  group frontends => "web[01..10]";
  group backends => "be[01..05]";
       
@@ -439,6 +443,14 @@ sub auth {
    if(! $group) {
       Rex::Logger::info("Group or Task $entity not found.");
       return;
+   }
+
+   if(ref($group) eq "Rex::Group") {
+      Rex::Logger::debug("=================================================");
+      Rex::Logger::debug("You're setting special login credentials for a Group.");
+      Rex::Logger::debug("Please remember that the default auth information/task auth information has precedence.");
+      Rex::Logger::debug("If you want to overwrite this behaviour please use ,,use Rex -feature => 0.31;'' in your Rexfile.");
+      Rex::Logger::debug("=================================================");
    }
 
    Rex::Logger::debug("Setting auth info for " . ref($group) . " $entity");
@@ -537,6 +549,54 @@ sub do_task {
    else {
       return Rex::TaskList->create()->run($task);
    }
+}
+
+=item run_task($task_name, %option)
+
+Run a task on a given host.
+
+ my $return = run_task "taskname", on => "192.168.3.56";
+
+Do something on server5 if memory is less than 100 MB free on server3.
+
+ task "prepare", "server5", sub {
+    my $free_mem = run_task "get_free_mem", on => "server3";
+    if($free_mem < 100) {
+       say "Less than 100 MB free mem on server3";
+       # create a new server instance on server5 to unload server3
+    }
+ };
+    
+ task "get_free_mem", sub {
+     return memory->{free};
+ };
+
+If called without a hostname the task is run localy.
+
+ # this task will run on server5
+ task "prepare", "server5", sub {
+    # this will call task check_something. but this task will run on localhost.
+    my $check = run_task "check_something";
+ }
+   
+ task "check_something", "server4", sub {
+    return "foo";
+ };
+
+=cut
+
+sub run_task {
+   my ($task_name, %option) = @_;
+
+   if(exists $option{on}) {
+      my $task = Rex::TaskList->create()->get_task($task_name);
+      $task->run($option{on});
+   }
+   else {
+      my $task = Rex::TaskList->create()->get_task($task_name);
+      $task->run("<local>");
+   }
+
 }
 
 =item public_key($key)

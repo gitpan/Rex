@@ -523,6 +523,8 @@ sub connect {
 
    my $auth = $self->merge_auth($server);
 
+   Rex::Logger::debug(Dumper($auth));
+
    my $profiler = Rex::Profiler->new;
 
    # task specific auth rules over all
@@ -534,7 +536,7 @@ sub connect {
    $profiler->end("connect");
 
    if($self->connection->is_authenticated) {
-      Rex::Logger::info("Successfully authenticated.");
+      Rex::Logger::info("Successfully authenticated.") if($self->connection->get_connection_type ne "Local");
       $self->{"__was_authenticated"} = 1;
    }
    else {
