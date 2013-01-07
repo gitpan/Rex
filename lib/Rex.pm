@@ -22,7 +22,7 @@ You can find examples and howtos on L<http://rexify.org/>
 
 =item * IRC: irc.freenode.net #rex
 
-=item * Bug Tracker: L<https://rt.cpan.org/Dist/Display.html?Queue=Rex>
+=item * Bug Tracker: L<https://github.com/krimdomu/Rex/issues>
 
 =item * Twitter: L<http://twitter.com/jfried83>
 
@@ -85,7 +85,7 @@ our (@EXPORT,
       $GLOBAL_SUDO,
       $MODULE_PATHS);
 
-$VERSION = "0.36.0";
+$VERSION = "0.37.0";
 
 my $cur_dir = getcwd;
 
@@ -332,7 +332,7 @@ sub import {
 
    my ($register_to, $file, $line) = caller;
 
-   if($what eq "-base" || $what eq "base") {
+   if($what eq "-base" || $what eq "base" || $what eq "-feature") {
       require Rex::Commands;
       Rex::Commands->import(register_in => $register_to);
 
@@ -372,7 +372,8 @@ sub import {
       require Rex::Commands::Process;
       Rex::Commands::Process->import(register_in => $register_to);
    }
-   elsif($what eq "-feature" || $what eq "feature") {
+
+   if($what eq "-feature" || $what eq "feature") {
       # remove default task auth
       if($addition1  >= 0.31) {
          Rex::Logger::debug("activating featureset >= 0.31");
