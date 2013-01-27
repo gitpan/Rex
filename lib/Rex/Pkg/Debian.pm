@@ -13,6 +13,9 @@ use Rex::Commands::Run;
 use Rex::Commands::File;
 use Rex::Commands::Fs;
 
+use Rex::Pkg::Base;
+use base qw(Rex::Pkg::Base);
+
 sub new {
    my $that = shift;
    my $proto = ref($that) || $that;
@@ -71,6 +74,11 @@ sub update {
    return 1;
 }
 
+sub update_system {
+   my ($self) = @_;
+   run("apt-get -y upgrade");
+}
+
 sub remove {
    my ($self, $pkg) = @_;
 
@@ -127,11 +135,24 @@ sub add_repository {
 
    my $fh = file_write "/etc/apt/sources.list.d/$name.list";
    $fh->write("# This file is managed by Rex\n");
-   $fh->write("deb " . $data{"url"} . " " . $data{"distro"} . " " . $data{"repository"} . "\n");
+   if(exists $data{"arch"}) {
+      $fh->write("deb [arch=" . $data{"arch"} . "] " . $data{"url"} . " " . $data{"distro"} . " " . $data{"repository"} . "\n");
+   }
+   else {
+      $fh->write("deb " . $data{"url"} . " " . $data{"distro"} . " " . $data{"repository"} . "\n");
+   }
    if(exists $data{"source"} && $data{"source"}) {
       $fh->write("deb-src " . $data{"url"} . " " . $data{"distro"} . " " . $data{"repository"} . "\n");
    }
    $fh->close;
+
+   if(exists $data{"key_url"}) {
+      run "wget -O - " . $data{"key_url"} . " | apt-key add -";
+   }
+
+   if(exists $data{"key-id"} && $data{"key_server"}) {
+      run "apt-key adv --keyserver " . $data{"key_server"} . " --recv-keys " . $data{"key_id"};
+   }
 }
 
 sub rm_repository {

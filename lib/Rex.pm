@@ -76,8 +76,10 @@ use warnings;
 use Net::SSH2;
 use Rex::Logger;
 use Rex::Cache;
+use Data::Dumper;
 use Rex::Interface::Connection;
 use Cwd qw(getcwd);
+use Rex::Config;
 
 our (@EXPORT,
       $VERSION,
@@ -85,7 +87,7 @@ our (@EXPORT,
       $GLOBAL_SUDO,
       $MODULE_PATHS);
 
-$VERSION = "0.37.2";
+$VERSION = "0.38.0";
 
 my $cur_dir = getcwd;
 
@@ -111,6 +113,13 @@ push(@INC, sub {
 
 });
 
+my $home = $ENV{'HOME'};
+if($^O =~ m/^MSWin/) {
+   $home = $ENV{'USERPROFILE'};
+}
+
+push(@INC, "$home/.rex/recipes");
+
 sub get_module_path {
    my ($module) = @_;
    if(exists $MODULE_PATHS->{$module}) {
@@ -125,6 +134,15 @@ sub push_connection {
 sub pop_connection {
    pop @CONNECTION_STACK;
    Rex::Logger::debug("Connections in queue: " . scalar(@CONNECTION_STACK));
+}
+
+sub reconnect_lost_connections {
+   if(@CONNECTION_STACK > 0) {
+      Rex::Logger::debug("Need to reinitialize connections.");
+      for (@CONNECTION_STACK) {
+         $_->{conn}->reconnect;
+      }
+   }
 }
 
 =item get_current_connection
@@ -377,15 +395,29 @@ sub import {
    }
 
    if($what eq "-feature" || $what eq "feature") {
-      # remove default task auth
-      if($addition1  >= 0.31) {
-         Rex::Logger::debug("activating featureset >= 0.31");
-         Rex::TaskList->create()->set_default_auth(0);
+
+      if(! ref($addition1)) {
+         $addition1 = [$addition1];
       }
 
-      if($addition1 >= 0.35) {
-         Rex::Logger::debug("activating featureset >= 0.35");
-         $Rex::Commands::REGISTER_SUB_HASH_PARAMTER = 1;
+      for my $add (@{ $addition1 }) {
+
+         # remove default task auth
+         if($add =~ m/^\d+\.\d+$/ && $add  >= 0.31) {
+            Rex::Logger::debug("activating featureset >= 0.31");
+            Rex::TaskList->create()->set_default_auth(0);
+         }
+
+         if($add =~ m/^\d+\.\d+$/ && $add >= 0.35) {
+            Rex::Logger::debug("activating featureset >= 0.35");
+            $Rex::Commands::REGISTER_SUB_HASH_PARAMTER = 1;
+         }
+
+         if($add eq "local_template_vars") {
+            Rex::Logger::debug("activating featureset local_template_vars");
+            $Rex::Template::BE_LOCAL = 1;
+         }
+
       }
 
    }
@@ -408,6 +440,8 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item Chenryn
 
+=item Daniel Baeurer
+
 =item Dominik Danter
 
 =item Dominik Schulz
@@ -419,6 +453,8 @@ Many thanks to the contributors for their work (alphabetical order).
 =item Jean Charles Passard
 
 =item Jeen Lee
+
+=item Jonathan Delgado
 
 =item Joris
 

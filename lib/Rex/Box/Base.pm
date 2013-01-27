@@ -3,7 +3,23 @@
 # 
 # vim: set ts=3 sw=3 tw=0:
 # vim: set expandtab:
-   
+
+=head1 NAME
+
+Rex::Box::Base - Rex/Boxes Base Module
+
+=head1 DESCRIPTION
+
+This is a Rex/Boxes base module.
+
+=head1 METHODS
+
+These methods are shared across all other Rex::Box modules.
+
+=over 4
+
+=cut
+  
 package Rex::Box::Base;
 
 use strict;
@@ -13,10 +29,12 @@ use Rex::Commands -no => [qw/auth/];
 use Rex::Commands::Run;
 use Rex::Commands::Fs;
 use Rex::Commands::Virtualization;
+use Rex::Commands::SimpleCheck;
 
 use LWP::UserAgent;
 use Time::HiRes qw(tv_interval gettimeofday);
 use File::Basename qw(basename);
+use Data::Dumper;
 
 sub new {
    my $that = shift;
@@ -25,9 +43,26 @@ sub new {
 
    bless($self, $proto);
 
+   # default auth for rex boxes
+   $self->{__auth} = {
+      user        => Rex::Config->get_user(),
+      password    => Rex::Config->get_password(),
+      private_key => Rex::Config->get_private_key(),
+      public_key  => Rex::Config->get_public_key(),
+   };
+
    return $self;
 }
 
+=item info
+
+Returns a hashRef of vm information.
+
+=cut
+sub info {
+   my ($self) = @_;
+   return $self->{info};
+}
 
 =item name($vmname)
 
@@ -51,9 +86,7 @@ sub setup {
 
 =item import_vm()
 
-This method must be overwriten and called at the end of the method.
-
- $self::SUPER->import_vm();
+This method must be overwriten by the implementing class.
 
 =cut
 sub import_vm {
@@ -68,6 +101,7 @@ Stops the VM.
 =cut
 sub stop {
    my ($self) = @_;
+   $self->info;
    vm shutdown => $self->{name};
 }
 
@@ -78,8 +112,28 @@ Starts the VM.
 =cut
 sub start {
    my ($self) = @_;
+   $self->info;
    vm start => $self->{name};
 
+}
+
+=item ip()
+
+Return the ip:port to which rex will connect to.
+
+=cut
+sub ip { die("Must be implemented by box class.") }
+
+=item status()
+
+Returns the status of a VM.
+
+Valid return values are "running" and "stopped".
+
+=cut
+sub status {
+   my ($self) = @_;
+   return vm status => $self->{name};
 }
 
 =item provision_vm([@tasks])
@@ -165,6 +219,30 @@ sub auth {
    $self->{__auth} = \%auth;
 }
 
+sub wait_for_ssh {
+   my ($self, $ip, $port) = @_;
+
+   if(! $ip) {
+      ($ip, $port) = split(/:/, $self->ip);
+      $port ||= 22;
+   }
+
+   print "Waiting for SSH to come up on $ip:$port.";
+   while( ! is_port_open ($ip, $port) ) {
+      print ".";
+      sleep 1;
+   }
+
+   my $i=5;
+   while($i != 0) {
+      sleep 1;
+      print ".";
+      $i--;
+   }
+
+   print "\n";
+}
+
 sub _download {
    my ($self) = @_;
 
@@ -226,7 +304,14 @@ sub _download {
          });
          close($fh);
 
-         print " done.\n";
+         if($resp->is_success) {
+            print " done.\n";
+         }
+         else {
+            Rex::Logger::info("Error downloading box image.", "warn");
+            unlink "./tmp/$filename";
+         }
+
 
       }
       else {

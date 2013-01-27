@@ -3,6 +3,8 @@ package MyTest;
 use strict;
 use warnings;
 
+$::QUIET = 1; $::QUIET = 1;
+
 
 use Rex;
 use Rex::Config;
@@ -57,7 +59,7 @@ task("test", sub {
       return 1;
    }
 
-   return 0;
+   ok(1==-1);
 });
 
 desc("Test 2");
@@ -69,7 +71,7 @@ task("test2", sub {
       return 1;
    }
 
-   return 0;
+   ok(1==-1);
 
 });
 
@@ -83,7 +85,7 @@ task("test3", sub {
       return 1;
    }
 
-   return 0;
+   ok(1==-1);
 });
 
 desc("Test 4");

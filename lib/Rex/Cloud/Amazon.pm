@@ -79,6 +79,7 @@ sub run_instance {
                MaxCount => 1,
                KeyName  => $data{"key"},
                InstanceType => $data{"type"} || "m1.small",
+               SecurityGroup => $data{"security_group"} || "default",
                "Placement.AvailabilityZone" => $data{"zone"} || "");
 
    my $ref = $self->_xml($xml);
@@ -155,6 +156,15 @@ sub start_instance {
 
    $self->_request("StartInstances",
                "InstanceId.1" => $data{instance_id});
+
+   my ($info) = grep { $_->{"id"} eq $data{"instance_id"} } $self->list_instances();
+
+   while($info->{"state"} ne "running") {
+      Rex::Logger::debug("Waiting for instance to be started...");
+      ($info) = grep { $_->{"id"} eq $data{"instance_id"} } $self->list_instances();
+      sleep 5;
+   }
+
 }
 
 sub stop_instance {
@@ -164,6 +174,15 @@ sub stop_instance {
 
    $self->_request("StopInstances",
                "InstanceId.1" => $data{instance_id});
+
+   my ($info) = grep { $_->{"id"} eq $data{"instance_id"} } $self->list_instances();
+
+   while($info->{"state"} ne "stopped") {
+      Rex::Logger::debug("Waiting for instance to be stopped...");
+      ($info) = grep { $_->{"id"} eq $data{"instance_id"} } $self->list_instances();
+      sleep 5;
+   }
+
 }
 
 sub add_tag {
@@ -255,6 +274,7 @@ sub list_instances {
          launch_time => $instance_set->{"instancesSet"}->{"item"}->{"launchTime"},
          name => $instance_set->{"instancesSet"}->{"item"}->{"tagSet"}->{"item"}->{"value"},
          private_ip => $instance_set->{"instancesSet"}->{"item"}->{"privateIpAddress"},
+         security_group => $instance_set->{"instancesSet"}->{"item"}->{"groupSet"}->{"item"}->{"groupName"},
       });
    }
 

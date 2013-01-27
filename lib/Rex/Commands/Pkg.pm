@@ -124,6 +124,10 @@ This is deprecated since 0.9. Please use L<File> I<file> instead.
 
 sub install {
 
+   if(! @_) {
+      return "install";
+   }
+
    my $type = shift;
    my $package = shift;
    my $option;
@@ -332,6 +336,27 @@ sub remove {
 
    }
 
+}
+
+=item update_system
+
+This function do a complete system update. 
+
+For example I<apt-get upgrade> or I<yum update>.
+
+ task "update-system", "server1", sub {
+    update_system;
+ };
+
+=cut
+
+sub update_system {
+   my $pkg = Rex::Pkg->get;
+   eval {
+      $pkg->update_system;
+   } or do {
+      Rex::Logger::info("There is no update_system function for your system.");
+   };
 }
 
 =item installed_packages

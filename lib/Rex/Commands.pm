@@ -695,7 +695,7 @@ sub set_distributor {
    Rex::Config->set_distributor($_[0]);
 }
 
-=item set_template_function(sub { ... })
+=item template_function(sub { ... })
 
 This function sets the template processing function. So it is possible to change the template engine. For example to Template::Toolkit.
 
@@ -891,6 +891,8 @@ sub environment {
       if(Rex::Config->get_environment eq $name) {
          &$code();
       }
+
+      return 1;
    }
    else {
       return Rex::Config->get_environment;
