@@ -85,9 +85,10 @@ our (@EXPORT,
       $VERSION,
       @CONNECTION_STACK,
       $GLOBAL_SUDO,
-      $MODULE_PATHS);
+      $MODULE_PATHS,
+      $WITH_EXIT_STATUS);
 
-$VERSION = "0.38.0";
+$VERSION = "0.39.0";
 
 my $cur_dir = getcwd;
 
@@ -418,6 +419,11 @@ sub import {
             $Rex::Template::BE_LOCAL = 1;
          }
 
+         if($add eq "exit_status") {
+            Rex::Logger::debug("activating featureset exit_status");
+            $Rex::WITH_EXIT_STATUS = 1;
+         }
+
       }
 
    }
@@ -446,6 +452,8 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item Dominik Schulz
 
+=item Franky Van Liedekerke
+
 =item Gilles Gaudin, for writing a french howto
 
 =item Hiroaki Nakamura
@@ -461,6 +469,8 @@ Many thanks to the contributors for their work (alphabetical order).
 =item Jose Luis Martinez
 
 =item Laird Liu
+
+=item Naveed Massjouni
 
 =item Mario Domgoergen
 
