@@ -88,7 +88,7 @@ our (@EXPORT,
       $MODULE_PATHS,
       $WITH_EXIT_STATUS);
 
-$VERSION = "0.39.0";
+$VERSION = "0.40.0";
 
 my $cur_dir = getcwd;
 
@@ -414,6 +414,13 @@ sub import {
             $Rex::Commands::REGISTER_SUB_HASH_PARAMTER = 1;
          }
 
+         if($add =~ m/^\d+\.\d+$/ && $add >= 0.40) {
+            Rex::Logger::debug("activating featureset >= 0.40");
+            $Rex::Template::BE_LOCAL = 1;
+            $Rex::WITH_EXIT_STATUS = 1;
+         }
+
+
          if($add eq "local_template_vars") {
             Rex::Logger::debug("activating featureset local_template_vars");
             $Rex::Template::BE_LOCAL = 1;
@@ -422,6 +429,16 @@ sub import {
          if($add eq "exit_status") {
             Rex::Logger::debug("activating featureset exit_status");
             $Rex::WITH_EXIT_STATUS = 1;
+         }
+
+         if($add eq "sudo_without_sh") {
+            Rex::Logger::debug("using sudo without sh. this might break some things.");
+            $Rex::Interface::Sudo::SUDO_WITHOUT_SH = 1;
+         }
+
+         if($add eq "sudo_without_locales") {
+            Rex::Logger::debug("Using sudo without locales. this _will_ break things!");
+            $Rex::Interface::Sudo::SUDO_WITHOUT_LOCALE = 1;
          }
 
       }
@@ -451,6 +468,10 @@ Many thanks to the contributors for their work (alphabetical order).
 =item Dominik Danter
 
 =item Dominik Schulz
+
+=item Fran Rodriguez
+
+=item Ferenc Erki
 
 =item Franky Van Liedekerke
 

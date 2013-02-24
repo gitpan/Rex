@@ -34,6 +34,7 @@ use File::Basename qw(basename);
 use Rex::Config;
 use Rex::Commands::Fs;
 use Rex::Interface::Fs;
+use Rex::Helper::Path;
 
 use vars qw(@EXPORT);
 use base qw(Rex::Exporter);
@@ -63,6 +64,8 @@ sub upload {
       $remote = basename($local);
    }
 
+   $local = Rex::Helper::Path::get_file_path($local, caller());
+
    # if there is a file called filename.environment then use this file
    # ex: 
    # upload "files/hosts", "/etc/hosts";
@@ -70,6 +73,9 @@ sub upload {
    # rex -E live ...
    # will first look if files/hosts.live is available, if not it will
    # use files/hosts
+
+   my $old_local = $local; # for the upload location use the given name
+
    if(-f "$local." . Rex::Config->get_environment) {
       $local = "$local." . Rex::Config->get_environment;
    }
@@ -80,7 +86,7 @@ sub upload {
    }
 
    if(is_dir($remote)) {
-      $remote = $remote . '/' . basename($local);
+      $remote = $remote . '/' . basename($old_local);
    }
    $fs->upload($local, $remote);
 }

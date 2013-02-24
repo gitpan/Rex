@@ -131,6 +131,9 @@ use base qw(Rex::Exporter);
             template_function
             report
             make
+            pre_run_command
+            post_run_command
+            source_global_profile
           );
 
 our $REGISTER_SUB_HASH_PARAMTER = 0;
@@ -895,7 +898,7 @@ sub environment {
       return 1;
    }
    else {
-      return Rex::Config->get_environment;
+      return Rex::Config->get_environment || "default";
    }
 }
 
@@ -981,6 +984,11 @@ Or in a template
 =cut
 sub get {
    my ($key) = @_;
+
+   if(ref($key) eq "Rex::Value") {
+      return $key->value;
+   }
+
    return Rex::Config->get($key);
 }
 
@@ -1114,6 +1122,17 @@ sub report {
    }
 
    Rex::Report->create($type)->report($str);
+}
+
+=item source_global_profile(0|1)
+
+If this option is set, every run() command will first source /etc/profile before getting executed.
+
+=cut
+
+sub source_global_profile {
+   my ($source) = @_;
+   Rex::Config->set_source_global_profile($source);
 }
 
 ######### private functions
