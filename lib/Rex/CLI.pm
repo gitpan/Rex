@@ -47,7 +47,7 @@ BEGIN {
 
 $|++;
 
-my %opts;
+my (%opts, @help);
 
 if($#ARGV < 0) {
    @ARGV = qw(-h);
@@ -302,6 +302,10 @@ sub __run__ {
          exit 1;
       }
 
+      if(exists $opts{'t'}) {
+         parallelism($opts{'t'});
+      }
+
       my $pass_auth = 0;
 
       if($opts{'u'}) {
@@ -338,6 +342,7 @@ sub __run__ {
 
       Rex::TaskList->create()->create_task("eval-line", @params);
       Rex::Commands::do_task("eval-line");
+      CORE::exit(0);
    }
    elsif($opts{'M'}) {
       Rex::Logger::debug("Loading Rex-Module: " . $opts{'M'});
@@ -471,7 +476,7 @@ sub __run__ {
    my @exit_codes;
 
    if($Rex::WITH_EXIT_STATUS) {
-      @exit_codes = @Rex::Fork::Task::PROCESS_LIST;
+      @exit_codes = Rex::TaskList->create()->get_exit_codes();
    }
 
    # lock loeschen
@@ -545,8 +550,17 @@ sub __help__ {
    printf "  %-15s %s\n", "-t", "Number of threads to use.";
    print "\n";
 
+   for my $code (@help) {
+      &$code();
+   }
+
    CORE::exit 0;
 
+}
+
+sub add_help {
+   my ($self, $code) = @_;
+   push(@help, $code);
 }
 
 sub __version__ {

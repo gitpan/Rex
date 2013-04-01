@@ -146,9 +146,15 @@ sub user_groups {
    Rex::User->get()->user_groups(@_);
 }
 
-=item list_user()
+=item user_list()
 
-Returns user list via getent passwd
+Returns user list via getent passwd.
+
+ task "list_user", "server01", sub {
+    for my $user (user_list) {
+       print "name: $user / uid: " . get_uid($user) . "\n";
+    }
+ };
 
 =cut
 

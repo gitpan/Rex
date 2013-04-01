@@ -34,7 +34,7 @@ use Rex::Config;
 use Rex::Logger;
 
 our $DO_CHOMP = 0;
-our $BE_LOCAL = 0;
+our $BE_LOCAL = 1;
 
 sub function {
    my ($class, $name, $code) = @_;
@@ -159,15 +159,18 @@ sub parse {
          $var_data .= ' return $r;';
          $var_data .= "\n};";
 
+         Rex::Logger::debug("BE_LOCAL==1");
+         Rex::Logger::debug($var_data);
+
          my $tpl_code = eval($var_data);
          $r = $tpl_code->(@code_values);
 
       }
       else {
+         Rex::Logger::debug("BE_LOCAL==0");
          Rex::Logger::debug($new_data);
          $r = eval($new_data);
       }
-
 
       # undef the vars
       for my $var (keys %{$vars}) {

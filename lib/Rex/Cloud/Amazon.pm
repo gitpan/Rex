@@ -73,14 +73,38 @@ sub run_instance {
    Rex::Logger::debug("Trying to start a new Amazon instance with data:");
    Rex::Logger::debug("   $_ -> " . ($data{$_}?$data{$_}:"undef")) for keys %data;
 
+   my $security_groups;
+
+   if(ref($data{security_group}) eq "ARRAY") {
+      $security_groups = $data{security_group};
+   }
+   elsif(exists $data{security_groups}) {
+      $security_groups = $data{security_groups};
+   }
+   else {
+      $security_groups = $data{security_group};
+   }
+
+   my %security_group = ();
+   if(ref($security_groups) eq "ARRAY") {
+      my $i = 0;
+      for my $sg (@{ $security_groups }) {
+         $security_group{"SecurityGroup.$i"} = $sg;
+         $i++;
+      }
+   }
+   else {
+      $security_group{SecurityGroup} = $security_groups || "default";
+   }
+
    my $xml = $self->_request("RunInstances", 
                ImageId  => $data{"image_id"},
                MinCount => 1,
                MaxCount => 1,
                KeyName  => $data{"key"},
                InstanceType => $data{"type"} || "m1.small",
-               SecurityGroup => $data{"security_group"} || "default",
-               "Placement.AvailabilityZone" => $data{"zone"} || "");
+               "Placement.AvailabilityZone" => $data{"zone"} || "",
+               %security_group);
 
    my $ref = $self->_xml($xml);
 
@@ -274,7 +298,17 @@ sub list_instances {
          launch_time => $instance_set->{"instancesSet"}->{"item"}->{"launchTime"},
          name => $instance_set->{"instancesSet"}->{"item"}->{"tagSet"}->{"item"}->{"value"},
          private_ip => $instance_set->{"instancesSet"}->{"item"}->{"privateIpAddress"},
-         security_group => $instance_set->{"instancesSet"}->{"item"}->{"groupSet"}->{"item"}->{"groupName"},
+         (security_group =>
+            ref $instance_set->{"instancesSet"}->{"item"}->{"groupSet"}->{"item"} eq 'ARRAY'
+                ? join ',', map {$_->{groupName} } @{$instance_set->{"instancesSet"}->{"item"}->{"groupSet"}->{"item"}}
+                :$instance_set->{"instancesSet"}->{"item"}->{"groupSet"}->{"item"}->{"groupName"}
+        ),
+         (security_groups =>
+            ref $instance_set->{"instancesSet"}->{"item"}->{"groupSet"}->{"item"} eq 'ARRAY'
+                ? [ map { $_->{groupName} } @{$instance_set->{"instancesSet"}->{"item"}->{"groupSet"}->{"item"}} ]
+                : [ $instance_set->{"instancesSet"}->{"item"}->{"groupSet"}->{"item"}->{"groupName"} ]
+        ),
+
       });
    }
 
