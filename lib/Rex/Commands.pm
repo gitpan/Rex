@@ -107,7 +107,7 @@ use vars qw(@EXPORT $current_desc $global_no_ssh $environments $dont_register_ta
 use base qw(Rex::Exporter);
 
 @EXPORT = qw(task desc group 
-            user password port sudo_password public_key private_key pass_auth key_auth no_ssh
+            user password port sudo_password public_key private_key pass_auth key_auth krb5_auth no_ssh
             get_random batch timeout max_connect_retries parallelism
             do_task run_task needs
             exit
@@ -126,6 +126,7 @@ use base qw(Rex::Exporter);
             auth
             FALSE TRUE
             set_distributor
+            set_executor_for
             template_function
             report
             make
@@ -668,7 +669,6 @@ If you want to use pubkey authentication, then you need to call I<key_auth>.
  private_key "/home/bob/.ssh/id_rsa"; # passphrase-less key
  public_key "/home/bob/.ssh/id_rsa.pub";
  
- 
  key_auth;
 
 =cut
@@ -676,6 +676,22 @@ If you want to use pubkey authentication, then you need to call I<key_auth>.
 sub key_auth {
    if(wantarray) { return "key"; }
    Rex::Config->set_key_auth(1);
+}
+
+=item krb5_auth
+
+If you want to use kerberos authentication, then you need to call I<krb5_auth>.
+This authentication mechanism is only available if you use Net::OpenSSH.
+
+ set connection => "OpenSSH";
+ user "root";
+ krb5_auth;
+
+=cut
+
+sub krb5_auth {
+   if(wantarray) { return "krb5"; }
+   Rex::Config->set_krb5_auth(1);
 }
 
 =item parallelism($count)
@@ -1205,6 +1221,17 @@ sub case {
    return $to_return;
 }
 
+=item set_executor_for($type, $executor)
+
+Set the executor for a special type. This is primary used for the upload_and_run helper function.
+
+ set_executor_for perl => "/opt/local/bin/perl";
+
+=cut
+sub set_executor_for {
+   Rex::Config->set_executor_for(@_);
+}
+
 =item inspect($varRef)
 
 This function dumps the contents of a variable to STDOUT.
@@ -1303,6 +1330,7 @@ sub inspect {
 
 sub evaluate_hostname {
    my $str = shift;
+   return unless $str;
 
    my ($start, $from, $to, $dummy, $step, $end) = $str =~ m/^([0-9\.\w-]+)\[(\d+)..(\d+)(\/(\d+))?\]([0-9\w\.-]+)?$/;
 

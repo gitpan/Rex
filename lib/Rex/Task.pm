@@ -278,6 +278,10 @@ sub is_https {
    return ($self->{"connection_type"} && lc($self->{"connection_type"}) eq "https");
 }
 
+sub is_openssh {
+   my ($self) = @_;
+   return ($self->{"connection_type"} && lc($self->{"connection_type"}) eq "openssh");
+}
 
 =item want_connect
 
@@ -310,6 +314,9 @@ sub get_connection_type {
    }
    elsif($self->is_https) {
       return "HTTPS";
+   }
+   elsif($self->is_openssh) {
+      return "OpenSSH";
    }
    elsif($self->is_remote && $self->want_connect) {
       return "SSH";
@@ -647,7 +654,7 @@ sub run {
 
       if(Rex::Args->is_opt("c")) {
          # get and cache all os info
-         Rex::Hardware->get(qw/All/);
+         $server->gather_information;
       }
 
       # execute code

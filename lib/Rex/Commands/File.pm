@@ -72,6 +72,7 @@ use Rex::Commands::MD5;
 use Rex::File::Parser::Data;
 use Rex::Helper::System;
 use Rex::Helper::Path;
+use Rex::Helper::Run;
 
 use Rex::Interface::Exec;
 use Rex::Interface::File;
@@ -84,7 +85,7 @@ use base qw(Rex::Exporter);
 
 @EXPORT = qw(file_write file_read file_append 
                cat sed
-               delete_lines_matching append_if_no_such_line
+               delete_lines_matching append_if_no_such_line delete_lines_according_to 
                file template
                extract);
 
@@ -102,6 +103,10 @@ Parse a template and return the content.
 sub template {
    my ($file, @params) = @_;
    my $param = { @params };
+
+   if(! exists $param->{server}) {
+      $param->{server} = Rex::Commands::connection()->server;
+   }
 
    unless($file =~ m/^\// || $file =~ m/^\@/) {
       # path is relative and no template
@@ -140,7 +145,14 @@ sub template {
       die("$file not found");
    }
 
-   my %template_vars = _get_std_template_vars($param);
+   my %template_vars;
+   if(! exists $param->{__no_sys_info__}) {
+      %template_vars = _get_std_template_vars($param);
+   }
+   else {
+      delete $param->{__no_sys_info__};
+      %template_vars = %{ $param };
+   }
 
    return Rex::Config->get_template_function()->($content, \%template_vars);
 }
@@ -149,7 +161,16 @@ sub _get_std_template_vars {
    my ($param) = @_;
 
    my %merge1 = %{$param || {}};
-   my %merge2 = Rex::Helper::System::info();
+   my %merge2;
+
+   if(Rex::get_cache()->valid("system_information_info")) {
+      %merge2 = %{ Rex::get_cache()->get("system_information_info") };
+   }
+   else {
+      %merge2 = Rex::Helper::System::info();
+      Rex::get_cache()->set("system_information_info", \%merge2);
+   }
+
    my %template_vars = (%merge1, %merge2);
 
    return %template_vars;
@@ -367,99 +388,226 @@ Delete lines that match $regexp in $file.
 =cut
 sub delete_lines_matching {
    my ($file, @m) = @_;
-   my $fs = Rex::Interface::Fs->create;
 
-   if(! $fs->is_file($file)) {
-      Rex::Logger::info("File: $file not found.");
-      die("$file not found");
+   for (@m) {
+      if(ref($_) ne "Regexp") {
+         $_ = qr{\Q$_\E};
+      }
    }
 
-   if(! $fs->is_writable($file)) {
-      Rex::Logger::info("File: $file not writable.");
-      die("$file not writable");
-   }
+   my $perl = Rex::get_cache()->can_run("perl");
+   if($perl) {
+      # if perl is available, use it
+      my $exec = Rex::Interface::Exec->create;
 
-   my $nl = $/;
-   my @content = split(/$nl/, cat ($file));
 
-   my $fh = file_write $file;
-   unless($fh) {
-      die("Can't open $file for writing");
-   }
-
-   OUT:
-   for my $line (@content) {
-      IN:
       for my $match (@m) {
-         if(! ref($match) eq "Regexp") {
-            $match = qr{$match};
-         }
+         $match = _normalize_regex($match);
+         my $cmd = "perl -lne 'print unless (m/$match/)' -i '$file'";
+         $exec->exec($cmd);
+      }
+   }
+   else {
 
-         if($line =~ $match) {
-            next OUT;
-         }
+      my $fs = Rex::Interface::Fs->create;
+
+      if(! $fs->is_file($file)) {
+         Rex::Logger::info("File: $file not found.");
+         die("$file not found");
       }
 
-      $fh->write($line . $nl);
+      if(! $fs->is_writable($file)) {
+         Rex::Logger::info("File: $file not writable.");
+         die("$file not writable");
+      }
+
+      my $nl = $/;
+      my @content = split(/$nl/, cat ($file));
+
+      my $fh = file_write $file;
+      unless($fh) {
+         die("Can't open $file for writing");
+      }
+
+      OUT:
+      for my $line (@content) {
+         IN:
+         for my $match (@m) {
+            if($line =~ $match) {
+               next OUT;
+            }
+         }
+
+         $fh->write($line . $nl);
+      }
+      $fh->close;
+
    }
-   $fh->close;
+}
+
+=item delete_lines_according_to($search, $file, @options)
+
+This is the successor of the delete_lines_matching() function. This function also allows the usage of an on_change hook.
+
+It will search for $search in $file and remove the found lines. If on_change hook is present it will execute this if the file was changed.
+
+ task "cleanup", "server1", sub {
+    delete_lines_according_to qr{^foo:}, "/etc/passwd",
+      on_change => sub {
+         say "removed user foo.";
+      };
+ };
+
+=cut
+sub delete_lines_according_to {
+   my ($search, $file, @options) = @_;
+
+   my $option = { @options };
+   my $on_change = $option->{on_change} || undef;
+
+   my ($old_md5, $new_md5);
+
+   if($on_change) {
+      $old_md5 = md5($file);
+   }
+
+   delete_lines_matching($file, $search);
+
+   if($on_change) {
+      $new_md5 = md5($file);
+
+      if($old_md5 ne $new_md5) {
+         &$on_change($file);
+      }
+   }
 }
 
 =item append_if_no_such_line($file, $new_line, @regexp)
 
 Append $new_line to $file if none in @regexp is found. If no regexp is
-supplied, the line is appended unless there already an identical line
+supplied, the line is appended unless there is already an identical line
 in $file.
 
  task "add-group", sub {
     append_if_no_such_line "/etc/groups", "mygroup:*:100:myuser1,myuser2", on_change => sub { service sshd => "restart"; };
  };
 
+Since 0.42 you can use named parameters as well
+
+ task "add-group", sub {
+    append_if_no_such_line "/etc/groups",
+       line   => "mygroup:*:100:myuser1,myuser2",
+       regexp => qr{^mygroup},
+       on_change => sub {
+                       say "file was changed, do something.";
+                    };
+          
+    append_if_no_such_line "/etc/groups",
+       line   => "mygroup:*:100:myuser1,myuser2",
+       regexp => [qr{^mygroup:}, qr{^ourgroup:}]; # this is an OR
+ };
 =cut
 sub append_if_no_such_line {
-   my ($file, $new_line, @m) = @_;
+   my $file = shift;
+   my ($new_line, @m);
+
+   # check if parameters are in key => value format
+   my ($option, $on_change);
+
+   eval {
+      no warnings;
+      $option = { @_ };
+      # if there is no line parameter, it is the old parameter format
+      # so go dieing
+      if(! exists $option->{line}) {
+         die;
+      }
+      $new_line = $option->{line};
+      if(exists $option->{regexp} && ref $option->{regexp} eq "Regexp") {
+         @m = ($option->{regexp});
+      }
+      elsif(ref $option->{regexp} eq "ARRAY") {
+         @m = @{ $option->{regexp} };
+      }
+      $on_change = $option->{on_change} || undef;
+      1;
+   } or do {
+      ($new_line, @m) = @_;
+      # check if something in @m (the regexpes) is named on_change
+      for (my $i = 0; $i<$#m; $i++ ) {
+         if ( $m[$i] eq "on_change" && ref($m[$i+1]) eq "CODE" ) {
+            $on_change = $m[$i+1];
+            splice(@m,$i,2);
+            last;
+         }
+      }
+   };
 
    my $fs = Rex::Interface::Fs->create;
-
-   if(! $fs->is_file($file)) {
-      Rex::Logger::info("File: $file not found.");
-      die("$file not found");
-   }
-
-   if(! $fs->is_writable($file)) {
-      Rex::Logger::info("File: $file not writable.");
-      die("$file not writable");
-   }
-
-   my $on_change;
-   for (my $i = 0; $i<$#m; $i++ ) {
-      if ( $m[$i] eq "on_change" && ref($m[$i+1]) eq "CODE" ) {
-         $on_change = $m[$i+1];
-         splice(@m,$i,2);
-         last;
-      }
-   }
 
    if ( !@m ) {
       push @m, qr{^\Q$new_line\E$}m;
    }
 
-   my $content = cat ($file);
-   for my $match (@m) {
-      if ( $content =~ /$match/m ) {
-         return 0;
+   # i don't like this next line...
+   # normalizing regexp serialization for older perl versions
+   for (@m) {
+      $_ = _normalize_regex($_);
+   }
+
+   my $template = template(get_file_path("templates/append_if_no_such_line.tpl.pl"),
+      line => $new_line,
+      regex => \@m,
+      file => $file,
+      __no_sys_info__ => 1);
+
+   my $old_md5;
+   if ($on_change) {
+      $old_md5 = md5($file);
+   }
+
+   my $f = upload_and_run $template, with => "perl";
+
+   my $ret = $?;
+   if ($ret==1) {
+      die("Can't open $file for reading");
+   }
+   elsif ($ret==2) {
+      die("Can't open temp file for writing");
+   }
+   elsif ($ret==3) {
+      die("Can't open $file for writing");
+   }
+
+   if ($on_change) {
+      my $new_md5 = md5($file);
+      unless($old_md5 && $new_md5 && $old_md5 eq $new_md5) {
+         $old_md5 ||= "";
+         $new_md5 ||= "";
+
+         Rex::Logger::debug("File $file has been changed... Running on_change");
+         Rex::Logger::debug("old: $old_md5");
+         Rex::Logger::debug("new: $new_md5");
+         &$on_change($file);
       }
    }
 
-   $content .= "$new_line\n";
-   my $fh = file_write $file;
-   unless($fh) {
-      die("Can't open $file for writing");
-   }
-   $fh->write($content);
-   $fh->close;
+#   my $content = cat ($file);
+#   for my $match (@m) {
+#      if ( $content =~ /$match/m ) {
+#         return 0;
+#      }
+#   }
 
-   &$on_change() if defined $on_change;
+#   $content .= "$new_line\n";
+#   my $fh = file_write $file;
+#   unless($fh) {
+#      die("Can't open $file for writing");
+#   }
+#   $fh->write($content);
+#   $fh->close;
+
+#   &$on_change() if defined $on_change;
 }
 
 =item extract($file [, %options])
@@ -555,13 +703,48 @@ Search some string in a file and replace it.
 =cut
 sub sed {
    my ($search, $replace, $file, @options) = @_;
-   my $content = cat($file);
    my $option = { @options };
 
-   my $on_change = $option->{"on_change"} || undef;
-   $content =~ s/$search/$replace/gms;
+   my $perl = Rex::get_cache()->can_run("perl");
+   if($perl) {
+      # if perl is available use it
+      my $on_change = $option->{"on_change"} || undef;
+      my $exec = Rex::Interface::Exec->create;
 
-   file($file, content => $content, on_change => $on_change);
+      $search = _normalize_regex($search);
+
+      my $cmd = "perl -lne 's/$search/$replace/; print;' -i '$file'";
+
+      my ($old_md5, $new_md5);
+
+      if($on_change) {
+         $old_md5 = md5($file);
+      }
+
+      $exec->exec($cmd);
+
+      if($on_change) {
+         $new_md5 = md5($file);
+      }
+
+      if($on_change && ($old_md5 ne $new_md5)) {
+         &$on_change($file);
+      }
+   }
+   else {
+      my $content = cat($file);
+
+      my $on_change = $option->{"on_change"} || undef;
+      $content =~ s/$search/$replace/gms;
+
+      file($file, content => $content, on_change => $on_change);
+   }
+}
+
+sub _normalize_regex {
+   my ($reg) = @_;
+   $reg =~ s/^\(\?\^/\(\?/;
+   return $reg;
 }
 
 =back

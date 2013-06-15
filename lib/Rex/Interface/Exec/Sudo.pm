@@ -29,15 +29,25 @@ sub new {
 }
 
 sub exec {
-   my ($self, $cmd, $path) = @_;
+   my ($self, $cmd, $path, $option) = @_;
+
+   if(exists $option->{cwd}) {
+      $cmd = "cd " . $option->{cwd} . " && $cmd";
+   }
 
    if($path) { $path = "PATH=$path" }
    $path ||= "";
 
    my ($exec, $file);
-   if(Rex::is_ssh()) {
-      $exec = Rex::Interface::Exec->create("SSH");
-      $file = Rex::Interface::File->create("SSH");
+   if(my $ssh = Rex::is_ssh()) {
+      if(ref $ssh eq "Net::OpenSSH") {
+         $exec = Rex::Interface::Exec->create("OpenSSH");
+         $file = Rex::Interface::File->create("OpenSSH");
+      }
+      else {
+         $exec = Rex::Interface::Exec->create("SSH");
+         $file = Rex::Interface::File->create("SSH");
+      }
    }
    else {
       $exec = Rex::Interface::Exec->create("Local");
@@ -47,6 +57,8 @@ sub exec {
    my $sudo_password = task->get_sudo_password;
    my $enc_pw;
    my $random_file = "";
+
+   Rex::Logger::debug("Sudo: Executing: $cmd");
 
    if($sudo_password) {
       my $random_string = get_random(length($sudo_password), 'a' .. 'z');
@@ -85,6 +97,12 @@ EOF
 
    my $locales = "LC_ALL=C";
 
+   my $sudo_options = Rex::get_current_connection()->{sudo_options};
+   my $sudo_options_str = "";
+   if(exists $sudo_options->{user}) {
+      $sudo_options_str .= " -u " . $sudo_options->{user};
+   }
+
    if(Rex::Config->get_sudo_without_locales()) {
       Rex::Logger::debug("Using sudo without locales. If the locale is NOT C or en_US it will break many things!");
       $locales = "";
@@ -93,17 +111,14 @@ EOF
    if(Rex::Config->get_sudo_without_sh()) {
       Rex::Logger::debug("Using sudo without sh will break things like file editing.");
       if($enc_pw) {
-         return $exec->exec("perl $random_file '$enc_pw' | sudo -p '' -S $locales $cmd");
+         return $exec->exec("perl $random_file '$enc_pw' | sudo $sudo_options_str -p '' -S $locales $cmd");
       }
       else {
-         return $exec->exec("sudo $locales $cmd");
+         return $exec->exec("sudo $sudo_options_str $locales $cmd");
       }
    }
    else {
-      my $new_cmd = "$locales $cmd";
-      if($path) {
-         $new_cmd = "export $path ; $new_cmd";
-      }
+      my $new_cmd = "$locales $path ; export PATH LC_ALL ; $cmd";
 
       # escape some special shell things
       $new_cmd =~ s/\\/\\\\/gms;
@@ -115,10 +130,10 @@ EOF
       }
 
       if($enc_pw) {
-         return $exec->exec("perl $random_file '$enc_pw' | sudo -p '' -S sh -c \"$new_cmd\"");
+         return $exec->exec("perl $random_file '$enc_pw' | sudo $sudo_options_str -p '' -S sh -c \"$new_cmd\"");
       }
       else {
-         return $exec->exec("sudo -p '' -S sh -c \"$new_cmd\"");
+         return $exec->exec("sudo $sudo_options_str -p '' -S sh -c \"$new_cmd\"");
       }
 
    }

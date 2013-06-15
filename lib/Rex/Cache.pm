@@ -19,6 +19,8 @@ sub new {
    my $proto = ref($that) || $that;
    my $self = { @_ };
 
+   $self->{__data__} = {};
+
    bless($self, $proto);
 
    return $self;
@@ -110,8 +112,13 @@ sub can_run {
 }
 
 sub set {
-   my ($self, $key, $val) = @_;
+   my ($self, $key, $val, $timeout) = @_;
    $self->{__data__}->{$key} = $val;
+}
+
+sub valid {
+   my ($self, $key) = @_;
+   return exists $self->{__data__}->{$key};
 }
 
 sub get {

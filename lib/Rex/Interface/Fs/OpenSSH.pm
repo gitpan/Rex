@@ -4,7 +4,7 @@
 # vim: set ts=3 sw=3 tw=0:
 # vim: set expandtab:
    
-package Rex::Interface::Fs::SSH;
+package Rex::Interface::Fs::OpenSSH;
    
 use strict;
 use warnings;
@@ -12,6 +12,7 @@ use warnings;
 use Fcntl;
 use Rex::Interface::Exec;
 use Rex::Interface::Fs::Base;
+use Net::SFTP::Foreign::Constants qw(:flags);
 use base qw(Rex::Interface::Fs::Base);
 
 require Rex::Commands;
@@ -35,13 +36,10 @@ sub ls {
    eval {
 
       my $sftp = Rex::get_sftp();
-      my $dir = $sftp->opendir($path);
-      unless($dir) {
-         die("$path is not a directory");
-      }
+      my $ls = $sftp->ls($path);
 
-      while(my $entry  = $dir->read) {
-         push @ret, $entry->{'name'};
+      for my $entry (@{ $ls }) {
+         push @ret, $entry->{'filename'};
       }
    };
    Rex::Commands::profiler()->end("ls: $path");
@@ -60,8 +58,9 @@ sub is_dir {
 
    Rex::Commands::profiler()->start("is_dir: $path");
    my $sftp = Rex::get_sftp();
-   if($sftp->opendir($path)) {
+   if(my $hndl = $sftp->opendir($path)) {
       # return true if $path can be opened as a directory
+      $sftp->closedir($hndl);
       $ret = 1;
    }
    Rex::Commands::profiler()->end("is_dir: $path");
@@ -74,10 +73,11 @@ sub is_file {
 
    my $ret;
 
-   Rex::Commands::profiler()->start("is_file: $file");
    my $sftp = Rex::get_sftp();
-   if( $sftp->open($file, O_RDONLY) ) {
+   Rex::Commands::profiler()->start("is_file: $file");
+   if(my $hndl = $sftp->open($file, SSH2_FXF_READ) ) {
       # return true if $file can be opened read only
+      $sftp->close($hndl);
       $ret = 1;
    }
    Rex::Commands::profiler()->end("is_file: $file");
@@ -91,7 +91,7 @@ sub unlink {
    my $sftp = Rex::get_sftp();
    for my $file (@files) {
       Rex::Commands::profiler()->start("unlink: $file");
-      eval { $sftp->unlink($file); };
+      eval { $sftp->remove($file); };
       Rex::Commands::profiler()->end("unlink: $file");
    }
 }
@@ -108,7 +108,6 @@ sub mkdir {
    if($self->is_dir($dir)) {
       $ret = 1;
    }
-
    Rex::Commands::profiler()->end("mkdir: $dir");
 
    return $ret;
@@ -120,11 +119,18 @@ sub stat {
    Rex::Commands::profiler()->start("stat: $file");
 
    my $sftp = Rex::get_sftp();
-   my %ret = $sftp->stat($file);
+   my $ret = $sftp->stat($file);
 
-   if(! %ret) { return; }
+   if(! $ret) { return; }
 
-   $ret{'mode'} = sprintf("%04o", $ret{'mode'} & 07777);
+   my %ret = (
+      mode => sprintf("%04o", $ret->perm & 07777),
+      size => $ret->size,
+      uid => $ret->uid,
+      gid => $ret->gid,
+      atime => $ret->atime,
+      mtime => $ret->mtime,
+   );
 
    Rex::Commands::profiler()->end("stat: $file");
 
@@ -213,8 +219,8 @@ sub upload {
 
    Rex::Commands::profiler()->start("upload: $source -> $target");
 
-   my $ssh = Rex::is_ssh();
-   unless($ssh->scp_put($source, $target)) {
+   my $sftp = Rex::get_sftp();
+   unless($sftp->put($source, $target)) {
       Rex::Logger::debug("upload: $target is not writable");
 
       Rex::Commands::profiler()->end("upload: $source -> $target");
@@ -230,10 +236,10 @@ sub download {
 
    Rex::Commands::profiler()->start("download: $source -> $target");
 
-   my $ssh = Rex::is_ssh();
-   if(!$ssh->scp_get($source, $target)) {
+   my $sftp = Rex::get_sftp();
+   if(!$sftp->get($source, $target)) {
       Rex::Commands::profiler()->end("download: $source -> $target");
-      die($ssh->error);
+      die($sftp->error);
    }
 
    Rex::Commands::profiler()->end("download: $source -> $target");

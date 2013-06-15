@@ -32,7 +32,7 @@ use Data::Dumper;
 
 our ($user, $password, $port,
             $timeout, $max_connect_fails,
-            $password_auth, $key_auth, $public_key, $private_key, $parallelism, $log_filename, $log_facility, $sudo_password,
+            $password_auth, $key_auth, $krb5_auth, $public_key, $private_key, $parallelism, $log_filename, $log_facility, $sudo_password,
             $ca_file, $ca_cert, $ca_key,
             $path,
             $set_param,
@@ -45,7 +45,18 @@ our ($user, $password, $port,
             $sudo_without_locales,
             $sudo_without_sh,
             $no_tty,
-            $source_global_profile);
+            $source_global_profile,
+            %executor_for,
+            $allow_empty_groups,
+            $use_server_auth);
+
+# some defaults
+%executor_for = (
+   perl   => "perl",
+   python => "python",
+   ruby   => "ruby",
+   bash   => "bash",
+);
 
 
 sub get_sudo_without_locales {
@@ -64,6 +75,21 @@ sub set_sudo_without_locales {
 sub set_sudo_without_sh {
    my $class = shift;
    $sudo_without_sh = shift;
+}
+
+sub set_executor_for {
+   my $class = shift;
+   my $for   = shift;
+   my $e     = shift;
+
+   $executor_for{$for} = $e;
+}
+
+sub get_executor_for {
+   my $class = shift;
+   my $e     = shift;
+
+   return $executor_for{$e};
 }
 
 sub set_path {
@@ -190,13 +216,22 @@ sub get_timeout {
 sub set_password_auth {
    my $class = shift;
    $key_auth = 0;
+   $krb5_auth = 0;
    $password_auth = shift || 1;
 }
 
 sub set_key_auth {
    my $class = shift;
    $password_auth = 0;
+   $krb5_auth = 0;
    $key_auth = shift || 1;
+}
+
+sub set_krb5_auth {
+   my $class = shift;
+   $password_auth = 0;
+   $key_auth = 0;
+   $krb5_auth = shift || 1;
 }
 
 sub get_password_auth {
@@ -205,6 +240,10 @@ sub get_password_auth {
 
 sub get_key_auth {
    return $key_auth;
+}
+
+sub get_krb5_auth {
+   return $krb5_auth;
 }
 
 sub set_public_key {
@@ -557,6 +596,42 @@ sub _parse_ssh_config {
    }
 
    return %ret;
+}
+
+sub set_allow_empty_groups {
+   my ($class, $set) = @_;
+   if($set) {
+      $allow_empty_groups = 1;
+   }
+   else {
+      $allow_empty_groups = 0;
+   }
+}
+
+sub get_allow_empty_groups {
+   if($allow_empty_groups) {
+      return 1;
+   }
+
+   return 0;
+}
+
+sub set_use_server_auth {
+   my ($class, $set) = @_;
+   if($set) {
+      $use_server_auth = 1;
+   }
+   else {
+      $use_server_auth = 0;
+   }
+}
+
+sub get_use_server_auth {
+   if($use_server_auth) {
+      return 1;
+   }
+
+   return 0;
 }
 
 sub import {

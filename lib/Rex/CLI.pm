@@ -47,7 +47,7 @@ BEGIN {
 
 $|++;
 
-my (%opts, @help);
+my (%opts, @help, @exit);
 
 if($#ARGV < 0) {
    @ARGV = qw(-h);
@@ -435,7 +435,7 @@ sub __run__ {
              _print_color("      " . join(" ", Rex::Batch->get_batch($batch)) . "\n");
          }
       }
-      _print_color("Environments\n", "yellow") if(Rex::Commands->get_environments);
+      _print_color("Environments\n", "yellow");
       print "  " . join("\n  ", Rex::Commands->get_environments()) . "\n";
 
       my %groups = Rex::Group->get_groups;
@@ -497,6 +497,10 @@ sub __run__ {
    }
 
    select STDOUT;
+
+   for my $exit_hook (@exit) {
+      &$exit_hook();
+   }
 
    if($Rex::WITH_EXIT_STATUS) {
       for my $exit_code (@exit_codes) {
@@ -567,6 +571,11 @@ sub __help__ {
 sub add_help {
    my ($self, $code) = @_;
    push(@help, $code);
+}
+
+sub add_exit {
+   my ($self, $code) = @_;
+   push(@exit, $code);
 }
 
 sub __version__ {

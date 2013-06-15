@@ -43,6 +43,7 @@
             "MIME::Base64" : 0,
             "Net::SSH2" : "0.33",
             "Storable" : 0,
+            "String::Escape" : 0,
             "XML::Simple" : 0,
             "YAML" : 0
          }
@@ -54,5 +55,5 @@
          "url" : "https://github.com/krimdomu/Rex"
       }
    },
-   "version" : "v0.41.3"
+   "version" : "v0.42.0"
 }

@@ -76,12 +76,19 @@ our $LAST_OUTPUT;   # this variable stores the last output of a run.
                     # so that it is possible to get for example the output of an apt-get update
                     # that is called through >> install "foo" <<
 sub run {
-   my ($cmd, $code) = @_;
+   my $cmd = shift;
+   my ($code, $option);
+   if(ref $_[0] eq "CODE") {
+      $code = shift;
+   }
+   elsif(scalar @_ > 0) {
+      $option = { @_ };
+   }
 
    my $path = join(":", Rex::Config->get_path());
 
    my $exec = Rex::Interface::Exec->create;
-   my ($out, $err) = $exec->exec($cmd, $path);
+   my ($out, $err) = $exec->exec($cmd, $path, $option);
    chomp $out if $out;
    chomp $err if $err;
 
@@ -171,6 +178,12 @@ Run only one command within sudo.
 sub sudo {
    my ($cmd) = @_;
 
+   my $options;
+   if(ref $cmd eq "HASH") {
+      $options = $cmd;
+      $cmd = $options->{command};
+   }
+
    if($cmd eq "on" || $cmd eq "-on" || $cmd eq "1") {
       Rex::Logger::debug("Turning sudo globaly on");
       Rex::global_sudo(1);
@@ -183,7 +196,9 @@ sub sudo {
    }
 
    my $old_sudo = Rex::get_current_connection()->{use_sudo} || 0;
+   my $old_options = Rex::get_current_connection()->{sudo_options} || {};
    Rex::get_current_connection()->{use_sudo} = 1;
+   Rex::get_current_connection()->{sudo_options} = $options;
 
    my $ret;
 
@@ -196,6 +211,7 @@ sub sudo {
    }
 
    Rex::get_current_connection()->{use_sudo} = $old_sudo;
+   Rex::get_current_connection()->{sudo_options} = $old_options;
 
    return $ret;
 }

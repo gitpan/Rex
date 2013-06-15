@@ -10,6 +10,7 @@ use strict;
 use warnings;
 
 use Rex::Logger;
+use Rex::Helper::System;
 use Rex::Config;
 use Data::Dumper;
 
@@ -35,12 +36,55 @@ sub new {
 
    bless($self, $proto);
 
+   # rewrite auth info
+   if($self->{user}) {
+      $self->{auth}->{user} = $self->{user};
+      delete $self->{user};
+   }
+
+   if($self->{password}) {
+      $self->{auth}->{password} = $self->{password};
+      delete $self->{password};
+   }
+
+   if($self->{public_key}) {
+      $self->{auth}->{public_key} = $self->{public_key};
+      delete $self->{public_key};
+   }
+
+   if($self->{private_key}) {
+      $self->{auth}->{private_key} = $self->{private_key};
+      delete $self->{private_key};
+   }
+
+   if($self->{sudo}) {
+      $self->{auth}->{sudo} = $self->{sudo};
+      delete $self->{sudo};
+   }
+
+   if($self->{sudo_password}) {
+      $self->{auth}->{sudo_password} = $self->{sudo_password};
+      delete $self->{sudo_password};
+   }
+
+   if($self->{auth_type}) {
+      $self->{auth}->{auth_type} = $self->{auth_type};
+      delete $self->{auth_type};
+   }
+
    return $self;
 }
 
 sub get_servers {
    my ($self) = @_;
-   return map { $_ = Rex::Group::Entry::Server->new(name => $_, auth => $self->{auth}); } Rex::Commands::evaluate_hostname($self->to_s);
+   return map {
+               if(ref($_) ne "Rex::Group::Entry::Server") {
+                  $_ = Rex::Group::Entry::Server->new(name => $_, auth => $self->{auth});
+               }
+               else {
+                  $_;
+               }
+              } Rex::Commands::evaluate_hostname($self->to_s);
 }
 
 sub to_s {
@@ -147,6 +191,9 @@ sub get_auth_type {
          && exists $self->{auth}->{password} && $self->{auth}->{password} ne "") {
       return "try";
    }
+   elsif(Rex::Config->get_krb5_auth) {
+      return "krb5";
+   }
    elsif(Rex::Config->get_password_auth) {
       return "pass";
    }
@@ -193,7 +240,7 @@ sub merge_auth {
       }
 
       # other_auth has presedence
-      if(exists $other_auth->{$key}) {
+      if(exists $other_auth->{$key} && Rex::Config->get_use_server_auth() == 0) {
          $new_auth{$key} = $other_auth->{$key};
       }
    }
@@ -201,5 +248,40 @@ sub merge_auth {
    return %new_auth;
 }
 
+sub option {
+   my ($self, $option) = @_;
+   if(exists $self->{$option}) {
+      return $self->{$option};
+   }
+}
+
+sub gather_information {
+   my ($self) = @_;
+   my %info = Rex::Helper::System::info();
+   $self->{__hardware_info__} = \%info;
+}
+
+sub AUTOLOAD {
+   use vars qw($AUTOLOAD);
+   my $self = shift;
+
+   return $self if( $AUTOLOAD =~ m/DESTROY/ );
+
+   my ($wanted_data) = ($AUTOLOAD =~ m/::([a-z0-9A-Z]+)$/);
+
+   if(scalar(keys %{ $self->{__hardware_info__} }) == 0) {
+      $self->gather_information;
+   }
+
+   if(exists $self->{__hardware_info__}->{$wanted_data}) {
+      return $self->{__hardware_info__}->{$wanted_data};
+   }
+
+   if(exists $self->{$wanted_data}) {
+      return $self->{$wanted_data};
+   }
+
+   return undef;
+}
 
 1;
