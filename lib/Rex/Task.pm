@@ -315,7 +315,7 @@ sub get_connection_type {
    elsif($self->is_https) {
       return "HTTPS";
    }
-   elsif($self->is_openssh) {
+   elsif($self->is_remote && $self->is_openssh && $self->want_connect) {
       return "OpenSSH";
    }
    elsif($self->is_remote && $self->want_connect) {
@@ -533,6 +533,7 @@ sub connect {
    my $public_key = "";
    my $private_key = "";
 
+   #print Dumper($self);
    my $auth = $self->merge_auth($server);
 
    Rex::Logger::debug(Dumper($auth));
@@ -707,7 +708,7 @@ sub get_desc {
    return Rex::TaskList->create()->get_desc(@tmp);
 }
 
-=begin exit_on_connect_fail()
+=item exit_on_connect_fail()
 
 Returns true if rex should exit on connect failure.
 

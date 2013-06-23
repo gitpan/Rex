@@ -65,14 +65,31 @@ sub md5 {
       print Digest::MD5::md5_hex(<>) . "\n";
       |;
 
-      my $rnd_file = "/tmp/" . Rex::Commands::get_random(8, 'a' .. 'z') . ".tmp";
+      my $rnd_file;
+      if(Rex::is_ssh()) {
+         $rnd_file = "/tmp/" . Rex::Commands::get_random(8, 'a' .. 'z') . ".tmp";
+      }
+      elsif($^O =~ m/^MSWin/) {
+         $rnd_file = $ENV{TMP} . "/" . Rex::Commands::get_random(8, 'a' .. 'z') . ".tmp"
+      }
+      else {
+         $rnd_file = "/tmp/" . Rex::Commands::get_random(8, 'a' .. 'z') . ".tmp";
+      }
+
       my $fh = Rex::Interface::File->create;
       $fh->open(">", $rnd_file);
       $fh->write($script);
       $fh->close;
 
       my $exec = Rex::Interface::Exec->create;
-      my $md5 = $exec->exec("perl $rnd_file '$file'");
+      my $md5;
+
+      if(Rex::is_local() && $^O =~ m/^MSWin/) {
+         $md5 = $exec->exec("perl $rnd_file \"$file\"");
+      }
+      else {
+         $md5 = $exec->exec("perl $rnd_file '$file'");
+      }
 
       unless($? == 0) {
          ($md5) = split(/\s/, $exec->exec("md5sum '$file'"));

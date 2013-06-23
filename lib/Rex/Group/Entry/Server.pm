@@ -36,6 +36,12 @@ sub new {
 
    bless($self, $proto);
 
+   # be save check if name is already a server ref
+
+   if(ref $self->{name} eq __PACKAGE__) {
+      return $self->{name};
+   }
+
    # rewrite auth info
    if($self->{user}) {
       $self->{auth}->{user} = $self->{user};
@@ -84,7 +90,7 @@ sub get_servers {
                else {
                   $_;
                }
-              } Rex::Commands::evaluate_hostname($self->to_s);
+              } $self->evaluate_hostname;
 }
 
 sub to_s {
@@ -282,6 +288,20 @@ sub AUTOLOAD {
    }
 
    return undef;
+}
+
+sub evaluate_hostname {
+   my ($self) = @_;
+
+   my @servers = Rex::Commands::evaluate_hostname($self->to_s);
+   my @multiple_me;
+
+   for (@servers) {
+      push @multiple_me, ref($self)->new(%{ $self });
+      $multiple_me[-1]->{name} = $_;
+   }
+
+   return @multiple_me;
 }
 
 1;
