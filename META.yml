@@ -30,8 +30,9 @@ requires:
   Net::SSH2: 0.33
   Storable: 0
   String::Escape: 0
+  Time::HiRes: 0
   XML::Simple: 0
   YAML: 0
 resources:
   repository: https://github.com/krimdomu/Rex
-version: v0.42.3
+version: v0.42.4
