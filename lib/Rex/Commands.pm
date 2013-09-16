@@ -134,6 +134,8 @@ use base qw(Rex::Exporter);
             last_command_output
             case
             inspect
+            tmp_dir
+            cache
           );
 
 our $REGISTER_SUB_HASH_PARAMTER = 0;
@@ -290,6 +292,7 @@ sub task {
 
       my $code = $_[-2];
       *{"${class}::$task_name_save"} = sub {
+         Rex::Logger::info("Running task $task_name_save on current connection");
          if(ref($_[0]) eq "HASH") {
             $code->(@_);
          }
@@ -943,7 +946,7 @@ sub LOCAL (&) {
          conn   => $local_connect,
          ssh    => 0,
          server => $cur_conn->{server}, 
-         cache => Rex::Cache->new(),
+         cache => Rex::Interface::Cache->create(),
          task  => task(),
    });
 
@@ -1111,7 +1114,22 @@ This function returns the current connection object.
 
 =cut
 sub connection {
-   return Rex::get_current_connection()->{"conn"};
+   return Rex::get_current_connection()->{conn};
+}
+
+=item cache
+
+This function returns the current cache object.
+
+=cut
+sub cache {
+   my ($type) = @_;
+
+   if(! $type) {
+      return Rex::get_cache();
+   }
+
+   Rex::Config->set_cache_type($type);
 }
 
 =item profiler
@@ -1135,12 +1153,15 @@ sub profiler {
 sub report {
    my ($str, $type) = @_;
 
+   $type ||= "Base";
+   Rex::Config->set_report_type($type);
+
    if($str eq "-on" || $str eq "on") {
-      $type ||= "Base";
-      $str = "Createing $type reporting class";
+      # just a dummy
+      return;
    }
 
-   Rex::Report->create($type)->report($str);
+   return Rex::get_current_connection()->{reporter};
 }
 
 =item source_global_profile(0|1)
@@ -1232,6 +1253,16 @@ sub set_executor_for {
    Rex::Config->set_executor_for(@_);
 }
 
+=item tmp_dir($tmp_dir)
+
+Set the tmp directory on the remote host to store temporary files.
+
+=cut
+
+sub tmp_dir {
+   Rex::Config->set_tmp_dir(@_);
+}
+
 =item inspect($varRef)
 
 This function dumps the contents of a variable to STDOUT.
@@ -1246,6 +1277,8 @@ task "mytask", "myserver", sub {
 };
 
 =cut
+
+
 
 my $depth = 0;
 sub _dump_hash {
@@ -1332,7 +1365,7 @@ sub evaluate_hostname {
    my $str = shift;
    return unless $str;
 
-   my ($start, $from, $to, $dummy, $step, $end) = $str =~ m/^([0-9\.\w-]+)\[(\d+)..(\d+)(\/(\d+))?\]([0-9\w\.-]+)?$/;
+   my ($start, $from, $to, $dummy, $step, $end) = $str =~ m/^([0-9\.\w\-:]+)\[(\d+)..(\d+)(\/(\d+))?\]([0-9\w\.\-:]+)?$/;
 
    unless($start) {
       return $str;

@@ -11,6 +11,7 @@ use warnings;
 
 require Rex::Commands;
 use Rex::Interface::Fs::Base;
+use Rex::Helper::Path;
 use base qw(Rex::Interface::Fs::Base);
 
 sub new {
@@ -28,37 +29,20 @@ sub ls {
 
    my @ret;
 
-   my $script = q|
-      my @ret;
-      use Data::Dumper;
-      opendir(my $dh, "| . $path .  q|") or die("| . $path . q| is not a directory");
-      while(my $entry = readdir($dh)) {
-         next if ($entry =~ /^\.\.?$/);
-         push @ret, $entry;
-      }
-
-      print Dumper(\@ret);
-   |;
-
-   my $rnd_file = $self->_write_to_rnd_file($script);
-
-   my $out = $self->_exec("perl $rnd_file");
-   $out =~ s/^\$VAR1 =/return /;
-   my $tmp = eval $out;
-
-   $self->unlink($rnd_file);
-
+   my @out = split(/\n/, $self->_exec("ls -a1 $path"));
    # failed open directory, return undef
-   if($@) { return; }
+   if($? != 0) { return; }
+
+   @ret = grep { ! m/^\.\.?$/ } @out;
 
    # return directory content
-   return @{$tmp};
+   return @ret;
 }
 
 sub upload {
    my ($self, $source, $target) = @_;
 
-   my $rnd_file = "/tmp/" . Rex::Commands::get_random(8, 'a' .. 'z') . ".tmp";
+   my $rnd_file = get_tmp_file;
 
    if(my $ssh = Rex::is_ssh()) {
       if(ref $ssh eq "Net::OpenSSH") {
@@ -78,7 +62,7 @@ sub upload {
 sub download {
    my ($self, $source, $target) = @_;
 
-   my $rnd_file = "/tmp/" . Rex::Commands::get_random(8, 'a' .. 'z') . ".tmp";
+   my $rnd_file = get_tmp_file;
 
    if(my $ssh = Rex::is_ssh()) {
       $self->_exec("cp '$source' $rnd_file");
@@ -245,7 +229,7 @@ sub _get_file_writer {
 sub _write_to_rnd_file {
    my ($self, $content) = @_;
    my $fh = $self->_get_file_writer();
-   my $rnd_file = "/tmp/" . Rex::Commands::get_random(8, 'a' .. 'z') . ".tmp";
+   my $rnd_file = get_tmp_file;
 
    $fh->open(">", $rnd_file);
    $fh->write($content);

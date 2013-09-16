@@ -5,7 +5,7 @@ use Cwd 'getcwd';
 my $cwd = getcwd;
 
 BEGIN {
-   use Test::More tests => 27;
+   use Test::More tests => 43;
    use Data::Dumper;
 
    use_ok 'Rex';
@@ -20,6 +20,11 @@ BEGIN {
 
 if($ENV{rex_LOCALTEST}) {
    Rex::Config->set_executor_for(perl => "/Users/jan/perl5/perlbrew/perls/perl-5.14.2/bin/perl");
+}
+
+my $tmp_dir = "/tmp";
+if($^O =~ m/^MSWin/) {
+   $tmp_dir = $ENV{TMP};
 }
 
 file("$cwd/test.txt",
@@ -56,10 +61,35 @@ ok($content =~ m/change/gms, "found change");
 
 ok($changed == 1, "something was changed in the file");
 
+append_if_no_such_line("$cwd/test.txt",
+   line => "dream-breaker",
+   regexp => qr{^dream-breaker$});
+
+$content = cat("$cwd/test.txt");
+ok($content =~ m/dream\-breaker/gms, "found dream-breaker");
+
+append_if_no_such_line("$cwd/test.txt",
+   line => "#include /etc/sudoers.d/*.conf",
+   regexp => qr{^#include /etc/sudoers.d/*.conf$});
+
+$content = cat("$cwd/test.txt");
+ok($content =~ m/#include \/etc\/sudoers\.d\/\*\.conf/gms, "found sudoers entry");
+
+append_if_no_such_line("$cwd/test.txt",
+   line => 'silly with "quotes"');
+
+$content = cat("$cwd/test.txt");
+ok($content =~ m/silly with "quotes"/gms, "found entry with quotes");
+
+append_if_no_such_line("$cwd/test.txt",
+   line => "#include /etc/sudoers.d/*.conf");
+
+my @content = split(/\n/, cat("$cwd/test.txt"));
+ok($content[-1] ne "#include /etc/sudoers.d/*.conf", "last entry is not #include ...");
+
 append_if_no_such_line("$cwd/test.txt", 'KEY="VAL"');
 $content = cat("$cwd/test.txt");
 ok($content =~ m/KEY="VAL"/gms, "found KEY=VAL");
-
 
 append_if_no_such_line("$cwd/test.txt", "change", qr{change}, 
    on_change => sub {
@@ -142,3 +172,49 @@ Rex::Commands::Fs::unlink("file with space.txt");
 
 ok(! is_file("$cwd/test.txt"), "test.txt removed");
 ok(! is_file("file with space.txt"), "file with space removed");
+
+
+file "$tmp_dir/test-sed.txt",
+   content => "this is a sed test file\nthese are just some lines\n0505\n0606\n0707\n'foo'\n/etc/passwd\n\"baz\"\n{klonk}\nfoo bar\n\\.-~'[a-z]\$ foo {1} /with/some/slashes \%\&()?\n|.-\\~'[a-z]\$ bar {2} /with/more/slashes \%\&()?\n";
+
+sed qr/fo{2} bar/, "baz bar", "$tmp_dir/test-sed.txt";
+$content = cat "$tmp_dir/test-sed.txt";
+ok($content =~ m/baz bar/, "sed replaced foo bar");
+
+sed qr/^\\\.\-\~'\[a\-z\]\$ foo \{1\} \/with\/some\/slashes/, "got replaced", "$tmp_dir/test-sed.txt";
+$content = cat "$tmp_dir/test-sed.txt";
+ok($content =~ m/got replaced/, "sed replaced strange chars");
+
+sed qr/^\|\.\-\\\~'\[a\-z\]\$ BAR \{2\} \/with\/more\/slashes/i, "got another replace", "$tmp_dir/test-sed.txt";
+$content = cat "$tmp_dir/test-sed.txt";
+ok($content =~ m/got another replace/, "sed replaced strange chars");
+
+my @lines = split(/\n/, $content);
+ok($lines[-1] =~ m/^got another replace/, "last line was successfully replaced");
+ok($lines[-2] =~ m/^got replaced/, "second last line was successfully replaced");
+ok($lines[-4] =~ m/^\{klonk\}/, "fourth last line untouched");
+
+sed qr{0606}, "6666", "$tmp_dir/test-sed.txt";
+$content = cat "$tmp_dir/test-sed.txt";
+ok($content =~ m/6666/, "sed replaced 0606");
+
+sed qr{'foo'}, "'bar'", "$tmp_dir/test-sed.txt";
+$content = cat "$tmp_dir/test-sed.txt";
+ok($content =~ m/'bar'/, "sed replaced 'foo'");
+
+sed qr{/etc/passwd}, "/etc/shadow", "$tmp_dir/test-sed.txt";
+$content = cat "$tmp_dir/test-sed.txt";
+ok($content =~ m/\/etc\/shadow/, "sed replaced /etc/passwd");
+
+sed qr{"baz"}, '"boooooz"', "$tmp_dir/test-sed.txt";
+$content = cat "$tmp_dir/test-sed.txt";
+ok($content =~ m/"boooooz"/, "sed replaced baz");
+
+sed qr/{klonk}/, '{plonk}', "$tmp_dir/test-sed.txt";
+$content = cat "$tmp_dir/test-sed.txt";
+ok($content =~ m/{plonk}/, "sed replaced {klonk}");
+
+sed qr/{klonk}/, '{plonk}', "$tmp_dir/test-sed.txt";
+$content = cat "$tmp_dir/test-sed.txt";
+ok($content =~ m/{plonk}/, "sed replaced {klonk}");
+

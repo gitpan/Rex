@@ -64,35 +64,46 @@ sub connect {
    }
    Rex::Logger::info("Connecting to $server:$port (" . $user . ")");
 
-   if($auth_type && $auth_type eq "pass") {
-      Rex::Logger::info("OpenSSH: pass_auth: $server:$port - $user - $pass");
-      $self->{ssh} = Net::OpenSSH->new($server, user => $user, password => $pass, port => $port);
+   my %ssh_opts = Rex::Config->get_openssh_opt();
+   my $ssh_opts_line = "";
+
+   for my $key (keys %ssh_opts) {
+      $ssh_opts_line .= $key . "=" . $ssh_opts{$key} . " ";
    }
-   elsif($auth_type && $auth_type eq "key") {
-      my %a = (
-         user => $user,
-         key_path => $private_key,
-      );
-      if($pass) {
-         $a{passphrase} = $pass;
-      }
-      $self->{ssh} = Net::OpenSSH->new($server, %a);
+
+   my @connection_props = ($server, user => $user, port => $port);
+   push @connection_props, master_opts => [
+                              -o => $ssh_opts_line,
+                           ];
+   push @connection_props, default_ssh_opts => [
+                              -o => $ssh_opts_line,
+                           ];
+
+   if($auth_type && $auth_type eq "pass") {
+      Rex::Logger::debug("OpenSSH: pass_auth: $server:$port - $user - ******");
+      push @connection_props, password => $pass;
    }
    elsif($auth_type && $auth_type eq "krb5") {
-      $self->{ssh} = Net::OpenSSH->new($server, user => $user);
+      Rex::Logger::debug("OpenSSH: krb5_auth: $server:$port - $user");
+      # do nothing here
    }
-   else {
-      my %a = (
-         user => $user,
-         key_path => $private_key,
-      );
+   else { # for key auth, and others
+      Rex::Logger::debug("OpenSSH: key_auth or not defined: $server:$port - $user");
+      push @connection_props, key_path => $private_key;
       if($pass) {
-         $a{passphrase} = $pass;
-         $a{password}   = $pass;
+         push @connection_props, passphrase => $pass;
       }
-
-      $self->{ssh} = Net::OpenSSH->new($server, %a);
    }
+
+   $self->{ssh} = Net::OpenSSH->new(@connection_props);
+
+   if($self->{ssh} && $self->{ssh}->error) {
+      Rex::Logger::info("Can't connect to $server (" . $self->{ssh}->{error} . ")", "warn");
+      $self->{connected} = 0;
+
+      return;
+   }
+
 
    if(! $self->{ssh}) {
       Rex::Logger::info("Can't connect to $server", "warn");

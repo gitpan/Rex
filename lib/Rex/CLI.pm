@@ -19,7 +19,6 @@ use Rex::Config;
 use Rex::Group;
 use Rex::Batch;
 use Rex::TaskList;
-use Rex::Cache;
 use Rex::Logger;
 use Rex::Output;
 
@@ -118,10 +117,10 @@ sub __run__ {
    }
 
    if($opts{"c"}) {
-      $Rex::Cache::USE = 1;
+      Rex::Config->set_use_cache(1);
    }
    elsif($opts{"C"}) {
-      $Rex::Cache::USE = 0;
+      Rex::Config->set_use_cache(0);
    }
 
    Rex::Logger::debug("Command Line Parameters");
@@ -203,7 +202,7 @@ sub __run__ {
                CORE::exit 1;
             } else
             {
-               Rex::Logger::info("Found stale lock file. Removing it.");
+               Rex::Logger::debug("Found stale lock file. Removing it.");
                Rex::global_sudo(0);
                CORE::unlink("$::rexfile.lock");
             }
@@ -249,7 +248,7 @@ sub __run__ {
 
       eval {
          my $ok = do($::rexfile);
-         Rex::Logger::info("eval your Rexfile.");
+         Rex::Logger::debug("eval your Rexfile.");
          if(! $ok) {
             Rex::Logger::info("There seems to be an error on some of your required files. $@", "error");
             my @dir = (dirname($::rexfile));

@@ -10,6 +10,7 @@ use strict;
 use warnings;
 
 use Rex::Logger;
+use Rex::Helper::Run;
 use Rex::Commands::Run;
 use Rex::Helper::Array;
 use Data::Dumper;
@@ -18,10 +19,13 @@ sub get_network_devices {
 
    my @device_list;
 
-   my @proc_net_dev = grep  { ! /^$/ } map { $1 if /(\S+[^:]+)\:/ } run("cat /proc/net/dev");
+   my $command = can_run('ip') ? 'ip link show' : 'ifconfig';
+
+   my @proc_net_dev = grep  { ! /^$/ } map { $1 if /(\S+[^:]+)\:/ } i_run("cat /proc/net/dev");
    for my $dev (@proc_net_dev) {
-      my $ifconfig = run("/sbin/ifconfig $dev");
-      if($ifconfig =~ m/(Link encap:)?(?:Ethernet|Point-to-Point Protocol)/m) {
+      my $output = i_run("$command $dev");
+      if (($output =~ m%link/(ether|ppp) %) or
+          ($output =~ m/(Link encap:)?(?:Ethernet|Point-to-Point Protocol)/m)) {
          push(@device_list, $dev);
       }
    }
@@ -37,11 +41,14 @@ sub get_network_configuration {
 
    my $device_info = {};
 
+   my $command = can_run('ip') ? 'ip addr show' : 'ifconfig';
+
    for my $dev (@{$devices}) {
 
-      my $ifconfig = run("LC_ALL=C /sbin/ifconfig $dev");
+      my $output = i_run("LC_ALL=C $command $dev");
 
-      $device_info->{$dev} = _parse_ifconfig($ifconfig);
+      $device_info->{$dev} =
+         ($command eq 'ip addr show') ? _parse_ip($output) : _parse_ifconfig($output);
 
    }
 
@@ -59,11 +66,31 @@ sub _parse_ifconfig {
    };
 }
 
+sub _parse_ip {
+   my ($ip_lines) = @_;
+
+   # extract all interesting values at once
+   my ($mac, $ip, $cidr_prefix, $broadcast) = ($ip_lines =~ m%
+         link/.*\ (..:..:..:..:..:..)\ .*
+         inet\ (\d+\.\d+\.\d+\.\d+)/(\d+)\ brd\ (\d+\.\d+\.\d+\.\d+)%sx);
+
+   # convert CIDR prefix to dotted decimal notation
+   my $binary_mask         = '1' x $cidr_prefix . '0' x (32 - $cidr_prefix);
+   my $dotted_decimal_mask = join '.', unpack 'C4', pack 'B32', $binary_mask;
+   
+   return {
+      ip          => $ip,
+      netmask     => $dotted_decimal_mask,
+      broadcast   => $broadcast,
+      mac         => $mac,
+   };
+}
+
 sub route {
 
    my @ret = ();
 
-   my @route = run "netstat -nr";  
+   my @route = i_run "netstat -nr";  
    if($? != 0) {
       die("Error running netstat");
    }
@@ -93,13 +120,13 @@ sub default_gateway {
 
    if($new_default_gw) {
       if(default_gateway()) {
-         run "/sbin/route del default";
+         i_run "/sbin/route del default";
          if($? != 0) {
             die("Error running route del default");
          }
       }
 
-      run "/sbin/route add default gw $new_default_gw";
+      i_run "/sbin/route add default gw $new_default_gw";
       if($? != 0) {
          die("Error route add default");
       }
@@ -116,7 +143,7 @@ sub default_gateway {
 sub netstat {
 
    my @ret;
-   my @netstat = run "netstat -nap";
+   my @netstat = i_run "netstat -nap";
    if($? != 0) {
       die("Error running netstat");
    }

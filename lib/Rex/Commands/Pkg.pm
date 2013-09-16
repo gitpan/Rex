@@ -43,6 +43,7 @@ use Rex::Commands::MD5;
 use Rex::Commands::Upload;
 use Rex::Commands::Run;
 use Rex::Config;
+use Rex::Commands;
 
 use Data::Dumper;
 use Digest::MD5;
@@ -180,6 +181,7 @@ sub install {
       }
       else {
          
+         my $source = Rex::Helper::Path::get_file_path($source, caller());
          my $content = eval { local(@ARGV, $/) = ($source); <>; };
 
          my $local_md5 = "";
@@ -192,7 +194,9 @@ sub install {
                chomp $old_md5;
             };
 
-            $local_md5 = eval { local(@ARGV) = ($source); return Digest::MD5::md5_hex(<>); };
+            LOCAL {
+               $local_md5 = md5($source);
+            };
 
             unless($local_md5 eq $old_md5) {
                Rex::Logger::debug("MD5 is different $local_md5 -> $old_md5 (uploading)");
@@ -252,18 +256,27 @@ sub install {
          $package = [$package];
       }
 
+      my $changed = 0;
       for my $pkg_to_install (@{$package}) {
          unless($pkg->is_installed($pkg_to_install)) {
             Rex::Logger::info("Installing $pkg_to_install.");
             $pkg->install($pkg_to_install, $option);
+            $changed = 1;
          }
       }
      
-
+      if(Rex::Config->get_do_reporting) {
+         return {changed => $changed};
+      }
+ 
    }
    else {
       # unknown type, be a package
       install("package", $type, $package, @_); 
+
+      if(Rex::Config->get_do_reporting) {
+         return {skip => 1};
+      }
    }
 
 }
@@ -503,16 +516,19 @@ sub repository {
 
    $data{"name"} = $name;
 
+   my $ret;
    if($action eq "add") {
-      $pkg->add_repository(%data);
+      $ret = $pkg->add_repository(%data);
    }
    elsif($action eq "remove" || $action eq "delete") {
-      $pkg->rm_repository($name);
+      $ret = $pkg->rm_repository($name);
    }
 
    if(exists $data{after}) {
       $data{after}->();
    }
+
+   return $ret;
 }
 
 =item package_provider_for $os => $type;

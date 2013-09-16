@@ -10,9 +10,10 @@ use strict;
 use warnings;
 
 use Rex::Logger;
-use Rex::Commands::Run;
+use Rex::Helper::Run;
 use Rex::Commands::File;
 use Rex::Commands;
+use Rex::Helper::Path;
 use Cwd 'getcwd';
 
 sub execute {
@@ -43,7 +44,7 @@ sub execute {
    }
 
    if($headless) {
-      my $filename = "/tmp/" . get_random(8, 'a' .. 'z') . ".tmp";
+      my $filename = get_tmp_file;
 
       file("$filename",
          content => <<EOF);
@@ -81,10 +82,10 @@ exit;
 
 EOF
 
-      run "perl $filename";
+      i_run "perl $filename";
    }
    else {
-      run "VBoxManage startvm \"$dom\"";
+      i_run "VBoxManage startvm \"$dom\"";
    }
 
    if($? != 0) {

@@ -38,6 +38,8 @@ use Rex::Interface::Executor;
 use Rex::Group::Entry::Server;
 use Rex::Profiler;
 use Rex::Hardware;
+use Rex::Interface::Cache;
+use Rex::Report;
 
 require Rex::Commands;
 
@@ -567,10 +569,13 @@ sub connect {
          conn   => $self->connection, 
          ssh    => $self->connection->get_connection_object, 
          server => $server, 
-         cache => Rex::Cache->new(),
+         cache => Rex::Interface::Cache->create(),
          task  => $self,
          profiler => $profiler,
+         reporter => Rex::Report->create(Rex::Config->get_report_type),
    });
+
+   Rex::get_current_connection()->{reporter}->register_reporting_hooks;
 
    $self->run_hook(\$server, "around");
 
@@ -589,7 +594,7 @@ sub disconnect {
 
    my %args = Rex::Args->getopts;
 
-   if(defined $args{'d'} && $args{'d'} > 1) {
+   if(defined $args{'d'} && $args{'d'} > 2) {
       Rex::Commands::profiler()->report;
    }
 
@@ -653,17 +658,33 @@ sub run {
       $self->run_hook(\$server, "before");
       $self->connect($server);
 
+      my $reporter = Rex::get_current_connection()->{reporter};
+      my $start_time = time;
+
       if(Rex::Args->is_opt("c")) {
          # get and cache all os info
-         $server->gather_information;
+         if(! Rex::get_cache()->load()) {
+            Rex::Logger::debug("No cache found, need to collect new data.");
+            $server->gather_information;
+         }
       }
 
       # execute code
       my $ret = $self->executor->exec($options{params});
 
+      if(Rex::Args->is_opt("c")) {
+         # get and cache all os info
+         Rex::get_cache()->save();
+      }
 
-      # reset all os info
-      Rex::Hardware->reset;
+      $reporter->report({
+            command    => "run_task",
+            module     => "Rex::TaskList::Base",
+            start_time => $start_time,
+            end_time   => time,
+         }) if ($reporter);
+
+      $reporter->write_report if ($reporter);
 
       $self->disconnect($server) unless($in_transaction);
       $self->run_hook(\$server, "after");

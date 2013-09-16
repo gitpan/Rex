@@ -48,7 +48,13 @@ our ($user, $password, $port,
             $source_global_profile,
             %executor_for,
             $allow_empty_groups,
-            $use_server_auth);
+            $use_server_auth,
+            $tmp_dir,
+            %openssh_opt,
+            $use_cache, $cache_type,
+            $use_sleep_hack,
+            $report_type,
+            $do_reporting);
 
 # some defaults
 %executor_for = (
@@ -58,6 +64,58 @@ our ($user, $password, $port,
    bash   => "bash",
 );
 
+sub set_do_reporting {
+   my $class = shift;
+   $do_reporting = shift;
+}
+
+sub get_do_reporting {
+   return $do_reporting;
+}
+
+sub set_report_type {
+   my $class = shift;
+   $report_type = shift;
+}
+
+sub get_report_type {
+   if(exists $ENV{REX_REPORT_TYPE}) {
+      return $ENV{REX_REPORT_TYPE};
+   }
+
+   return $report_type;
+}
+
+sub set_sleep_hack {
+   my $class = shift;
+   $use_sleep_hack = shift;
+}
+
+sub get_sleep_hack {
+   return $use_sleep_hack;
+}
+
+sub set_cache_type {
+   my $class = shift;
+   $cache_type = shift;
+}
+
+sub get_cache_type {
+   if(exists $ENV{REX_CACHE_TYPE}) {
+      return $ENV{REX_CACHE_TYPE};
+   }
+
+   return $cache_type || "Base";
+}
+
+sub set_use_cache {
+   my $class = shift;
+   $use_cache = shift;
+}
+
+sub get_use_cache {
+   return $use_cache;
+}
 
 sub get_sudo_without_locales {
    return $sudo_without_locales;
@@ -65,6 +123,21 @@ sub get_sudo_without_locales {
 
 sub get_sudo_without_sh {
    return $sudo_without_sh;
+}
+
+sub set_openssh_opt {
+   my ($class, $key, $val) = @_;
+   if(! defined $val) {
+      $openssh_opt{$key} = undef;
+      delete $openssh_opt{$key};
+      return;
+   }
+
+   $openssh_opt{$key} = $val;
+}
+
+sub get_openssh_opt {
+   return %openssh_opt;
 }
 
 sub set_sudo_without_locales {
@@ -90,6 +163,14 @@ sub get_executor_for {
    my $e     = shift;
 
    return $executor_for{$e};
+}
+
+sub set_tmp_dir {
+   $tmp_dir = shift;
+}
+
+sub get_tmp_dir {
+   return $tmp_dir || "/tmp";
 }
 
 sub set_path {

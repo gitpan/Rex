@@ -42,8 +42,9 @@ use base qw(Rex::Exporter);
 
 use vars qw(@EXPORT);
 
-@EXPORT = qw(operating_system_is network_interfaces memory get_operating_system operating_system operating_system_version
-               is_freebsd is_netbsd is_openbsd is_redhat is_linux is_bsd is_solaris is_suse is_debian is_mageia is_windows is_alt 
+@EXPORT = qw(operating_system_is network_interfaces memory
+               get_operating_system operating_system operating_system_version operating_system_release
+               is_freebsd is_netbsd is_openbsd is_redhat is_linux is_bsd is_solaris is_suse is_debian is_mageia is_windows is_alt is_openwrt
                get_system_information dump_system_information);
 
 =item get_operating_system
@@ -133,12 +134,23 @@ sub operating_system_version {
 
    my ($os) = @_;
 
-   my $operatingsystemrelease = Rex::Hardware::Host->get_operating_system_version();
+   my $operatingsystemrelease = operating_system_release();
 
    $operatingsystemrelease =~ s/[\.,]//g;
 
    return $operatingsystemrelease;
 
+}
+
+=item operating_system_release()
+
+Will return the os release number as is.
+ 
+=cut
+
+sub operating_system_release {
+   my ($os) = @_;
+   return Rex::Hardware::Host->get_operating_system_version();
 }
 
 =item network_interfaces
@@ -223,7 +235,7 @@ sub is_freebsd {
 sub is_redhat {
    my $os = @_ ? shift : get_operating_system();
 
-   my @redhat_clones = ("Fedora", "Redhat", "CentOS", "Scientific", "RedHatEnterpriseServer" ,"RedHatEnterpriseES");
+   my @redhat_clones = ("Fedora", "Redhat", "CentOS", "Scientific", "RedHatEnterpriseServer" ,"RedHatEnterpriseES", "RedHatEnterpriseWorkstation");
 
    if(grep { /$os/i } @redhat_clones) {
       return 1;
@@ -423,6 +435,19 @@ sub is_windows {
 
    my $host = Rex::Hardware::Host->get();
    if($host->{"operatingsystem"} =~ m/^MSWin/ || $host->{operatingsystem} eq "Windows") {
+      return 1;
+   }
+
+}
+
+=item is_openwrt
+
+Returns true if the target system is an OpenWrt System.
+
+=cut
+sub is_openwrt {
+   my $os = get_operating_system();
+   if($os =~ m/OpenWrt/i) {
       return 1;
    }
 

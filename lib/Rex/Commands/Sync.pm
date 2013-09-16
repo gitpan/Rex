@@ -57,11 +57,17 @@ use Rex::Commands::MD5;
 use Rex::Commands::Fs;
 use Rex::Commands::File;
 use Rex::Commands::Download;
+use Rex::Helper::Path;
 
 @EXPORT = qw(sync_up sync_down);
 
 sub sync_up {
    my ($source, $dest, $options) = @_;
+
+   #
+   # 0. normalize local path
+   #
+   $source = get_file_path($source, caller);
 
    #
    # first, get all files on source side
@@ -258,7 +264,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 
-#unlink $0;
+unlink $0;
 
 my $dest = $ARGV[0];
 my @dirs = ($dest);   
@@ -294,7 +300,7 @@ for my $dir (@dirs) {
 print Dumper(\@tree);
       |;
 
-      my $rnd_file = "/tmp/" . get_random(8, 'a' .. 'z') . ".tmp";
+      my $rnd_file = get_tmp_file;
       file $rnd_file, content => $script;
       my $content = run "perl $rnd_file $dest";
       $content =~ s/^\$VAR1 =//;

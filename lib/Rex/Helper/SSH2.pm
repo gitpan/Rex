@@ -18,6 +18,7 @@ use vars qw(@EXPORT);
 @EXPORT = qw(net_ssh2_exec net_ssh2_exec_output net_ssh2_shell_exec);
 
 our $READ_STDERR = 1;
+our $EXEC_AND_SLEEP = 0;
 
 sub net_ssh2_exec {
    my ($ssh, $cmd, $callback) = @_;
@@ -26,7 +27,9 @@ sub net_ssh2_exec {
 
    # REQUIRE_TTY can be turned off by feature no_tty
    if(! Rex::Config->get_no_tty) {
-      $chan->pty("vt100");
+      $chan->pty("xterm");    # set to xterm, due to problems with vt100.
+                              # if vt100 sometimes the restart of services doesn't work and need a sleep .000001 after the command...
+                              # strange bug...
       $chan->pty_size(4000, 80);
    }
    $chan->blocking(1);
@@ -38,6 +41,10 @@ sub net_ssh2_exec {
 
    while ( my $len = $chan->read(my $buf, 20) ) {
 		$in .= $buf;
+
+      if($callback) {
+         &$callback($buf);
+      } 
    }
 
    while ( my $len = $chan->read(my $buf_err, 20, 1) ) {

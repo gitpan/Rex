@@ -75,7 +75,7 @@ use warnings;
 
 use Net::SSH2;
 use Rex::Logger;
-use Rex::Cache;
+use Rex::Interface::Cache;
 use Data::Dumper;
 use Rex::Interface::Connection;
 use Cwd qw(getcwd);
@@ -88,7 +88,7 @@ our (@EXPORT,
       $MODULE_PATHS,
       $WITH_EXIT_STATUS);
 
-$VERSION = "0.42.4";
+$VERSION = "0.43.0";
 my $cur_dir;
 
 BEGIN {
@@ -177,6 +177,22 @@ sub reconnect_lost_connections {
    }
 }
 
+# ... no words
+my @__modif_caller;
+sub unset_modified_caller {
+   @__modif_caller = ();
+}
+
+sub modified_caller {
+   my (@caller) = @_;
+   if(@caller) {
+      @__modif_caller = @caller;
+   }
+   else {
+      return @__modif_caller;
+   }
+}
+
 =item get_current_connection
 
 This function is deprecated since 0.28! See Rex::Commands::connection.
@@ -206,7 +222,7 @@ sub get_current_connection {
       Rex::push_connection({
          conn   => $conn,
          ssh    => $conn->get_connection_object,
-         cache => Rex::Cache->new(),
+         cache => Rex::Interface::Cache->create(),
       });
    }
 
@@ -266,7 +282,7 @@ sub global_sudo {
    $GLOBAL_SUDO = $on;
 
    # turn cache on
-   $Rex::Cache::USE = 1;
+   Rex::Config->set_use_cache(1);
 }
 
 =item get_sftp
@@ -288,7 +304,7 @@ sub get_cache {
       return $CONNECTION_STACK[-1]->{"cache"};
    }
 
-   return Rex::Cache->new;
+   return Rex::Interface::Cache->create();
 }
 
 =item connect
@@ -311,7 +327,7 @@ Use this function to create a connection if you use Rex as a library.
     print "Do something...\n";
  }
      
- my $output = run("upime");
+ my $output = run("uptime");
 
 =cut
 
@@ -347,7 +363,7 @@ sub connect {
          conn   => $conn,
          ssh    => $conn->get_connection_object,
          server => $server,
-         cache => Rex::Cache->new(),
+         cache => Rex::Interface::Cache->create(),
       });
 
       # auth unsuccessfull
@@ -441,38 +457,60 @@ sub import {
 
    if($what eq "-feature" || $what eq "feature") {
 
+
       if(! ref($addition1)) {
          $addition1 = [$addition1];
       }
 
       for my $add (@{ $addition1 }) {
 
+         my $found_feature = 0;
+
+         if($add =~ m/^(\d+\.\d+)$/) {
+            my $vers = $1;
+            my ($major, $minor, $patch) = split(/\./, $VERSION);
+            my ($c_major, $c_minor) = split(/\./, $vers);
+
+            if( ($c_major > $major)
+                  ||
+                ($c_major >= $major && $c_minor > $minor)
+            ) {
+               Rex::Logger::info("This Rexfile tries to enable features that are not supported with your version. Please update.", "warn");
+               exit 1;
+            }
+         }
+
          # remove default task auth
          if($add =~ m/^\d+\.\d+$/ && $add  >= 0.31) {
             Rex::Logger::debug("activating featureset >= 0.31");
             Rex::TaskList->create()->set_default_auth(0);
+            $found_feature = 1;
          }
 
          if($add =~ m/^\d+\.\d+$/ && $add >= 0.35) {
             Rex::Logger::debug("activating featureset >= 0.35");
             $Rex::Commands::REGISTER_SUB_HASH_PARAMTER = 1;
+            $found_feature = 1;
          }
 
          if($add =~ m/^\d+\.\d+$/ && $add >= 0.40) {
             Rex::Logger::debug("activating featureset >= 0.40");
             $Rex::Template::BE_LOCAL = 1;
             $Rex::WITH_EXIT_STATUS = 1;
+            $found_feature = 1;
          }
 
 
          if($add eq "no_local_template_vars") {
             Rex::Logger::debug("activating featureset no_local_template_vars");
             $Rex::Template::BE_LOCAL = 0;
+            $found_feature = 1;
          }
 
          if($add eq "exit_status") {
             Rex::Logger::debug("activating featureset exit_status");
             $Rex::WITH_EXIT_STATUS = 1;
+            $found_feature = 1;
          }
 
          if($add eq "sudo_without_sh") {
@@ -483,21 +521,48 @@ sub import {
          if($add eq "sudo_without_locales") {
             Rex::Logger::debug("Using sudo without locales. this _will_ break things!");
             Rex::Config->set_sudo_without_locales(1);
+            $found_feature = 1;
          }
 
          if($add eq "no_tty") {
             Rex::Logger::debug("Disabling pty usage for ssh");
             Rex::Config->set_no_tty(1);
+            $found_feature = 1;
          }
 
          if($add eq "empty_groups") {
             Rex::Logger::debug("Enabling usage of empty groups");
             Rex::Config->set_allow_empty_groups(1);
+            $found_feature = 1;
          }
 
          if($add eq "use_server_auth") {
             Rex::Logger::debug("Enabling use_server_auth");
             Rex::Config->set_use_server_auth(1);
+            $found_feature = 1;
+         }
+
+         if($add eq "exec_and_sleep") {
+            Rex::Logger::debug("Enabling exec_and_sleep");
+            Rex::Config->set_sleep_hack(1);
+            $found_feature = 1;
+         }
+
+         if($add eq "disable_strict_host_key_checking") {
+            Rex::Logger::debug("Disabling strict host key checking for openssh");
+            Rex::Config->set_openssh_opt(StrictHostKeyChecking => "no");
+            $found_feature = 1;
+         }
+
+         if($add eq "reporting" || exists $ENV{REX_REPORT_TYPE}) {
+            Rex::Logger::debug("Enabling reporting");
+            Rex::Config->set_do_reporting(1);
+            $found_feature = 1;
+         }
+
+         if($found_feature == 0) {
+            Rex::Logger::info("You tried to load a feature ($add) that doesn't exists in your Rex version. Please update.", "warn");
+            exit 1;
          }
 
       }
@@ -522,7 +587,13 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item Anders Ossowicki
 
+=item Boris Däppen
+
+=item Chris Steigmeier
+
 =item Chenryn
+
+=item Cuong Manh Le
 
 =item Daniel Baeurer
 

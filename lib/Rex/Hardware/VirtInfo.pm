@@ -5,6 +5,7 @@ use warnings;
 
 use Rex;
 use Rex::Commands::Run;
+use Rex::Helper::Run;
 use Rex::Commands::Fs;
 use Rex::Commands::File;
 use Rex::Logger;
@@ -15,21 +16,24 @@ require Rex::Hardware;
 
 sub get {
 
-   if(my $ret = Rex::Hardware->cache("VirtInfo")) {
-      return $ret;
+   my $cache = Rex::get_cache();
+   my $cache_key_name = $cache->gen_key_name("hardware.virt_info");
+
+   if($cache->valid($cache_key_name)) {
+      return $cache->get($cache_key_name);
    }
 
    if(Rex::is_ssh || $^O !~ m/^MSWin/i) {
 
       my ($product_name,$bios_vendor,$sys_vendor,$self_status,$cpuinfo,$modules) = ('','','','','','');
 
-      $product_name = run "cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null";
-      $bios_vendor  = run "cat /sys/devices/virtual/dmi/id/bios_vendor 2>/dev/null";
-      $sys_vendor   = run "cat /sys/devices/virtual/dmi/id/sys_vendor 2>/dev/null";
+      $product_name = i_run "cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null";
+      $bios_vendor  = i_run "cat /sys/devices/virtual/dmi/id/bios_vendor 2>/dev/null";
+      $sys_vendor   = i_run "cat /sys/devices/virtual/dmi/id/sys_vendor 2>/dev/null";
 
-      $self_status  = run "cat /proc/self/status 2>/dev/null";
-      $cpuinfo      = run "cat /proc/cpuinfo 2>/dev/null";
-      $modules      = run "cat /proc/modules 2>/dev/null";
+      $self_status  = i_run "cat /proc/self/status 2>/dev/null";
+      $cpuinfo      = i_run "cat /proc/cpuinfo 2>/dev/null";
+      $modules      = i_run "cat /proc/modules 2>/dev/null";
 
       my ($virtualization_type, $virtualization_role) = ('','');
 
@@ -37,7 +41,7 @@ sub get {
          $virtualization_type = "xen";
          $virtualization_role = "guest";
 
-         my $string = run "cat /proc/xen/capabilities 2>/dev/null";
+         my $string = i_run "cat /proc/xen/capabilities 2>/dev/null";
          if ($string =~ /control_d/){
             $virtualization_role = "host";
          }
@@ -121,10 +125,14 @@ sub get {
          $virtualization_role = "host";
       }
 
-      return {
+      my $data = {
          virtualization_type => $virtualization_type,
          virtualization_role => $virtualization_role,
       };
+
+      $cache->set($cache_key_name, $data);
+
+      return $data;
 
    }
 }
