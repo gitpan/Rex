@@ -88,7 +88,7 @@ our (@EXPORT,
       $MODULE_PATHS,
       $WITH_EXIT_STATUS);
 
-$VERSION = "0.43.2";
+$VERSION = "0.43.3";
 my $cur_dir;
 
 BEGIN {
@@ -567,6 +567,11 @@ sub import {
 
       }
 
+   }
+
+   if(exists $ENV{REX_REPORT_TYPE}) {
+      Rex::Logger::debug("Enabling reporting");
+      Rex::Config->set_do_reporting(1);
    }
 
    # we are always strict
