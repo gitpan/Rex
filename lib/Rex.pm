@@ -88,7 +88,7 @@ our (@EXPORT,
       $MODULE_PATHS,
       $WITH_EXIT_STATUS);
 
-$VERSION = "0.43.4";
+$VERSION = "0.43.5";
 my $cur_dir;
 
 BEGIN {
@@ -554,7 +554,7 @@ sub import {
             $found_feature = 1;
          }
 
-         if($add eq "reporting" || exists $ENV{REX_REPORT_TYPE}) {
+         if($add eq "reporting" || $add eq "report" || exists $ENV{REX_REPORT_TYPE}) {
             Rex::Logger::debug("Enabling reporting");
             Rex::Config->set_do_reporting(1);
             $found_feature = 1;

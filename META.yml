@@ -35,4 +35,4 @@ requires:
   YAML: 0
 resources:
   repository: https://github.com/krimdomu/Rex
-version: v0.43.4
+version: v0.43.5

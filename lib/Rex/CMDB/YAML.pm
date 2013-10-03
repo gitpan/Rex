@@ -35,19 +35,34 @@ sub get {
    my $yaml_path = $self->{path};
    my @files = ("$env/$server.yml", "$env/default.yml", "$server.yml", "default.yml");
 
+   my $all = {};
+
    for my $file (@files) {
-      Rex::Logger::debug("CMDB - Opening $file");
+      Rex::Logger::debug("CMDB - Opening $yaml_path/$file");
       if(-f "$yaml_path/$file") {
          my $content = eval { local(@ARGV, $/) = ("$yaml_path/$file"); <>; };
          $content .= "\n"; # for safety
 
          my $ref = Load($content);
 
-         if(exists $ref->{$item}) {
+         if(! $item) {
+            for my $key (keys %{ $ref }) {
+               if(exists $all->{$key}) {
+                  next;
+               }
+               $all->{$key} = $ref->{$key};
+            }
+         }
+
+         if(defined $item && exists $ref->{$item}) {
             Rex::Logger::debug("CMDB - Found $item in $file");
             return $ref->{$item};
          }
       }
+   }
+
+   if(! $item) {
+      return $all;
    }
 
    Rex::Logger::debug("CMDB - no item ($item) found");
