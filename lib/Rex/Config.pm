@@ -34,7 +34,7 @@ our ($user, $password, $port,
             $timeout, $max_connect_fails,
             $password_auth, $key_auth, $krb5_auth, $public_key, $private_key, $parallelism, $log_filename, $log_facility, $sudo_password,
             $ca_file, $ca_cert, $ca_key,
-            $path,
+            $path, $no_path_cleanup,
             $set_param,
             $environment,
             $connection_type,
@@ -45,7 +45,7 @@ our ($user, $password, $port,
             $sudo_without_locales,
             $sudo_without_sh,
             $no_tty,
-            $source_global_profile,
+            $source_global_profile, $source_profile,
             %executor_for,
             $allow_empty_groups,
             $use_server_auth,
@@ -54,7 +54,9 @@ our ($user, $password, $port,
             $use_cache, $cache_type,
             $use_sleep_hack,
             $report_type,
-            $do_reporting);
+            $do_reporting,
+            $say_format,
+            $exec_autodie);
 
 # some defaults
 %executor_for = (
@@ -63,6 +65,41 @@ our ($user, $password, $port,
    ruby   => "ruby",
    bash   => "bash",
 );
+
+sub set_exec_autodie {
+   my $class = shift;
+   $exec_autodie = shift;
+}
+
+sub get_exec_autodie {
+   return $exec_autodie;
+}
+sub set_no_path_cleanup {
+   my $class = shift;
+   $no_path_cleanup = shift;
+}
+
+sub get_no_path_cleanup {
+   return $no_path_cleanup;
+}
+
+sub set_source_profile {
+   my $class = shift;
+   $source_profile = shift;
+}
+
+sub get_source_profile {
+   return $source_profile;
+}
+
+sub set_say_format {
+   my $class = shift;
+   $say_format = shift;
+}
+
+sub get_say_format {
+   return $say_format;
+}
 
 sub set_do_reporting {
    my $class = shift;
@@ -652,7 +689,7 @@ sub _parse_ssh_config {
       next if ($line =~ m/^\s*#/);
       next if ($line =~ m/^\s*$/);
 
-      if($line =~ m/^Host\s+=?\s*(.*)$/) {
+      if($line =~ m/^Host(?:\s*=\s*|\s+)(.*)$/i) {
          my $host_tmp = $1; 
          @host = split(/\s+/, $host_tmp);
          $in_host = 1;

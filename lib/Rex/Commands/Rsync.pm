@@ -90,15 +90,17 @@ sub sync {
    my $server = $current_connection->{server};
    my $cmd;
 
+   my $auth = $current_connection->{conn}->get_auth;
+
+
    if(! exists $opt->{download} && $source !~ m/^\//) {
       # relative path, calculate from module root
+      $source = Rex::Helper::Path::get_file_path($source, caller());
+   }
 
-      my ($caller_package, $caller_file, $caller_line) = caller;
-      my $module_path = Rex::get_module_path($caller_package);
-
-      if($module_path) {
-         $source = "$module_path/$source";
-      }
+   Rex::Logger::debug("Syning $source -> $dest with rsync.");
+   if($Rex::Logger::debug) {
+      $Expect::Log_Stdout = 1;
    }
 
    my $params = "";
@@ -116,19 +118,19 @@ sub sync {
 
    if($opt && exists $opt->{'download'} && $opt->{'download'} == 1) {
       Rex::Logger::debug("Downloading $source -> $dest");
-      $cmd = "rsync -a -e '\%s' --verbose --stats $params " . $server->get_user . "\@" . $server . ":"
+      $cmd = "rsync -a -e '\%s' --verbose --stats $params " . $auth->{user} . "\@" . $server . ":"
                      . $source . " " . $dest;
    }
    else {
       Rex::Logger::debug("Uploading $source -> $dest");
-      $cmd = "rsync -a -e '\%s' --verbose --stats $params $source " . $server->get_user . "\@" . $server . ":"
+      $cmd = "rsync -a -e '\%s' --verbose --stats $params $source " . $auth->{user} . "\@" . $server . ":"
                      . $dest;
    }
 
-   my $pass = $server->get_password;
+   my $pass = $auth->{password};
    my @expect_options = ();
 
-   if(Rex::Config->get_password_auth) {
+   if($auth->{auth_type} eq "pass") {
       $cmd = sprintf($cmd, 'ssh -o StrictHostKeyChecking=no ');
       push(@expect_options, [
                               qr{Are you sure you want to continue connecting},
@@ -140,7 +142,7 @@ sub sync {
                               }
                             ],
                             [
-                              qr{password: $},
+                              qr{password: ?$}i,
                               sub {
                                  Rex::Logger::debug("Want Password");
                                  my $fh = shift;
@@ -171,6 +173,15 @@ sub sync {
                               }
                             ],
                             [
+                              qr{password: ?$}i,
+                              sub {
+                                 Rex::Logger::debug("Want Password");
+                                 my $fh = shift;
+                                 $fh->send($pass . "\n");
+                                 exp_continue;
+                              }
+                           ],
+                           [
                               qr{Enter passphrase for key.*: $},
                               sub {
                                  Rex::Logger::debug("Want Passphrase");

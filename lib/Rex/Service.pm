@@ -39,6 +39,10 @@ sub get {
       $class = "Rex::Service::SuSE::systemd";
    } elsif (is_alt($operatingsystem) && $can_run_systemctl) {
       $class = "Rex::Service::ALT::systemd";
+   } elsif (is_gentoo($operatingsystem) && $can_run_systemctl) {
+      $class = "Rex::Service::Gentoo::systemd";
+   } elsif (is_mageia($operatingsystem) && $can_run_systemctl) {
+      $class = "Rex::Service::Mageia::systemd";
    }
 
    my $provider_for = Rex::Config->get("service_provider") || {};

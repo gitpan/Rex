@@ -27,10 +27,6 @@ sub new {
 sub exec {
    my ($self, $cmd, $path, $option) = @_;
 
-   if(exists $option->{cwd}) {
-      $cmd = "cd " . $option->{cwd} . " && $cmd";
-   }
-
    Rex::Logger::debug("Executing: $cmd");
 
    Rex::Commands::profiler()->start("exec: $cmd");
@@ -43,10 +39,14 @@ sub exec {
    $shell->path($path);
 
    if(Rex::Config->get_source_global_profile) {
-       $shell->parse_profile(1);
+       $shell->source_global_profile(1);
    }
 
-   my $exec = $shell->exec($cmd);
+   if(Rex::Config->get_source_profile) {
+       $shell->source_profile(1);
+   }
+
+   my $exec = $shell->exec($cmd, $option);
    Rex::Logger::debug("SSH/executing: $exec");
    my ($out, $err) = $self->_exec($exec, $option);
 

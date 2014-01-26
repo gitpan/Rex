@@ -36,14 +36,6 @@ if($^O =~ m/MSWin/) {
 # preload some modules
 use Rex -base;
 
-BEGIN {
-
-   if(-d "lib") {
-      use lib "lib";
-   }
-
-};
-
 $|++;
 
 my (%opts, @help, @exit);
@@ -93,6 +85,7 @@ sub __run__ {
       P => { type => "string" },
       K => { type => "string" },
       G => { type => "string" },
+      z => { type => "string" },
       t => { type => "integer" },
       %more_args,
    );
@@ -171,6 +164,18 @@ sub __run__ {
          }
       }
 
+   }
+
+   if ($opts{'z'}) {
+      my $host_eval = eval {
+         `$opts{'z'}`;
+      };
+      if ($host_eval =~ m/\S/xms) {
+         $::FORCE_SERVER = join(" ", split /\n|,|;/, $host_eval);
+      }
+      else {
+         Rex::Logger::info("you must give a valid command.");
+      }
    }
 
    if($opts{'o'}) {
@@ -285,6 +290,13 @@ sub __run__ {
       if($@) { print $@ . "\n"; exit 1; }
 
    }
+   else {
+      Rex::Logger::info("No Rexfile found.", "warn");
+      Rex::Logger::info("Please create a file named 'Rexfile' inside this directory,", "warn");
+      Rex::Logger::info("or specify the file you want to use with:", "warn");
+      Rex::Logger::info("    rex -f file_to_use task_to_run", "warn");
+   }
+
    if($opts{'e'}) {
       Rex::Logger::debug("Executing command line code");
       Rex::Logger::debug("\t" . $opts{'e'});
@@ -535,6 +547,7 @@ sub __help__ {
    printf "  %-15s %s\n", "-e", "Run the given code fragment";
    printf "  %-15s %s\n", "-E", "Execute task on the given environment";
    printf "  %-15s %s\n", "-H", "Execute task on these hosts";
+   printf "  %-15s %s\n", "-z", "Execute task on hosts from this command's output";
    printf "  %-15s %s\n", "-G", "Execute task on these group";
    printf "  %-15s %s\n", "-u", "Username for the ssh connection";
    printf "  %-15s %s\n", "-p", "Password for the ssh connection";

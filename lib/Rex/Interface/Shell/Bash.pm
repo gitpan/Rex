@@ -24,9 +24,14 @@ sub path {
     $self->{path} = $path;
 }
 
-sub parse_profile {
+sub source_global_profile {
     my ($self, $parse) = @_;
-    $self->{parse_profile} = $parse;
+    $self->{source_global_profile} = $parse;
+}
+
+sub source_profile {
+    my ($self, $parse) = @_;
+    $self->{source_profile} = $parse;
 }
 
 sub set_locale {
@@ -35,25 +40,48 @@ sub set_locale {
 }
 
 sub exec {
-    my ($self, $cmd) = @_;
+    my ($self, $cmd, $option) = @_;
     my $complete_cmd = $cmd;
+
+    if(exists $option->{path}) {
+      $self->path($option->{path});
+    }
+
+    if(exists $option->{cwd}) {
+      $complete_cmd = "cd $option->{cwd} && $complete_cmd";
+    }
 
     if ($self->{path}) {
         $complete_cmd = "PATH=$self->{path}; export PATH; $complete_cmd ";
     }
 
-    if ($self->{locale}) {
+    if ($self->{locale} && ! exists $option->{no_locales}) {
         $complete_cmd = "LC_ALL=$self->{locale} ; export LC_ALL; $complete_cmd ";
     }
 
-    if ($self->{parse_profile}) {
-        $complete_cmd = ". /etc/profile &> /dev/null ; $complete_cmd";
+    if ($self->{source_profile}) {
+        $complete_cmd = ". ~/.profile >/dev/null 2>&1 ; $complete_cmd";
     }
+
+
+    if ($self->{source_global_profile}) {
+        $complete_cmd = ". /etc/profile >/dev/null 2>&1 ; $complete_cmd";
+    }
+
 
 # this is due to a strange behaviour with Net::SSH2 / libssh2
 # it may occur when you run rex inside a kvm virtualized host connecting to another virtualized vm on the same hardware
     if(Rex::Config->get_sleep_hack) {
       $complete_cmd .= " ; f=\$? ; sleep .00000001 ; exit \$f";
+    }
+
+    if(exists $option->{preprocess_command} && ref $option->{preprocess_command} eq "CODE") {
+      $complete_cmd = $option->{preprocess_command}->($complete_cmd);
+    }
+
+    if(exists $option->{format_cmd}) {
+      $option->{format_cmd} =~ s/{{CMD}}/$complete_cmd/;
+      $complete_cmd = $option->{format_cmd};
     }
 
     return $complete_cmd;

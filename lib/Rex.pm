@@ -4,6 +4,8 @@
 # vim: set ts=3 sw=3 tw=0:
 # vim: set expandtab:
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rex - Remote Execution
@@ -28,35 +30,16 @@ You can find examples and howtos on L<http://rexify.org/>
 
 =back
 
-=head1 Dependencies
-
-=over 4
-
-=item *
-
-L<Net::SSH2>
-
-=item *
-
-L<Expect>
-
-Only if you want to use the Rsync module.
-
-=item *
-
-L<DBI>
-
-Only if you want to use the DB module.
-
-=back
-
 =head1 SYNOPSIS
 
+ user "root";
+ password "ch4ngem3";
+   
  desc "Show Unix version";
  task "uname", sub {
      say run "uname -a";
  };
-
+  
  bash# rex -H "server[01..10]" uname
 
 See L<Rex::Commands> for a list of all commands you can use.
@@ -80,6 +63,7 @@ use Data::Dumper;
 use Rex::Interface::Connection;
 use Cwd qw(getcwd);
 use Rex::Config;
+use Rex::Helper::Array;
 
 our (@EXPORT,
       $VERSION,
@@ -88,8 +72,9 @@ our (@EXPORT,
       $MODULE_PATHS,
       $WITH_EXIT_STATUS);
 
-$VERSION = "0.43.7";
+$VERSION = "0.44.0";
 my $cur_dir;
+
 
 BEGIN {
 
@@ -103,6 +88,12 @@ BEGIN {
 
    $cur_dir = getcwd;
 
+   unshift(@INC, sub {
+      my $mod_to_load = $_[1];
+      return search_module_path($mod_to_load, 1);
+   });
+
+
    if(-d "$cur_dir/lib") {
       push(@INC, "$cur_dir/lib");
    }
@@ -112,17 +103,37 @@ BEGIN {
       push(@INC, "$home_dir/.rex/recipes");
    }
 
+   push(@INC, sub {
+      my $mod_to_load = $_[1];
+      return search_module_path($mod_to_load, 0);
+   });
+
 };
 
-push(@INC, sub {
 
-   my $mod_to_load = $_[1];
+my $home = $ENV{'HOME'};
+if($^O =~ m/^MSWin/) {
+   $home = $ENV{'USERPROFILE'};
+}
+
+push(@INC, "$home/.rex/recipes");
+
+sub search_module_path {
+   my ($mod_to_load, $pre) = @_;
+
    $mod_to_load =~ s/\.pm//g;
 
-   my @search_in = map { ("$_/$mod_to_load/__module__.pm", "$_/$mod_to_load/Module.pm") } 
+   my @search_in;
+   if($pre) {
+      @search_in = map { ("$_/$mod_to_load.pm") } 
                      grep { -d } @INC;
 
-   push(@search_in, "lib/$mod_to_load/__module__.pm", "lib/$mod_to_load/Module.pm");
+   }
+   else {
+      @search_in = map { ("$_/$mod_to_load/__module__.pm", "$_/$mod_to_load/Module.pm") } 
+                     grep { -d } @INC;
+   }
+
 
    for my $file (@search_in) {
       if(-f $file) {
@@ -137,19 +148,15 @@ push(@INC, sub {
          $mod_package_name =~ s/\//::/g;
          $MODULE_PATHS->{$mod_package_name} = {path => $path};
 
+         if($pre) {
+            return;
+         }
+
          open(my $fh, $file);
          return $fh;
       }
    }
-
-});
-
-my $home = $ENV{'HOME'};
-if($^O =~ m/^MSWin/) {
-   $home = $ENV{'USERPROFILE'};
 }
-
-push(@INC, "$home/.rex/recipes");
 
 sub get_module_path {
    my ($module) = @_;
@@ -516,6 +523,7 @@ sub import {
          if($add eq "sudo_without_sh") {
             Rex::Logger::debug("using sudo without sh. this might break some things.");
             Rex::Config->set_sudo_without_sh(1);
+            $found_feature = 1;
          }
 
          if($add eq "sudo_without_locales") {
@@ -560,6 +568,30 @@ sub import {
             $found_feature = 1;
          }
 
+         if($add eq "source_profile") {
+            Rex::Logger::debug("Enabling source_profile");
+            Rex::Config->set_source_profile(1);
+            $found_feature = 1;
+         }
+
+         if($add eq "source_global_profile") {
+            Rex::Logger::debug("Enabling source_global_profile");
+            Rex::Config->set_source_global_profile(1);
+            $found_feature = 1;
+         }
+
+         if($add eq "no_path_cleanup") {
+            Rex::Logger::debug("Enabling no_path_cleanup");
+            Rex::Config->set_no_path_cleanup(1);
+            $found_feature = 1;
+         }
+
+         if($add eq "exec_autodie") {
+            Rex::Logger::debug("Enabling exec_autodie");
+            Rex::Config->set_exec_autodie(1);
+            $found_feature = 1;
+         }
+
          if($found_feature == 0) {
             Rex::Logger::info("You tried to load a feature ($add) that doesn't exists in your Rex version. Please update.", "warn");
             exit 1;
@@ -592,11 +624,13 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item Anders Ossowicki
 
+=item Andrej Zverev
+
 =item Boris Däppen
 
 =item Chris Steigmeier
 
-=item Chenryn
+=item Сергей Романов
 
 =item Cuong Manh Le
 
@@ -606,9 +640,11 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item Dominik Schulz
 
-=item Fran Rodriguez
+=item fanyeren (范野人)
 
 =item Ferenc Erki
+
+=item Fran Rodriguez
 
 =item Franky Van Liedekerke
 
@@ -622,19 +658,27 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item Jonathan Delgado
 
+=item Jon Gentle
+
 =item Joris
 
 =item Jose Luis Martinez
 
-=item Laird Liu
+=item Kasim Tuman
 
-=item Naveed Massjouni
+=item Laird Liu
 
 =item Mario Domgoergen
 
+=item Naveed Massjouni
+
 =item Nikolay Fetisov
 
+=item Nils Domrose
+
 =item Peter H. Ezetta
+
+=item Rao Chenlin (Chenryn)
 
 =item RenatoCRON
 

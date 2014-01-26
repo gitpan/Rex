@@ -86,7 +86,11 @@ sub run {
       $option = { @_ };
    }
 
-   my $path = join(":", Rex::Config->get_path());
+   my $path;
+
+   if(! Rex::Config->get_no_path_cleanup()) {
+      $path = join(":", Rex::Config->get_path());
+   }
 
    my $exec = Rex::Interface::Exec->create;
    my ($out, $err) = $exec->exec($cmd, $path, $option);
@@ -101,6 +105,12 @@ sub run {
 
    if(! defined $err) {
       $err = "";
+   }
+
+   if(Rex::Config->get_exec_autodie() && Rex::Config->get_exec_autodie() == 1) {
+      if($? != 0) {
+         die("Error executing: $cmd.\nOutput:\n$out");
+      }
    }
 
    if($code) {

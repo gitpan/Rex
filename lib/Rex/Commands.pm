@@ -109,7 +109,7 @@ use base qw(Rex::Exporter);
 @EXPORT = qw(task desc group 
             user password port sudo_password public_key private_key pass_auth key_auth krb5_auth no_ssh
             get_random batch timeout max_connect_retries parallelism
-            do_task run_task needs
+            do_task run_task run_batch needs
             exit
             evaluate_hostname
             logging
@@ -121,7 +121,8 @@ use base qw(Rex::Exporter);
             set
             get
             before after around
-            logformat
+            logformat log_format
+            sayformat say_format
             connection
             auth
             FALSE TRUE
@@ -323,7 +324,7 @@ sub task {
       use strict;
    }
 
-   $options->{'dont_register'} = $dont_register_tasks;
+   $options->{'dont_register'} ||= $dont_register_tasks;
    Rex::TaskList->create()->create_task($task_name, @_, $options);
 }
 
@@ -464,6 +465,16 @@ sub auth {
       Rex::Logger::debug("Please remember that the default auth information/task auth information has precedence.");
       Rex::Logger::debug("If you want to overwrite this behaviour please use ,,use Rex -feature => 0.31;'' in your Rexfile.");
       Rex::Logger::debug("=================================================");
+   }
+
+   if(exists $data{pass_auth}) {
+      $data{auth_type} = "pass";
+   }
+   if(exists $data{key_auth}) {
+      $data{auth_type} = "key";
+   }
+   if(exists $data{krb5_auth}) {
+      $data{auth_type} = "krb5";
    }
 
    Rex::Logger::debug("Setting auth info for " . ref($group) . " $entity");
@@ -626,6 +637,29 @@ sub run_task {
       }
    }
 
+}
+
+=item run_batch($batch_name, %option)
+
+Run a batch on a given host.
+
+ my @return = run_batch "batchname", on => "192.168.3.56";
+
+It calls internally run_task, and passes it any option given.
+
+=cut
+
+sub run_batch {
+   my ($batch_name, %option) = @_;
+
+   my @tasks = Rex::Batch->get_batch($batch_name);
+   my @results;   
+   for my $task (@tasks) {
+      my $return = run_task $task, %option;
+      push @results, $return;
+   }
+   
+   return @results;
 }
 
 =item public_key($key)
@@ -791,6 +825,13 @@ Depend on the I<uname> task in the package MyPkg. The I<uname> task will be call
     needs MyPkg "uname";
  };
 
+=item To call tasks defined in the Rexfile from within a module
+
+ task "mytask", "server1", sub {
+    needs main "uname";
+ };
+
+
 =back
 
 =cut
@@ -802,6 +843,10 @@ sub needs {
    if(ref($self) eq "ARRAY") {
       @args = @{ $self };
       ($self) = caller;
+   }
+
+   if($self eq "main") {
+      $self = "Rex::CLI";
    }
 
    no strict 'refs';
@@ -838,6 +883,16 @@ sub needs {
    }
 
 }
+
+# register needs in main namespace
+{
+   my ($caller_pkg) = caller(1);
+   if($caller_pkg eq "Rex::CLI") {
+      no strict 'refs';
+      *{"main::needs"} = \&needs;
+      use strict;
+   }
+};
 
 =item include Module::Name
 
@@ -1103,6 +1158,8 @@ sub logformat {
    my ($format) = @_;
    $Rex::Logger::format = $format;
 }
+
+sub log_format { logformat(@_); }
 
 =item connection
 
@@ -1419,9 +1476,84 @@ sub get_environments {
    return sort { $a cmp $b } keys %{$environments};
 }
 
+=item sayformat($format)
+
+You can define the format of the say() function.
+
+%D - The current date yyyy-mm-dd HH:mm:ss
+
+%h - The target host
+
+%p - The pid of the running process
+
+%s - The Logstring
+
+You can also define the following values:
+
+default - the default behaviour.
+
+asis - will print every single parameter in its own line. This is usefull if you want to print the output of a command.
+
+=cut
+
+sub sayformat {
+   my ($format) = @_;
+   Rex::Config->set_say_format($format);
+}
+
+sub say_format { sayformat(@_); }
+
 sub say {
+   my (@data) = @_;
+
    return unless defined $_[0];
-   print @_, "\n";
+
+   my $format = Rex::Config->get_say_format;
+   if(! defined $format || $format eq "default") {
+      print @_, "\n";
+      return;
+   }
+
+   if($format eq "asis") {
+      print join("\n", @_);
+      return;
+   }
+
+   for my $line (@data) {
+      print _format_string($format, $line) . "\n";
+   }
+
+}
+
+# %D - Date
+# %h - Host
+# %s - Logstring
+sub _format_string {
+   my ($format, $line) = @_;
+
+   my $date = _get_timestamp();
+   my $host = Rex::get_current_connection() ? Rex::get_current_connection()->{conn}->server : "<local>";
+   my $pid = $$;
+
+   $format =~ s/\%D/$date/gms;
+   $format =~ s/\%h/$host/gms;
+   $format =~ s/\%s/$line/gms;
+   $format =~ s/\%p/$pid/gms;
+
+   return $format;
+}
+
+sub _get_timestamp {
+   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+   $mon++;
+   $year += 1900;
+
+   return "$year-" 
+               . sprintf("%02i", $mon) . "-" 
+               . sprintf("%02i", $mday) . " " 
+               . sprintf("%02i", $hour) . ":" 
+               . sprintf("%02i", $min) . ":" 
+               . sprintf("%02i", $sec);
 }
 
 sub TRUE {

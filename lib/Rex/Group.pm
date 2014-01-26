@@ -15,6 +15,7 @@ use attributes;
 use Rex::Group::Entry::Server;
 
 use vars qw(%groups);
+use List::MoreUtils qw(uniq);
 use Data::Dumper;
 
 sub new {
@@ -56,7 +57,7 @@ sub get_auth {
 sub create_group {
    my $class = shift;
    my $group_name = shift;
-   my @server = @_;
+   my @server = uniq grep { defined } @_;
 
    $groups{$group_name} = Rex::Group->new(servers => [ map {
                                                               if(ref($_) ne "Rex::Group::Entry::Server") {
@@ -65,7 +66,7 @@ sub create_group {
                                                               else {
                                                                  $_;
                                                               }
-                                                           } @server 
+                                                           } @server
                                                      ]
                                          );
 }
@@ -75,7 +76,11 @@ sub get_group {
    my $class = shift;
    my $group_name = shift;
 
-   return $groups{$group_name}->get_servers;
+   if(exists $groups{$group_name}) {
+      return $groups{$group_name}->get_servers;
+   }
+
+   return ();
 }
 
 sub is_group {

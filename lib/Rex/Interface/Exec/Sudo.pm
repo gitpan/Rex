@@ -36,8 +36,9 @@ sub exec {
       $cmd = "cd " . $option->{cwd} . " && $cmd";
    }
 
-   if($path) { $path = "PATH=$path" }
-   $path ||= "";
+   if(exists $option->{path}) {
+      $path = $option->{path};
+   }
 
    my ($exec, $file);
    if(my $ssh = Rex::is_ssh()) {
@@ -96,8 +97,6 @@ EOF
       $enc_pw = "";
    }
 
-   my $locales = "LC_ALL=C";
-
    my $sudo_options = Rex::get_current_connection()->{sudo_options};
    my $sudo_options_str = "";
    if(exists $sudo_options->{user}) {
@@ -106,38 +105,40 @@ EOF
 
    if(Rex::Config->get_sudo_without_locales()) {
       Rex::Logger::debug("Using sudo without locales. If the locale is NOT C or en_US it will break many things!");
-      $locales = "";
+      $option->{no_locales} = 1;
    }
+
    
    if(Rex::Config->get_sudo_without_sh()) {
       Rex::Logger::debug("Using sudo without sh will break things like file editing.");
       if($enc_pw) {
-         return $exec->exec("perl $random_file '$enc_pw' | sudo $sudo_options_str -p '' -S $locales $cmd");
+         $option->{format_cmd} = "perl $random_file '$enc_pw' | sudo $sudo_options_str -p '' -S {{CMD}}";
       }
       else {
-         return $exec->exec("sudo $sudo_options_str $locales $cmd");
+         $option->{format_cmd} = "sudo $sudo_options_str {{CMD}}";
       }
    }
    else {
-      my $new_cmd = "$locales $path ; export PATH LC_ALL ; $cmd";
-
       # escape some special shell things
-      $new_cmd =~ s/\\/\\\\/gms;
-      $new_cmd =~ s/"/\\"/gms;
-      $new_cmd =~ s/\$/\\\$/gms;
+      $option->{preprocess_command} = sub {
+         my ($_cmd) = @_;
+         $_cmd =~ s/\\/\\\\/gms;
+         $_cmd =~ s/"/\\"/gms;
+         $_cmd =~ s/\$/\\\$/gms;
 
-      if(Rex::Config->get_source_global_profile) {
-         $new_cmd = ". /etc/profile; $new_cmd";
-      }
+         return $_cmd;
+      };
 
       if($enc_pw) {
-         return $exec->exec("perl $random_file '$enc_pw' | sudo $sudo_options_str -p '' -S sh -c \"$new_cmd\"");
+         $option->{format_cmd} = "perl $random_file '$enc_pw' | sudo $sudo_options_str -p '' -S sh -c \"{{CMD}}\"";
       }
       else {
-         return $exec->exec("sudo $sudo_options_str -p '' -S sh -c \"$new_cmd\"");
+         $option->{format_cmd} = "sudo $sudo_options_str -p '' -S sh -c \"{{CMD}}\"";
       }
 
    }
+
+   return $exec->exec($cmd, $path, $option);
 }
 
 1;
