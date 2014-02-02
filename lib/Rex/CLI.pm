@@ -72,6 +72,7 @@ sub __run__ {
       d => {},
       s => {},
       m => {},
+      w => {},
       S => { type => "string" },
       E => { type => "string" },
       o => { type => "string" },
@@ -129,6 +130,9 @@ sub __run__ {
 
    if($opts{'q'}) {
       $::QUIET = 1;
+      if($opts{'w'}) {
+         $::QUIET = 2;
+      }
    }
 
    $::rexfile = "Rexfile";
@@ -557,6 +561,7 @@ sub __help__ {
    printf "  %-15s %s\n", "-Tv", "List all known tasks with all information.";
    printf "  %-15s %s\n", "-f", "Use this file instead of Rexfile";
    printf "  %-15s %s\n", "-h", "Display this help";
+   printf "  %-15s %s\n", "-m", "Monochrome output. No colors";
    printf "  %-15s %s\n", "-M", "Load Module instead of Rexfile";
    printf "  %-15s %s\n", "-v", "Display (R)?ex Version";
    printf "  %-15s %s\n", "-F", "Force. Don't regard lock file";
@@ -568,6 +573,7 @@ sub __help__ {
    printf "  %-15s %s\n", "-c", "Turn cache ON";
    printf "  %-15s %s\n", "-C", "Turn cache OFF";
    printf "  %-15s %s\n", "-q", "Quiet mode. No Logging output";
+   printf "  %-15s %s\n", "-qw", "Quiet mode. Only output warnings and errors";
    printf "  %-15s %s\n", "-Q", "Really quiet. Output nothing.";
    printf "  %-15s %s\n", "-t", "Number of threads to use.";
    print "\n";

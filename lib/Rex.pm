@@ -72,7 +72,7 @@ our (@EXPORT,
       $MODULE_PATHS,
       $WITH_EXIT_STATUS);
 
-$VERSION = "0.44.0";
+$VERSION = "0.44.1";
 my $cur_dir;
 
 
@@ -666,6 +666,8 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item Kasim Tuman
 
+=item Keedi Kim
+
 =item Laird Liu
 
 =item Mario Domgoergen
@@ -678,6 +680,8 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item Peter H. Ezetta
 
+=item Piotr Karbowski
+
 =item Rao Chenlin (Chenryn)
 
 =item RenatoCRON
@@ -685,6 +689,8 @@ Many thanks to the contributors for their work (alphabetical order).
 =item Samuele Tognini
 
 =item Sascha Guenther
+
+=item Stephane Benoit
 
 =item Sven Dowideit
 
