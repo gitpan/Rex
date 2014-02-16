@@ -72,7 +72,7 @@ our (@EXPORT,
       $MODULE_PATHS,
       $WITH_EXIT_STATUS);
 
-$VERSION = "0.44.2";
+$VERSION = "0.44.3";
 my $cur_dir;
 
 
@@ -689,6 +689,8 @@ Many thanks to the contributors for their work (alphabetical order).
 =item Samuele Tognini
 
 =item Sascha Guenther
+
+=item Simon Bertrang
 
 =item Stephane Benoit
 

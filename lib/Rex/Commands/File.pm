@@ -148,12 +148,16 @@ sub template {
    elsif($file =~ m/^\@/) {
       my @caller = caller(0);
       my $file_path = Rex::get_module_path($caller[0]);
+
       if(! -f $file_path) {
          if(-f "$file_path/__module__.pm") {
             $file_path = "$file_path/__module__.pm";
          }
          elsif(-f "$file_path/Module.pm") {
             $file_path = "$file_path/Module.pm";
+         }
+         elsif(-f $caller[1]) {
+            $file_path = $caller[1];
          }
       }
       my $file_content = eval { local(@ARGV, $/) = ($file_path); <>; };
@@ -907,8 +911,10 @@ sub sed {
       map { s/$search/$replace/ } @content; 
    }
 
+   my $fs = Rex::Interface::Fs->create;
+   my %stat = $fs->stat($file);
 
-   file($file, content => join("\n", @content), on_change => $on_change);
+   file($file, content => join("\n", @content), on_change => $on_change, owner => $stat{uid}, group => $stat{gid}, mode => $stat{mode});
 }
 
 =back
