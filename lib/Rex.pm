@@ -72,7 +72,7 @@ our (@EXPORT,
       $MODULE_PATHS,
       $WITH_EXIT_STATUS);
 
-$VERSION = "0.44.6";
+$VERSION = "0.44.6.1";
 my $cur_dir;
 
 
@@ -258,6 +258,7 @@ sub is_ssh {
 Returns 1 if the current connection is local. Otherwise 0.
 
 =cut
+
 sub is_local {
    if($CONNECTION_STACK[-1]) {
       my $ref = ref($CONNECTION_STACK[-1]->{"conn"});
@@ -274,6 +275,7 @@ sub is_local {
 Returns 1 if the current operation is executed within sudo. 
 
 =cut
+
 sub is_sudo {
    if($GLOBAL_SUDO) { return 1; }
 
@@ -630,7 +632,7 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item Chris Steigmeier
 
-=item Сергей Романов
+=item complefor
 
 =item Cuong Manh Le
 
@@ -640,7 +642,7 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item Dominik Schulz
 
-=item fanyeren (范野人)
+=item fanyeren
 
 =item Ferenc Erki
 
