@@ -1,0 +1,58 @@
+Rex - A tool to ease your daily system administration tasks
+===========================================================
+
+With Rex you can manage all your boxes from a central point through the complete process of configuration management and software deployment.
+
+INSTALLATION
+
+To install Rex type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+DEPENDENCIES
+
+This module requires these other modules, libraries and programs:
+
+   Net::SSH2
+   Expect (If you want to use the sync command)
+   DBI (If you want to use the db command)
+   rsync (If you want to use the sync command)
+
+BUGS/FEATURE REQUESTS
+
+Please report bugs and request features on the CPAN bug tracking site,
+rt.cpan.org.  If you are able and willing to provide a fix, attach a patch
+and please provide your name to be credited in the changelog and an email
+address for verification/discussion.
+
+HACKING
+
+The module is kept in a GitHub (https://github.com/krimdomu/Rex/)
+repository.
+
+If you are interested in making a change/fix, just do a pull request.
+
+TODO
+
+More examples and guides would be nice.
+
+COPYRIGHT AND LICENCE
+
+Copyright (C) 2011 by Jan Gehring; all rights reserved.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
