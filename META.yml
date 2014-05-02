@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Rex
-version:            0.45.3
+version:            0.46.0
 abstract:           ~
 author:  []
 license:            Apache License 2.0
