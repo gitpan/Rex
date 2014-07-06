@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Rex
-version:            0.46.3
+version:            0.47.0
 abstract:           ~
 author:  []
 license:            Apache License 2.0
@@ -24,10 +24,11 @@ requires:
     Storable:           0
     String::Escape:     0
     Time::HiRes:        0
+    XML::LibXML:        0
     XML::Simple:        0
     YAML:               0
 resources:
-    repository:  https://github.com/krimdomu/Rex
+    repository:  https://github.com/RexOps/Rex
 no_index:
     directory:
         - t
