@@ -107,7 +107,7 @@ use base qw(Rex::Exporter);
 
 @EXPORT = qw(task desc group
   user password port sudo_password public_key private_key pass_auth key_auth krb5_auth no_ssh
-  get_random batch timeout max_connect_retries parallelism
+  get_random batch timeout max_connect_retries parallelism proxy_command
   do_task run_task run_batch needs
   exit
   evaluate_hostname
@@ -770,11 +770,23 @@ sub parallelism {
   Rex::Config->set_parallelism( $_[0] );
 }
 
+=item proxy_command($cmd)
+
+Set a proxy command to use for the connection. This is only possible with OpenSSH connection method.
+
+ set connection => "OpenSSH";
+ proxy_command "ssh user@jumphost nc %h %p 2>/dev/null";
+
+=cut
+sub proxy_command {
+  Rex::Config->set_proxy_command($_[0]);
+}
+
 =item set_distributor($distributor)
 
 This sets the task distribution module. Default is "Base".
 
-Possible values are: Base, Gearman
+Possible values are: Base, Gearman, Parallel_ForkManager
 
 =cut
 

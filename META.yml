@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Rex
-version:            0.49.1
+version:            0.50.0
 abstract:           ~
 author:  []
 license:            Apache License 2.0
@@ -10,23 +10,24 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
-    DBI:                0
-    Digest::HMAC_SHA1:  0
-    Expect:             0
-    HTTP::Date:         0
-    IPC::Open3:         0
-    JSON::XS:           0
-    List::MoreUtils:    0
-    LWP::Simple:        0
-    LWP::UserAgent:     0
-    MIME::Base64:       0
-    Net::SSH2:          0.33
-    Storable:           0
-    String::Escape:     0
-    Time::HiRes:        0
-    XML::LibXML:        0
-    XML::Simple:        0
-    YAML:               0
+    DBI:                  0
+    Digest::HMAC_SHA1:    0
+    Expect:               0
+    HTTP::Date:           0
+    IPC::Open3:           0
+    JSON::XS:             0
+    List::MoreUtils:      0
+    LWP::Simple:          0
+    LWP::UserAgent:       0
+    MIME::Base64:         0
+    Net::SSH2:            0.33
+    Parallel::ForkManager:  0
+    Storable:             0
+    String::Escape:       0
+    Time::HiRes:          0
+    XML::LibXML:          0
+    XML::Simple:          0
+    YAML:                 0
 resources:
     repository:  https://github.com/RexOps/Rex
 no_index:
