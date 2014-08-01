@@ -1,3 +1,11 @@
+2014-07-29 Jan Gehring <jan.gehring, rexify.org> (0.51.2)
+  * Fixed #394 - export of is_symlink function
+  * Fixed #395 - is_file compatibility bug, doesn't detect symlinks anymore
+  * Added "." in the allowed char of lvm create #393 - samuelet
+  * possibility to call tasks as a method (prettier dsl)
+  * load cmdb by default
+  * load ini group module by default, if server.ini exists
+
 2014-07-20 Jan Gehring <jan.gehring, rexify.org> (0.50.0)
   * Use stat() output for directory and file tests (fix #391) - FErki
   * added Paralell::ForkManager as optional component - #295
