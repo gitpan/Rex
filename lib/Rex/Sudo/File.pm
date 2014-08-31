@@ -7,7 +7,7 @@
 ###### DEPRECATED
 
 package Rex::Sudo::File;
-
+$Rex::Sudo::File::VERSION = '0.52.1';
 use strict;
 use warnings;
 

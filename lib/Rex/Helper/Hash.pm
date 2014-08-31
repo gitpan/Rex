@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Helper::Hash;
-
+$Rex::Helper::Hash::VERSION = '0.52.1';
 use strict;
 use warnings;
 

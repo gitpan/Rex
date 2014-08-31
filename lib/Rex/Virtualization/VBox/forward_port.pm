@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::VBox::forward_port;
-
+$Rex::Virtualization::VBox::forward_port::VERSION = '0.52.1';
 use strict;
 use warnings;
 

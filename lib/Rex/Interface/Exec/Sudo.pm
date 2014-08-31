@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Interface::Exec::Sudo;
-
+$Rex::Interface::Exec::Sudo::VERSION = '0.52.1';
 use strict;
 use warnings;
 
@@ -62,7 +62,8 @@ sub exec {
   #   $shell->set_environment($option->{env});
   # }
 
-  my $sudo_password = task->get_sudo_password;
+  my $sudo_password = (
+    defined task() ? task->get_sudo_password : Rex::Config->get_sudo_password );
   my $enc_pw;
   my $random_file = "";
 

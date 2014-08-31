@@ -3,7 +3,7 @@
 #
 
 package Rex::Pkg::ALT;
-
+$Rex::Pkg::ALT::VERSION = '0.52.1';
 use strict;
 use warnings;
 

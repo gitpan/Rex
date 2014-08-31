@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::CMDB::YAML;
-
+$Rex::CMDB::YAML::VERSION = '0.52.1';
 use strict;
 use warnings;
 
@@ -58,6 +58,7 @@ sub get {
   for my $file (@files) {
     Rex::Logger::debug("CMDB - Opening $file");
     if ( -f $file ) {
+
       #my $content = eval { local ( @ARGV, $/ ) = ($file); <>; };
       #$content .= "\n";    # for safety
 

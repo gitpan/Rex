@@ -51,7 +51,7 @@ With this module you can manage LibVirt.
 =cut
 
 package Rex::Virtualization::LibVirt;
-
+$Rex::Virtualization::LibVirt::VERSION = '0.52.1';
 use strict;
 use warnings;
 

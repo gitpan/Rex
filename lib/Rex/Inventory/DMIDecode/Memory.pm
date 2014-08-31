@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Inventory::DMIDecode::Memory;
-
+$Rex::Inventory::DMIDecode::Memory::VERSION = '0.52.1';
 use strict;
 use warnings;
 

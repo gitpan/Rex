@@ -25,7 +25,7 @@ This is just a helper function and will not be reported.
 =cut
 
 package Rex::Commands::MD5;
-
+$Rex::Commands::MD5::VERSION = '0.52.1';
 use strict;
 use warnings;
 

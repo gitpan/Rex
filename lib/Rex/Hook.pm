@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Hook;
-
+$Rex::Hook::VERSION = '0.52.1';
 use strict;
 use warnings;
 

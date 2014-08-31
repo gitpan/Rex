@@ -60,7 +60,7 @@ Version <= 1.0: All these functions will not be reported.
 =cut
 
 package Rex::Commands::Box;
-
+$Rex::Commands::Box::VERSION = '0.52.1';
 use strict;
 use warnings;
 

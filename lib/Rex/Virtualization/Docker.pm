@@ -48,7 +48,7 @@ With this module you can manage Docker.
 =cut
 
 package Rex::Virtualization::Docker;
-
+$Rex::Virtualization::Docker::VERSION = '0.52.1';
 use strict;
 use warnings;
 

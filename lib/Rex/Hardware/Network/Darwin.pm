@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Hardware::Network::Darwin;
-
+$Rex::Hardware::Network::Darwin::VERSION = '0.52.1';
 use strict;
 use warnings;
 

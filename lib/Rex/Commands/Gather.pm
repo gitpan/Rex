@@ -26,7 +26,7 @@ All these functions will not be reported. These functions don't change things.
 =cut
 
 package Rex::Commands::Gather;
-
+$Rex::Commands::Gather::VERSION = '0.52.1';
 use strict;
 use warnings;
 

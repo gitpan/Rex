@@ -5,14 +5,19 @@
 # vim: set expandtab:
 
 package Rex::Interface::Fs::OpenSSH;
-
+$Rex::Interface::Fs::OpenSSH::VERSION = '0.52.1';
 use strict;
 use warnings;
 
 use Fcntl qw(:DEFAULT :mode);
 use Rex::Interface::Exec;
 use Rex::Interface::Fs::SSH;
-use Net::SFTP::Foreign::Constants qw(:flags);
+
+BEGIN {
+  use Rex::Require;
+  Net::SFTP::Foreign::Constants->use(qw(:flags));
+}
+
 use base qw(Rex::Interface::Fs::SSH);
 
 require Rex::Commands;

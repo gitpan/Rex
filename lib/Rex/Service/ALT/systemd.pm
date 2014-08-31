@@ -3,7 +3,7 @@
 #
 
 package Rex::Service::ALT::systemd;
-
+$Rex::Service::ALT::systemd::VERSION = '0.52.1';
 use strict;
 use warnings;
 

@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Hardware::Kernel;
-
+$Rex::Hardware::Kernel::VERSION = '0.52.1';
 use strict;
 use warnings;
 

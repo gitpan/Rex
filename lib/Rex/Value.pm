@@ -7,7 +7,7 @@
 # this is a simple helper class for the get() function
 
 package Rex::Value;
-
+$Rex::Value::VERSION = '0.52.1';
 use strict;
 use warnings;
 

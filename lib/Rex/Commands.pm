@@ -89,7 +89,7 @@ This module is the core commands module.
 =cut
 
 package Rex::Commands;
-
+$Rex::Commands::VERSION = '0.52.1';
 use strict;
 use warnings;
 
@@ -106,7 +106,7 @@ use vars
 use base qw(Rex::Exporter);
 
 @EXPORT = qw(task desc group
-  user password port sudo_password public_key private_key pass_auth key_auth krb5_auth no_ssh
+  user password port sudo_password public_key private_key pass_auth key_auth krb5_auth no_ssh fallback_authentication
   get_random batch timeout max_connect_retries parallelism proxy_command
   do_task run_task run_batch needs
   exit
@@ -119,7 +119,7 @@ use base qw(Rex::Exporter);
   path
   set
   get
-  before after around
+  before after around before_task_start after_task_finished
   logformat log_format
   sayformat say_format
   connection
@@ -309,7 +309,10 @@ sub task {
     *{"${class}::$task_name_save"} = sub {
       Rex::Logger::info("Running task $task_name_save on current connection");
 
-      if( Rex::Config->get_task_call_by_method && $_[0] =~ m/^[A-Za-z0-9_:]+$/ && ref $_[1] eq "HASH" ) {
+      if ( Rex::Config->get_task_call_by_method
+        && $_[0] =~ m/^[A-Za-z0-9_:]+$/
+        && ref $_[1] eq "HASH" )
+      {
         shift;
       }
 
@@ -317,7 +320,7 @@ sub task {
         $code->(@_);
       }
       else {
-        if ($REGISTER_SUB_HASH_PARAMETER && scalar @_ % 2 == 0 ) {
+        if ( $REGISTER_SUB_HASH_PARAMETER && scalar @_ % 2 == 0 ) {
           $code->( {@_} );
         }
         else {
@@ -464,9 +467,32 @@ If you want to set special login information for a group you have to activate th
  auth for => "prepare" =>
             user => "root";
 
+ auth fallback => {
+   user        => "fallback_user1",
+   password    => "fallback_pw1",
+   public_key  => "",
+   private_key => "",
+ }, {
+   user        => "fallback_user2",
+   password    => "fallback_pw2",
+   public_key  => "keys/public.key",
+   private_key => "keys/private.key",
+   sudo        => TRUE,
+ };
+
 =cut
 
 sub auth {
+
+  if ( !ref $_[0] && $_[0] eq "fallback" ) {
+
+    # set fallback authentication
+    shift;
+
+    Rex::Config->set_fallback_auth(@_);
+    return 1;
+  }
+
   my ( $_d, $entity, %data ) = @_;
 
   my $group = Rex::Group->get_group_object($entity);
@@ -601,11 +627,11 @@ sub do_task {
 
   if ( ref($task) eq "ARRAY" ) {
     for my $t ( @{$task} ) {
-      Rex::TaskList->create()->run($t);
+      Rex::TaskList->run($t);
     }
   }
   else {
-    return Rex::TaskList->create()->run($task);
+    return Rex::TaskList->run($task);
   }
 }
 
@@ -783,8 +809,9 @@ Set a proxy command to use for the connection. This is only possible with OpenSS
  proxy_command "ssh user@jumphost nc %h %p 2>/dev/null";
 
 =cut
+
 sub proxy_command {
-  Rex::Config->set_proxy_command($_[0]);
+  Rex::Config->set_proxy_command( $_[0] );
 }
 
 =item set_distributor($distributor)
@@ -1009,6 +1036,9 @@ You can call the function within a task to get the current environment.
    }
  };
 
+If no I<-E> option is passed on the command line, the default environment
+(named 'default') will be used.
+
 =cut
 
 sub environment {
@@ -1096,6 +1126,13 @@ Set a configuration parameter. These Variables can be used in templates as well.
 Or in a template
 
  DB: <%= $::database %>
+
+The following list of configuration parameters are Rex specific:
+
+=over
+
+=back
+
 
 =cut
 
@@ -1216,6 +1253,56 @@ sub around {
 
   Rex::TaskList->create()
     ->modify( 'around', $task, $code, $package, $file, $line );
+}
+
+=item before_task_start($task => sub {})
+
+Run code before executing the specified task. This gets executed only once for a task. The special taskname 'ALL' can be used to run code before all tasks.
+If called repeatedly, each sub will be appended to a list of 'before' functions.
+
+Note: must come after the definition of the specified task
+
+ before_task_start mytask => sub {
+   # do some things
+ };
+
+=cut
+
+sub before_task_start {
+  my ( $task, $code ) = @_;
+
+  if ( $task eq "ALL" ) {
+    $task = qr{.*};
+  }
+
+  my ( $package, $file, $line ) = caller;
+  Rex::TaskList->create()
+    ->modify( 'before_task_start', $task, $code, $package, $file, $line );
+}
+
+=item after_task_finished($task => sub {})
+
+Run code after the task is finished (and after the ssh connection is terminated). This gets executed only once for a task. The special taskname 'ALL' can be used to run code before all tasks.
+If called repeatedly, each sub will be appended to a list of 'before' functions.
+
+Note: must come after the definition of the specified task
+
+ after_task_finished mytask => sub {
+   # do some things
+ };
+
+=cut
+
+sub after_task_finished {
+  my ( $task, $code ) = @_;
+
+  if ( $task eq "ALL" ) {
+    $task = qr{.*};
+  }
+
+  my ( $package, $file, $line ) = caller;
+  Rex::TaskList->create()
+    ->modify( 'after_task_finished', $task, $code, $package, $file, $line );
 }
 
 =item logformat($format)

@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::LibVirt::dumpxml;
-
+$Rex::Virtualization::LibVirt::dumpxml::VERSION = '0.52.1';
 use strict;
 use warnings;
 

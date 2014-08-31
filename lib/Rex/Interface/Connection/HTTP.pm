@@ -5,13 +5,17 @@
 # vim: set expandtab:
 
 package Rex::Interface::Connection::HTTP;
-
+$Rex::Interface::Connection::HTTP::VERSION = '0.52.1';
 use strict;
 use warnings;
 
 use Rex::Interface::Connection::Base;
-use LWP::UserAgent;
-use JSON::XS;
+
+BEGIN {
+  LWP::UserAgent->use;
+  JSON::XS->use;
+}
+
 use Data::Dumper;
 
 use base qw(Rex::Interface::Connection::Base);

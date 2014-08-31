@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::VBox::guestinfo;
-
+$Rex::Virtualization::VBox::guestinfo::VERSION = '0.52.1';
 use strict;
 use warnings;
 

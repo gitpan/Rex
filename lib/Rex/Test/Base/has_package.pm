@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Test::Base::has_package;
-
+$Rex::Test::Base::has_package::VERSION = '0.52.1';
 use strict;
 use warnings;
 

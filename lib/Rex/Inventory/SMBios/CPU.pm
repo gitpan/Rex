@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Inventory::SMBios::CPU;
-
+$Rex::Inventory::SMBios::CPU::VERSION = '0.52.1';
 use strict;
 use warnings;
 

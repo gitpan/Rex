@@ -53,7 +53,7 @@ Version <= 1.0: All these functions will not be reported.
 =cut
 
 package Rex::Commands::Cloud;
-
+$Rex::Commands::Cloud::VERSION = '0.52.1';
 use strict;
 use warnings;
 
@@ -73,7 +73,9 @@ use Rex::Group::Entry::Server;
   get_cloud_plans
   get_cloud_operating_systems
   cloud_image_list
-  cloud_object);
+  cloud_object
+  get_cloud_floating_ip
+  cloud_upload_key);
 
 Rex::Config->register_set_handler(
   "cloud" => sub {
@@ -175,10 +177,20 @@ Get all instances of a cloud service.
    }
  };
 
+There are some parameters for this function that can change the gathering of ip addresses for some cloud providers (like OpenStack).
+
+ task "list", sub {
+   my @instances = cloud_instance_list 
+                      private_network => 'private',
+                      public_network  => 'public',
+                      public_ip_type  => 'floating',
+                      private_ip_type => 'fixed';
+ };
+
 =cut
 
 sub cloud_instance_list {
-  return cloud_object()->list_instances();
+  return cloud_object()->list_instances(@_);
 }
 
 =item cloud_volume_list
@@ -226,6 +238,26 @@ Get a list of all available cloud images.
 
 sub cloud_image_list {
   return cloud_object()->list_images();
+}
+
+=item cloud_upload_key
+
+Upload public SSH key to cloud provider
+
+private_key '~/.ssh/mykey
+public_key  '~/.ssh/mykey.pub';
+
+task cloudprovider => sub {
+    cloud_upload_key;
+
+    cloud_instance create => {
+      ...
+    }
+
+=cut
+
+sub cloud_upload_key {
+  return cloud_object()->upload_key();
 }
 
 =item get_cloud_instances_as_group
@@ -279,6 +311,7 @@ Create a new instance.
      name    => "fe-ec2-01",  # name is not necessary
      volume  => "vol-yyyyy",  # volume is not necessary
      zone    => "eu-west-1a",  # zone is not necessary
+     floating_ip  => "89.39.38.160" # floating_ip is not necessary
    };
 
 =cut
@@ -450,6 +483,28 @@ Delete a volume. This will destroy all data.
     return $cloud->list_volumes();
   }
 
+}
+
+=item get_cloud_floating_ip
+
+Returns first available floating IP
+
+ task "get_floating_ip", sub {
+
+   my $ip = get_cloud_floating_ip;
+
+   my $instance = cloud_instance create => {
+      image_id => 'edffd57d-82bf-4ffe-b9e8-af22563741bf',
+      name => 'instance1',
+      plan_id => 17,
+      floating_ip => $ip
+    };
+ };
+
+=cut
+
+sub get_cloud_floating_ip {
+  return cloud_object()->get_floating_ip;
 }
 
 =item cloud_network

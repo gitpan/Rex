@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Interface::Shell::Default;
-
+$Rex::Interface::Shell::Default::VERSION = '0.52.1';
 use Rex::Interface::Shell::Bash;
 
 use base qw(Rex::Interface::Shell::Bash);

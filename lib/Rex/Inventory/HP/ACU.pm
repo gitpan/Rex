@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Inventory::HP::ACU;
-
+$Rex::Inventory::HP::ACU::VERSION = '0.52.1';
 use strict;
 use warnings;
 

@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Service::OpenBSD;
-
+$Rex::Service::OpenBSD::VERSION = '0.52.1';
 use strict;
 use warnings;
 

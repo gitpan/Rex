@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Interface::Connection::Base;
-
+$Rex::Interface::Connection::Base::VERSION = '0.52.1';
 use strict;
 use warnings;
 

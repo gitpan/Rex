@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Inventory::Hal::Object;
-
+$Rex::Inventory::Hal::Object::VERSION = '0.52.1';
 use strict;
 use warnings;
 

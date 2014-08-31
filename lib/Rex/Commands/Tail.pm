@@ -28,7 +28,7 @@ With this module you can tail a file
 =cut
 
 package Rex::Commands::Tail;
-
+$Rex::Commands::Tail::VERSION = '0.52.1';
 use strict;
 use warnings;
 

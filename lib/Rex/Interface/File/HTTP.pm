@@ -5,12 +5,17 @@
 # vim: set expandtab:
 
 package Rex::Interface::File::HTTP;
-
+$Rex::Interface::File::HTTP::VERSION = '0.52.1';
 use strict;
 use warnings;
 
 use Data::Dumper;
-use MIME::Base64;
+
+BEGIN {
+  use Rex::Require;
+  MIME::Base64->use;
+}
+
 use Rex::Commands;
 use Rex::Interface::Fs;
 use Rex::Interface::File::Base;

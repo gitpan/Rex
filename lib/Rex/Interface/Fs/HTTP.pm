@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Interface::Fs::HTTP;
-
+$Rex::Interface::Fs::HTTP::VERSION = '0.52.1';
 use strict;
 use warnings;
 
@@ -13,7 +13,11 @@ use Rex::Commands;
 use Rex::Interface::Exec;
 use Rex::Interface::Fs::Base;
 use Data::Dumper;
-use MIME::Base64;
+
+BEGIN {
+  use Rex::Require;
+  MIME::Base64->use;
+}
 use base qw(Rex::Interface::Fs::Base);
 
 sub new {

@@ -30,7 +30,7 @@ All these functions are not idempotent.
 =cut
 
 package Rex::Commands::Partition;
-
+$Rex::Commands::Partition::VERSION = '0.52.1';
 use strict;
 use warnings;
 

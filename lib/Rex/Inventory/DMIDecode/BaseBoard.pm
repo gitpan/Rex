@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Inventory::DMIDecode::BaseBoard;
-
+$Rex::Inventory::DMIDecode::BaseBoard::VERSION = '0.52.1';
 use strict;
 use warnings;
 

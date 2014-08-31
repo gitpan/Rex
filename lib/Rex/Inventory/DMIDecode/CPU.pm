@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Inventory::DMIDecode::CPU;
-
+$Rex::Inventory::DMIDecode::CPU::VERSION = '0.52.1';
 use strict;
 use warnings;
 

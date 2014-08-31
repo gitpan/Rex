@@ -50,7 +50,7 @@ All these functions are not idempotent.
 =cut
 
 package Rex::Commands::SCM;
-
+$Rex::Commands::SCM::VERSION = '0.52.1';
 use strict;
 use warnings;
 

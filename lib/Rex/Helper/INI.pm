@@ -5,11 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Helper::INI;
-
+$Rex::Helper::INI::VERSION = '0.52.1';
 use strict;
 use warnings;
 
-use String::Escape 'string2hash';
+BEGIN { String::Escape->use('string2hash'); }
 
 sub parse {
   my (@lines) = @_;

@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::TaskList::Base;
-
+$Rex::TaskList::Base::VERSION = '0.52.1';
 use strict;
 use warnings;
 
@@ -141,12 +141,14 @@ sub create_task {
       ? $options->{exit_on_connect_fail}
       : 1
     ),
-    before          => [],
-    after           => [],
-    around          => [],
-    name            => $task_name,
-    executor        => Rex::Interface::Executor->create,
-    connection_type => Rex::Config->get_connection_type,
+    before              => [],
+    after               => [],
+    around              => [],
+    after_task_finished => [],
+    before_task_start   => [],
+    name                => $task_name,
+    executor            => Rex::Interface::Executor->create,
+    connection_type     => Rex::Config->get_connection_type,
   );
 
   if ( $self->{DEFAULT_AUTH} ) {

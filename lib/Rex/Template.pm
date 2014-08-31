@@ -24,7 +24,7 @@ This is a simple template engine for configuration files.
 =cut
 
 package Rex::Template;
-
+$Rex::Template::VERSION = '0.52.1';
 use strict;
 use warnings;
 

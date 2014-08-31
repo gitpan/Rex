@@ -47,7 +47,7 @@ With this module you can do file system tasks like creating a directory, removin
 =cut
 
 package Rex::Commands::Fs;
-
+$Rex::Commands::Fs::VERSION = '0.52.1';
 use strict;
 use warnings;
 

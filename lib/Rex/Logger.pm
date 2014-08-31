@@ -29,7 +29,7 @@ This module if the logging module. You can define custom logformats.
 =cut
 
 package Rex::Logger;
-
+$Rex::Logger::VERSION = '0.52.1';
 use strict;
 use warnings;
 
@@ -95,8 +95,7 @@ sub init {
     die
       if ( Rex::Config->get_log_filename || !Rex::Config->get_log_facility );
 
-    require Sys::Syslog;
-    Sys::Syslog->import;
+    Sys::Syslog->use;
     openlog( "rex", "ndelay,pid", Rex::Config->get_log_facility );
     $has_syslog = 1;
   };

@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Helper::Encode;
-
+$Rex::Helper::Encode::VERSION = '0.52.1';
 use strict;
 use warnings;
 

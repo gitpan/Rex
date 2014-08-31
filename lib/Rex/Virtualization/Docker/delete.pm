@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::Docker::delete;
-
+$Rex::Virtualization::Docker::delete::VERSION = '0.52.1';
 use strict;
 use warnings;
 

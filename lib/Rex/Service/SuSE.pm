@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Service::SuSE;
-
+$Rex::Service::SuSE::VERSION = '0.52.1';
 use strict;
 use warnings;
 

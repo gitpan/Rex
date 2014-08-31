@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Interface::File::Sudo;
-
+$Rex::Interface::File::Sudo::VERSION = '0.52.1';
 use strict;
 use warnings;
 

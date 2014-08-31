@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Helper::UserAgent;
-
+$Rex::Helper::UserAgent::VERSION = '0.52.1';
 use strict;
 use warnings;
 

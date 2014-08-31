@@ -1,40 +1,52 @@
---- #YAML:1.0
-name:               Rex
-version:            0.51.2
-abstract:           ~
-author:  []
-license:            Apache License 2.0
-distribution_type:  module
-configure_requires:
-    ExtUtils::MakeMaker:  0
+---
+abstract: 'Remote Execution'
+author:
+  - 'Jan Gehring <jfried@rexify.org>'
 build_requires:
-    ExtUtils::MakeMaker:  0
-requires:
-    DBI:                  0
-    Digest::HMAC_SHA1:    0
-    Expect:               0
-    HTTP::Date:           0
-    IPC::Open3:           0
-    JSON::XS:             0
-    List::MoreUtils:      0
-    LWP::Simple:          0
-    LWP::UserAgent:       0
-    MIME::Base64:         0
-    Net::SSH2:            0.33
-    Parallel::ForkManager:  0
-    Storable:             0
-    String::Escape:       0
-    Time::HiRes:          0
-    XML::LibXML:          0
-    XML::Simple:          0
-    YAML:                 0
-resources:
-    repository:  https://github.com/RexOps/Rex
-no_index:
-    directory:
-        - t
-        - inc
-generated_by:       ExtUtils::MakeMaker version 6.57_05
+  File::Temp: '0'
+  Test::More: '0'
+configure_requires:
+  ExtUtils::MakeMaker: '0'
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 5.020, CPAN::Meta::Converter version 2.142060'
+license: apache
 meta-spec:
-    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
-    version:  1.4
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: Rex
+requires:
+  Carp: '0'
+  Cwd: '0'
+  Data::Dumper: '0'
+  Digest::MD5: '0'
+  Exporter: '0'
+  Fcntl: '0'
+  File::Basename: '0'
+  File::Spec: '0'
+  FindBin: '0'
+  IO::File: '0'
+  IO::Socket: '0'
+  IPC::Open3: '0'
+  JSON::XS: '0'
+  LWP::UserAgent: '0'
+  List::MoreUtils: '0'
+  List::Util: '0'
+  MIME::Base64: '0'
+  POSIX: '0'
+  Storable: '0'
+  Symbol: '0'
+  Time::HiRes: '0'
+  UNIVERSAL: '0'
+  URI: '0'
+  URI::QueryParam: '0'
+  XML::Simple: '0'
+  YAML: '0'
+  attributes: '0'
+  base: '0'
+  constant: '0'
+  overload: '0'
+  strict: '0'
+  vars: '0'
+  warnings: '0'
+  warnings::register: '0'
+version: 0.52.1

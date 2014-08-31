@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::VBox::share_folder;
-
+$Rex::Virtualization::VBox::share_folder::VERSION = '0.52.1';
 use strict;
 use warnings;
 

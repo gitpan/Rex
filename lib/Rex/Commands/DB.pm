@@ -57,11 +57,16 @@ Version <= 1.0: All these functions will not be reported.
 =cut
 
 package Rex::Commands::DB;
-
+$Rex::Commands::DB::VERSION = '0.52.1';
 use strict;
 use warnings;
 
-use DBI;
+
+BEGIN {
+  use Rex::Require;
+  DBI->require;
+}
+
 use Rex::Logger;
 use Data::Dumper;
 

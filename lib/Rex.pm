@@ -32,6 +32,9 @@ You can find examples and howtos on L<http://rexify.org/>
 
 =head1 SYNOPSIS
 
+ use strict;
+ use warnings;
+
  user "root";
  password "ch4ngem3";
 
@@ -51,11 +54,10 @@ See L<Rex::Commands> for a list of all commands you can use.
 =cut
 
 package Rex;
-
+$Rex::VERSION = '0.52.1';
 use strict;
 use warnings;
 
-use Net::SSH2;
 use Rex::Logger;
 use Rex::Interface::Cache;
 use Data::Dumper;
@@ -65,13 +67,13 @@ use Rex::Config;
 use Rex::Helper::Array;
 use Rex::Report;
 use Rex::Notify;
+use Rex::Require;
 use File::Basename;
 
 our ( @EXPORT, $VERSION, @CONNECTION_STACK, $GLOBAL_SUDO, $MODULE_PATHS,
   $WITH_EXIT_STATUS );
 
-$VERSION          = "0.51.2";
-$WITH_EXIT_STATUS = 1;          # since 0.50 activated by default
+$WITH_EXIT_STATUS = 1;    # since 0.50 activated by default
 
 my $cur_dir;
 
@@ -746,6 +748,8 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item eduardoj
 
+=item Erik Huelsmann
+
 =item fanyeren
 
 =item Ferenc Erki
@@ -787,6 +791,8 @@ Many thanks to the contributors for their work (alphabetical order).
 =item Nathan Abu
 
 =item Naveed Massjouni
+
+=item Nicolas Leclercq
 
 =item Niklas Larsson
 

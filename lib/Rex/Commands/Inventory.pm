@@ -29,7 +29,7 @@ All these functions will not be reported. These functions don't change things.
 =cut
 
 package Rex::Commands::Inventory;
-
+$Rex::Commands::Inventory::VERSION = '0.52.1';
 use strict;
 use warnings;
 

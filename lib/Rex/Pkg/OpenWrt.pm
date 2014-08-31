@@ -6,7 +6,7 @@
 #  based on Rex::Pkg::Debian
 
 package Rex::Pkg::OpenWrt;
-
+$Rex::Pkg::OpenWrt::VERSION = '0.52.1';
 use strict;
 use warnings;
 

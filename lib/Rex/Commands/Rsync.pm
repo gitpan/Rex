@@ -22,6 +22,14 @@ All these functions are not idempotent.
 
 =item Expect
 
+The I<Expect> Perl module is required to be installed on the machine
+executing the rsync task.
+
+=item rsync
+
+The I<rsync> command has to be installed on both machines involved in
+the execution of the rsync task.
+
 =back
 
 =head1 SYNOPSIS
@@ -37,12 +45,15 @@ All these functions are not idempotent.
 =cut
 
 package Rex::Commands::Rsync;
-
+$Rex::Commands::Rsync::VERSION = '0.52.1';
 use strict;
 use warnings;
 
-use Expect;
-$Expect::Log_Stdout = 0;
+BEGIN {
+  use Rex::Require;
+  Expect->use;
+  $Expect::Log_Stdout = 0;
+}
 
 require Rex::Exporter;
 
@@ -162,7 +173,7 @@ sub sync {
           my $fh = shift;
           $fh->send("yes\n");
           exp_continue;
-          }
+        }
       ],
       [
         qr{password: ?$}i,
@@ -171,7 +182,7 @@ sub sync {
           my $fh = shift;
           $fh->send( $pass . "\n" );
           exp_continue;
-          }
+        }
       ],
       [
         qr{password for.*:$}i,
@@ -180,14 +191,14 @@ sub sync {
           my $fh = shift;
           $fh->send( $pass . "\n" );
           exp_continue;
-          }
+        }
       ],
       [
         qr{rsync error: error in rsync protocol},
         sub {
           Rex::Logger::debug("Error in rsync");
           die;
-          }
+        }
       ],
       [
         qr{rsync error: remote command not found},
@@ -197,7 +208,7 @@ sub sync {
             "Please install rsync, or use Rex::Commands::Sync sync_up/sync_down"
           );
           die;
-          }
+        }
       ],
 
     );
@@ -221,7 +232,7 @@ sub sync {
           my $fh = shift;
           $fh->send("yes\n");
           exp_continue;
-          }
+        }
       ],
       [
         qr{password: ?$}i,
@@ -230,7 +241,7 @@ sub sync {
           my $fh = shift;
           $fh->send( $pass . "\n" );
           exp_continue;
-          }
+        }
       ],
       [
         qr{Enter passphrase for key.*: $},
@@ -239,14 +250,14 @@ sub sync {
           my $fh = shift;
           $fh->send( $pass . "\n" );
           exp_continue;
-          }
+        }
       ],
       [
         qr{rsync error: error in rsync protocol},
         sub {
           Rex::Logger::debug("Error in rsync");
           die;
-          }
+        }
       ],
       [
         qr{rsync error: remote command not found},
@@ -256,7 +267,7 @@ sub sync {
             "Please install rsync, or use Rex::Commands::Sync sync_up/sync_down"
           );
           die;
-          }
+        }
       ],
 
     );
@@ -272,11 +283,11 @@ sub sync {
         Rex::Config->get_timeout,
         @expect_options,
         [
-          qr{total size is \d+\s+speedup is },
+          qr{total size is [\d,]+\s+speedup is },
           sub {
             Rex::Logger::debug("Finished transfer very fast");
             die;
-            }
+          }
 
         ]
       );
@@ -284,18 +295,18 @@ sub sync {
       $exp->expect(
         undef,
         [
-          qr{total size is \d+\s+speedup is },
+          qr{total size is [\d,]+\s+speedup is },
           sub {
             Rex::Logger::debug("Finished transfer");
             exp_continue;
-            }
+          }
         ],
         [
           qr{rsync error: error in rsync protocol},
           sub {
             Rex::Logger::debug("Error in rsync");
             die;
-            }
+          }
         ],
       );
 

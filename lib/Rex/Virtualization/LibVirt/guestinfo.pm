@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::LibVirt::guestinfo;
-
+$Rex::Virtualization::LibVirt::guestinfo::VERSION = '0.52.1';
 use strict;
 use warnings;
 

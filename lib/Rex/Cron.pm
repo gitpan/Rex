@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Cron;
-
+$Rex::Cron::VERSION = '0.52.1';
 use strict;
 use warnings;
 

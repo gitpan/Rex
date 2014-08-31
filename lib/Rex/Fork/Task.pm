@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Fork::Task;
-
+$Rex::Fork::Task::VERSION = '0.52.1';
 BEGIN {
 
   use Rex::Shared::Var;
@@ -36,9 +36,10 @@ sub start {
   else {
     $self->{chld} = 1;
     my $func = $self->{task};
+
     # only allow this if no parallelism is given.
     # with parallelism active it doesn't make sense.
-    if ($Rex::WITH_EXIT_STATUS && Rex::Config->get_parallelism == 1) {
+    if ( $Rex::WITH_EXIT_STATUS && Rex::Config->get_parallelism == 1 ) {
       eval {
         &$func($self);
         1;

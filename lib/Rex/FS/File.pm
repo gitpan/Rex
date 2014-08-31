@@ -27,7 +27,7 @@ This is the File Class used by I<file_write> and I<file_read>.
 =cut
 
 package Rex::FS::File;
-
+$Rex::FS::File::VERSION = '0.52.1';
 use strict;
 use warnings;
 

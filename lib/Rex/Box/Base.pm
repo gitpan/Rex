@@ -21,7 +21,7 @@ These methods are shared across all other Rex::Box modules.
 =cut
 
 package Rex::Box::Base;
-
+$Rex::Box::Base::VERSION = '0.52.1';
 use strict;
 use warnings;
 
@@ -31,7 +31,10 @@ use Rex::Commands::Fs;
 use Rex::Commands::Virtualization;
 use Rex::Commands::SimpleCheck;
 
-use LWP::UserAgent;
+BEGIN {
+  LWP::UserAgent->use;
+}
+
 use Time::HiRes qw(tv_interval gettimeofday);
 use File::Basename qw(basename);
 use Data::Dumper;

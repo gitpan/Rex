@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Pkg::Ubuntu;
-
+$Rex::Pkg::Ubuntu::VERSION = '0.52.1';
 use strict;
 use warnings;
 

@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::User::NetBSD;
-
+$Rex::User::NetBSD::VERSION = '0.52.1';
 use strict;
 use warnings;
 

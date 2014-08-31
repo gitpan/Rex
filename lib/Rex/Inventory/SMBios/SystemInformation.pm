@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Inventory::SMBios::SystemInformation;
-
+$Rex::Inventory::SMBios::SystemInformation::VERSION = '0.52.1';
 use strict;
 use warnings;
 

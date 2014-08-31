@@ -29,7 +29,7 @@ All these functions are not idempotent.
 =cut
 
 package Rex::Commands::SimpleCheck;
-
+$Rex::Commands::SimpleCheck::VERSION = '0.52.1';
 use strict;
 use warnings;
 

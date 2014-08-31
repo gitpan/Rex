@@ -21,7 +21,7 @@ With this module you can specify own configuration parameters for your modules.
 =cut
 
 package Rex::Config;
-
+$Rex::Config::VERSION = '0.52.1';
 use strict;
 use warnings;
 
@@ -55,7 +55,7 @@ our (
   $do_reporting,             $say_format,
   $exec_autodie,             $verbose_run,
   $disable_taskname_warning, $proxy_command,
-  $task_call_by_method,
+  $task_call_by_method,      $fallback_auth,
 );
 
 # some defaults
@@ -65,6 +65,15 @@ our (
   ruby   => "ruby",
   bash   => "bash",
 );
+
+sub set_fallback_auth {
+  my $class = shift;
+  $fallback_auth = [@_];
+}
+
+sub get_fallback_auth {
+  return $fallback_auth;
+}
 
 sub set_task_call_by_method {
   my $class = shift;

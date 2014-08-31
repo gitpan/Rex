@@ -5,10 +5,11 @@
 # vim: set expandtab:
 
 package Rex::TaskList;
-
+$Rex::TaskList::VERSION = '0.52.1';
 use strict;
 use warnings;
 
+use Data::Dumper;
 use Rex::Config;
 use Rex::Logger;
 use Rex::Interface::Executor;
@@ -44,4 +45,19 @@ sub create {
     "new distribution class of type " . ref($task_list) . " created." );
 
   return $task_list;
+}
+
+sub run {
+  my ( $class, $task_name ) = @_;
+  my $task_object = $class->create()->get_task($task_name);
+
+  for my $code ( @{ $task_object->{before_task_start} } ) {
+    $code->($task_object);
+  }
+
+  $class->create()->run($task_name);
+
+  for my $code ( @{ $task_object->{after_task_finished} } ) {
+    $code->($task_object);
+  }
 }

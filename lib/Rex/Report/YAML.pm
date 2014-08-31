@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Report::YAML;
-
+$Rex::Report::YAML::VERSION = '0.52.1';
 use strict;
 use warnings;
 

@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Exporter;
-
+$Rex::Exporter::VERSION = '0.52.1';
 use strict;
 use warnings;
 

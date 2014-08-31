@@ -28,7 +28,7 @@ With this module you can manage the host entries in /etc/hosts.
 =cut
 
 package Rex::Commands::Host;
-
+$Rex::Commands::Host::VERSION = '0.52.1';
 use strict;
 use warnings;
 

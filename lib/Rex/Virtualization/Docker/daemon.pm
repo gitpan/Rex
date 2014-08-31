@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::Docker::daemon;
-
+$Rex::Virtualization::Docker::daemon::VERSION = '0.52.1';
 use strict;
 use warnings;
 

@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::File::Parser::Data;
-
+$Rex::File::Parser::Data::VERSION = '0.52.1';
 use strict;
 use warnings;
 

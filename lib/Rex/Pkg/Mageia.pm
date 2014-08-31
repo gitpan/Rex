@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Pkg::Mageia;
-
+$Rex::Pkg::Mageia::VERSION = '0.52.1';
 use strict;
 use warnings;
 

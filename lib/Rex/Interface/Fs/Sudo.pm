@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Interface::Fs::Sudo;
-
+$Rex::Interface::Fs::Sudo::VERSION = '0.52.1';
 use strict;
 use warnings;
 
@@ -15,6 +15,7 @@ use Rex::Helper::Path;
 use Rex::Helper::Encode;
 use JSON::XS;
 use base qw(Rex::Interface::Fs::Base);
+use Data::Dumper;
 
 sub new {
   my $that  = shift;
@@ -96,9 +97,16 @@ sub is_file {
   my ( $self, $file ) = @_;
 
   $self->_exec("/bin/sh -c '[ -e \"$file\" ]'");
-  my $ret = $?;
+  my $is_file = $?;
 
-  if ( $ret == 0 ) { return 1; }
+  $self->_exec("/bin/sh -c '[ -d \"$file\" ]'");
+  my $is_dir = $?;
+
+  if ( $is_file == 0 && $is_dir != 0 ) {
+    return 1;
+  }
+
+  return 0;
 }
 
 sub unlink {
@@ -142,7 +150,12 @@ sub stat {
 
   my $rnd_file = $self->_write_to_rnd_file($script);
   my $out      = $self->_exec("perl $rnd_file '$file'");
-  my $tmp      = decode_json($out);
+
+  if ( !$out ) {
+    return ();
+  }
+
+  my $tmp = decode_json($out);
 
   return %{$tmp};
 }
@@ -203,7 +216,8 @@ sub glob {
 
   my $rnd_file = $self->_write_to_rnd_file($script);
   my $content  = $self->_exec("perl $rnd_file");
-  my $tmp      = decode_json($content);
+
+  my $tmp = decode_json($content);
 
   return @{$tmp};
 }

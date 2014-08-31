@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::VBox::option;
-
+$Rex::Virtualization::VBox::option::VERSION = '0.52.1';
 use strict;
 use warnings;
 

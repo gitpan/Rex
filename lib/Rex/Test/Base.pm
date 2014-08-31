@@ -54,12 +54,16 @@ Then you can create your test files inside this directory.
 =cut
 
 package Rex::Test::Base;
-
+$Rex::Test::Base::VERSION = '0.52.1';
 use strict;
 use warnings;
 
 #use Rex -base;
-require Test::More;
+BEGIN {
+  use Rex::Require;
+  Test::More->require;
+}
+
 require Rex::Commands;
 use Rex::Commands::Box;
 use Data::Dumper;

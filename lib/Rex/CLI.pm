@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::CLI;
-
+$Rex::CLI::VERSION = '0.52.1';
 use strict;
 use warnings;
 
@@ -21,7 +21,7 @@ use Rex::Group;
 use Rex::Batch;
 use Rex::TaskList;
 use Rex::Logger;
-use Rex::Output;
+use YAML;
 
 use Data::Dumper;
 
@@ -73,6 +73,7 @@ sub __run__ {
     d => {},
     s => {},
     m => {},
+    y => {},
     w => {},
     S => { type => "string" },
     E => { type => "string" },
@@ -200,6 +201,7 @@ FORCE_SERVER: {
   }
 
   if ( $opts{'o'} ) {
+    Rex::Output->require;
     Rex::Output->get( $opts{'o'} );
   }
 
@@ -279,9 +281,12 @@ FORCE_SERVER: {
     }
 
     eval {
-      my $server_ini_file = dirname($::rexfile) . "/server.ini";
-      if(-f $server_ini_file) {
-        require Rex::Group::Lookup::INI;
+      my $env             = environment;
+      my $ini_dir         = dirname($::rexfile);
+      my $server_ini_file = "$ini_dir/server.$env.ini";
+      $server_ini_file = "$ini_dir/server.ini"
+        if !-f $server_ini_file;
+      if ( -f $server_ini_file && Rex::Group::Lookup::INI->is_loadable ) {
         Rex::Group::Lookup::INI::groups_file($server_ini_file);
       }
 
@@ -464,6 +469,27 @@ CHECK_OVERWRITE: {
       print "'$task'" . " = '$desc'\n";
     }
   }
+  elsif ( $opts{'T'} && $opts{'y'} ) {
+    my @tasks  = Rex::TaskList->create()->get_tasks;
+    my @envs   = Rex::Commands->get_environments();
+    my %groups = Rex::Group->get_groups;
+
+    my %real_groups;
+
+    for my $group ( keys %groups ) {
+      my @servers = map { $_->get_servers }
+        Rex::Group->get_group_object($group)->get_servers;
+      $real_groups{$group} = \@servers;
+    }
+
+    print YAML::Dump(
+      {
+        tasks  => \@tasks,
+        envs   => \@envs,
+        groups => \%real_groups,
+      }
+    );
+  }
   elsif ( $opts{'T'} ) {
     Rex::Logger::debug("Listing Tasks and Batches");
     _print_color( "Tasks\n", "yellow" );
@@ -530,7 +556,7 @@ CHECK_OVERWRITE: {
       for my $task (@ARGV) {
         if ( Rex::TaskList->create()->is_task($task) ) {
           Rex::Logger::debug("Running task: $task");
-          Rex::TaskList->create()->run($task);
+          Rex::TaskList->run($task);
         }
       }
     }
@@ -569,6 +595,11 @@ CHECK_OVERWRITE: {
 
   for my $exit_hook (@exit) {
     &$exit_hook();
+  }
+
+  if ( $opts{'o'} && defined( Rex::Output->get ) ) {
+    Rex::Output->get->write();
+    IPC::Shareable->clean_up_all();
   }
 
   if ($Rex::WITH_EXIT_STATUS) {

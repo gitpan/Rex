@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::LibVirt::create;
-
+$Rex::Virtualization::LibVirt::create::VERSION = '0.52.1';
 use strict;
 use warnings;
 

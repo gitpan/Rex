@@ -5,12 +5,14 @@
 # vim: set expandtab:
 
 package Rex::Helper::DBI;
-
+$Rex::Helper::DBI::VERSION = '0.52.1';
 use strict;
 use warnings;
-use DBI;
 
-use String::Escape 'string2hash';
+BEGIN {
+  use Rex::Require;
+  DBI->require;
+}
 
 my %db_connections;
 

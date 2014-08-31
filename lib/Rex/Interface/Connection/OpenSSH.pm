@@ -5,13 +5,16 @@
 # vim: set expandtab:
 
 package Rex::Interface::Connection::OpenSSH;
-
+$Rex::Interface::Connection::OpenSSH::VERSION = '0.52.1';
 use strict;
 use warnings;
 
-use Rex::Interface::Connection::Base;
+BEGIN {
+  use Rex::Require;
+  Net::OpenSSH->require;
+}
 
-use Net::OpenSSH;
+use Rex::Interface::Connection::Base;
 use base qw(Rex::Interface::Connection::Base);
 
 sub new {
@@ -101,17 +104,17 @@ sub connect {
 
   $self->{ssh} = Net::OpenSSH->new(@connection_props);
 
-  if ( $self->{ssh} && $self->{ssh}->error ) {
-    Rex::Logger::info(
-      "Can't connect to $server (" . $self->{ssh}->error() . ")", "warn" );
+  if ( !$self->{ssh} ) {
+    Rex::Logger::info( "Can't connect to $server", "warn" );
     $self->{connected} = 0;
 
     return;
   }
 
-  if ( !$self->{ssh} ) {
-    Rex::Logger::info( "Can't connect to $server", "warn" );
-    $self->{connected} = 0;
+  if ( $self->{ssh} && $self->{ssh}->error ) {
+    Rex::Logger::info(
+      "Can't connect to $server (" . $self->{ssh}->error() . ")", "warn" );
+    $self->{connected} = 1;
 
     return;
   }

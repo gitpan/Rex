@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Service::Redhat::systemd;
-
+$Rex::Service::Redhat::systemd::VERSION = '0.52.1';
 use strict;
 use warnings;
 

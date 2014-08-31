@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Cloud;
-
+$Rex::Cloud::VERSION = '0.52.1';
 use strict;
 use warnings;
 

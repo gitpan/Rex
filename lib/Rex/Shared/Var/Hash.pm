@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Shared::Var::Hash;
-
+$Rex::Shared::Var::Hash::VERSION = '0.52.1';
 use strict;
 use warnings;
 

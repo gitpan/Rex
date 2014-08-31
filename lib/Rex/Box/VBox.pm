@@ -85,7 +85,7 @@ See also the Methods of Rex::Box::Base. This module inherits all methods of it.
 =cut
 
 package Rex::Box::VBox;
-
+$Rex::Box::VBox::VERSION = '0.52.1';
 use Data::Dumper;
 use Rex::Box::Base;
 use Rex::Commands -no => [qw/auth/];
@@ -94,7 +94,10 @@ use Rex::Commands::Fs;
 use Rex::Commands::Virtualization;
 use Rex::Commands::SimpleCheck;
 
-use LWP::UserAgent;
+BEGIN {
+  LWP::UserAgent->use;
+}
+
 use Time::HiRes qw(tv_interval gettimeofday);
 use File::Basename qw(basename);
 

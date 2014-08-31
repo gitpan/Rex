@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Inventory::Proc;
-
+$Rex::Inventory::Proc::VERSION = '0.52.1';
 use strict;
 use warnings;
 

@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Inventory::Proc::Cpuinfo;
-
+$Rex::Inventory::Proc::Cpuinfo::VERSION = '0.52.1';
 use strict;
 use warnings;
 

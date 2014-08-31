@@ -52,11 +52,9 @@ L<Net::SSH2>
 =cut
 
 package Rex::Helper::SSH2::Expect;
-
+$Rex::Helper::SSH2::Expect::VERSION = '0.52.1';
 use strict;
 use warnings;
-
-our $VERSION = "0.1";
 
 =over 4
 

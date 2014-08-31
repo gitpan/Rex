@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Interface::Exec::SSH;
-
+$Rex::Interface::Exec::SSH::VERSION = '0.52.1';
 use strict;
 use warnings;
 
@@ -13,6 +13,9 @@ use Rex::Helper::SSH2;
 use File::Basename 'basename';
 use Rex::Interface::Shell;
 require Rex::Commands;
+
+# Use 'parent' is recommended, but from Perl 5.10.1 its in core
+use base 'Rex::Interface::Exec::Base';
 
 sub new {
   my $that  = shift;
@@ -100,10 +103,11 @@ sub exec {
 sub _exec {
   my ( $self, $exec, $option ) = @_;
 
-  my $callback = $option->{continuous_read} || undef;
+  # my $callback = $option->{continuous_read} || undef;
+  # $option->{continuous_read} ||= $callback;
 
   my $ssh = Rex::is_ssh();
-  my ( $out, $err ) = net_ssh2_exec( $ssh, $exec, $callback );
+  my ( $out, $err ) = net_ssh2_exec( $ssh, $exec, $self, $option );
 
   return ( $out, $err );
 }

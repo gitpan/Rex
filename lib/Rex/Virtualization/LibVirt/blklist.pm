@@ -5,7 +5,7 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::LibVirt::blklist;
-
+$Rex::Virtualization::LibVirt::blklist::VERSION = '0.52.1';
 use strict;
 use warnings;
 
