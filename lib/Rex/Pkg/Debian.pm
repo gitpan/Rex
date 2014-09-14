@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Pkg::Debian;
-$Rex::Pkg::Debian::VERSION = '0.52.1';
+{
+  $Rex::Pkg::Debian::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

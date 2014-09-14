@@ -27,7 +27,10 @@ This module exports a function to access a CMDB via a common interface.
 =cut
 
 package Rex::CMDB;
-$Rex::CMDB::VERSION = '0.52.1';
+{
+  $Rex::CMDB::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 
@@ -44,6 +47,23 @@ my $CMDB_PROVIDER;
 Rex::Config->register_set_handler(
   "cmdb" => sub {
     my ($option) = @_;
+
+    my %args = Rex::Args->getopts;
+
+    if ( exists $args{O} ) {
+      for my $itm ( split( /;/, $args{O} ) ) {
+        my ( $key, $val ) = split( /=/, $itm );
+        if ( $key eq "cmdb_path" ) {
+          if ( ref $option->{path} eq "ARRAY" ) {
+            unshift @{ $option->{path} }, $val;
+          }
+          else {
+            $option->{path} = [$val];
+          }
+        }
+      }
+    }
+
     $CMDB_PROVIDER = $option;
   }
 );
@@ -64,6 +84,13 @@ sub cmdb {
   $server ||= connection->server;
 
   my $klass = $CMDB_PROVIDER->{type};
+
+  if ( !$klass ) {
+
+    # no cmdb set
+    return undef;
+  }
+
   if ( $klass !~ m/::/ ) {
     $klass = "Rex::CMDB::$klass";
   }
@@ -75,6 +102,10 @@ sub cmdb {
 
   my $cmdb = $klass->new( %{$CMDB_PROVIDER} );
   return Rex::Value->new( value => $cmdb->get( $item, $server ) );
+}
+
+sub cmdb_active {
+  return ( $CMDB_PROVIDER ? 1 : 0 );
 }
 
 =back

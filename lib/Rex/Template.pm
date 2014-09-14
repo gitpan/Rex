@@ -24,7 +24,10 @@ This is a simple template engine for configuration files.
 =cut
 
 package Rex::Template;
-$Rex::Template::VERSION = '0.52.1';
+{
+  $Rex::Template::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 
@@ -68,13 +71,6 @@ sub parse {
 
   my $new_data;
   my $___r = "";
-
-  my $config_values = Rex::Config->get_all;
-  for my $key ( keys %{$config_values} ) {
-    if ( !exists $vars->{$key} ) {
-      $vars->{$key} = $config_values->{$key};
-    }
-  }
 
   my $do_chomp = 0;
   $new_data = join(

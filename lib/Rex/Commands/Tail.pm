@@ -28,7 +28,10 @@ With this module you can tail a file
 =cut
 
 package Rex::Commands::Tail;
-$Rex::Commands::Tail::VERSION = '0.52.1';
+{
+  $Rex::Commands::Tail::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 
@@ -70,7 +73,7 @@ sub tail {
   my $file     = shift;
   my $callback = shift;
 
-  if ( Rex::is_sudo() ) {
+  if ( Rex::is_sudo() and ref( Rex::get_sftp() ) ne 'Net::SFTP::Foreign' ) {
     die("Can't use tail within sudo environment.");
   }
 
@@ -114,7 +117,7 @@ sub tail {
         }
 
         $fh->close;
-        $old_pos = $new_stat{'size'};
+        $old_pos = $new_stat{'size'} || $stat{'size'};
       }
 
       select undef, undef, undef, 0.3;

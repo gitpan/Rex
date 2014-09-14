@@ -27,7 +27,10 @@ With this module you can install packages and files.
 =cut
 
 package Rex::Commands::Pkg;
-$Rex::Commands::Pkg::VERSION = '0.52.1';
+{
+  $Rex::Commands::Pkg::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

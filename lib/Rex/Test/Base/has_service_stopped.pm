@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Test::Base::has_service_stopped;
-$Rex::Test::Base::has_service_stopped::VERSION = '0.52.1';
+{
+  $Rex::Test::Base::has_service_stopped::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

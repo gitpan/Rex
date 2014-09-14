@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Interface::Executor::Default;
-$Rex::Interface::Executor::Default::VERSION = '0.52.1';
+{
+  $Rex::Interface::Executor::Default::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 
@@ -44,7 +47,7 @@ sub exec {
 
   my %opts = Rex::Args->getopts;
   if ($@) {
-    if ( exists $opts{c} ) {
+    if ( exists $opts{o} ) {
       Rex::Output->get->add( $task->name, error => 1, msg => $@ );
     }
     else {

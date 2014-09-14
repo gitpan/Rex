@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Cloud::Jiffybox;
-$Rex::Cloud::Jiffybox::VERSION = '0.52.1';
+{
+  $Rex::Cloud::Jiffybox::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

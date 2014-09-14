@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Args::Integer;
-$Rex::Args::Integer::VERSION = '0.52.1';
+{
+  $Rex::Args::Integer::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Service::Mageia::systemd;
-$Rex::Service::Mageia::systemd::VERSION = '0.52.1';
+{
+  $Rex::Service::Mageia::systemd::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

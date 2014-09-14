@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::TaskList::Parallel_ForkManager;
-$Rex::TaskList::Parallel_ForkManager::VERSION = '0.52.1';
+{
+  $Rex::TaskList::Parallel_ForkManager::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

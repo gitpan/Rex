@@ -28,7 +28,10 @@ The Task Object. Typically you only need this class if you want to manipulate ta
 =cut
 
 package Rex::Task;
-$Rex::Task::VERSION = '0.52.1';
+{
+  $Rex::Task::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 use Data::Dumper;

@@ -25,7 +25,10 @@ With this module you can run a command.
 =cut
 
 package Rex::Commands::Run;
-$Rex::Commands::Run::VERSION = '0.52.1';
+{
+  $Rex::Commands::Run::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

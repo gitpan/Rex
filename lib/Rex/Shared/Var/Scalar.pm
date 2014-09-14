@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Shared::Var::Scalar;
-$Rex::Shared::Var::Scalar::VERSION = '0.52.1';
+{
+  $Rex::Shared::Var::Scalar::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

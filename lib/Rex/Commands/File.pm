@@ -59,7 +59,10 @@ With this module you can manipulate files.
 =cut
 
 package Rex::Commands::File;
-$Rex::Commands::File::VERSION = '0.52.1';
+{
+  $Rex::Commands::File::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 use Fcntl;
@@ -81,6 +84,7 @@ use Carp;
 use Rex::Interface::Exec;
 use Rex::Interface::File;
 use Rex::Interface::Fs;
+require Rex::CMDB;
 
 use File::Basename qw(dirname basename);
 
@@ -188,6 +192,23 @@ sub template {
   else {
     delete $param->{__no_sys_info__};
     %template_vars = %{$param};
+  }
+
+  # configuration variables
+  my $config_values = Rex::Config->get_all;
+  for my $key ( keys %{$config_values} ) {
+    if ( !exists $template_vars{$key} ) {
+      $template_vars{$key} = $config_values->{$key};
+    }
+  }
+
+  if ( Rex::CMDB::cmdb_active() && Rex::Config->get_register_cmdb_template ) {
+    my $data = Rex::CMDB::cmdb();
+    for my $key ( keys %{ $data->{value} } ) {
+      if ( !exists $template_vars{$key} ) {
+        $template_vars{$key} = $data->{value}->{$key};
+      }
+    }
   }
 
   return Rex::Config->get_template_function()->( $content, \%template_vars );
@@ -569,6 +590,8 @@ sub file {
     );
   }
 
+  my $on_change_done = 0;
+
   if ($need_md5) {
     unless ( $old_md5 && $new_md5 && $old_md5 eq $new_md5 ) {
       $old_md5 ||= "";
@@ -580,6 +603,8 @@ sub file {
 
       &$on_change($file);
 
+      $on_change_done = 1;
+
       Rex::get_current_connection()->{reporter}->report(
         changed => 1,
         message => "Content changed.",
@@ -587,6 +612,10 @@ sub file {
 
       $__ret = { changed => 1 };
     }
+  }
+
+  if ( $__ret->{changed} == 1 && $on_change_done == 0 ) {
+    &$on_change($file);
   }
 
   #### check and run before hook

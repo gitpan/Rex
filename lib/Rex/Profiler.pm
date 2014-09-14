@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Profiler;
-$Rex::Profiler::VERSION = '0.52.1';
+{
+  $Rex::Profiler::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

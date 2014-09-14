@@ -32,7 +32,10 @@ This function don't persists the entries in /etc/sysctl.conf.
 =cut
 
 package Rex::Commands::Sysctl;
-$Rex::Commands::Sysctl::VERSION = '0.52.1';
+{
+  $Rex::Commands::Sysctl::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

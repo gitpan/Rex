@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Service::Redhat;
-$Rex::Service::Redhat::VERSION = '0.52.1';
+{
+  $Rex::Service::Redhat::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 
@@ -29,7 +32,7 @@ sub new {
     reload       => '/etc/rc.d/init.d/%s reload >/dev/null',
     status       => '/etc/rc.d/init.d/%s status >/dev/null',
     ensure_stop  => 'chkconfig %s off',
-    ensure_start => 'chkconfig %s off',
+    ensure_start => 'chkconfig %s on',
     action       => '/etc/rc.d/init.d/%s %s >/dev/null',
   };
 

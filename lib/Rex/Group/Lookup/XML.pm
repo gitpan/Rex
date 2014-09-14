@@ -25,7 +25,10 @@ With this module you can define hostgroups out of an xml file.
 =cut
 
 package Rex::Group::Lookup::XML;
-$Rex::Group::Lookup::XML::VERSION = '0.52.1';
+{
+  $Rex::Group::Lookup::XML::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 use Rex -base;

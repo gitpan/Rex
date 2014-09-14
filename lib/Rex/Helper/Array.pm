@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Helper::Array;
-$Rex::Helper::Array::VERSION = '0.52.1';
+{
+  $Rex::Helper::Array::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

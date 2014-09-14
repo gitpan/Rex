@@ -1,5 +1,8 @@
 package Rex::Hardware::VirtInfo;
-$Rex::Hardware::VirtInfo::VERSION = '0.52.1';
+{
+  $Rex::Hardware::VirtInfo::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

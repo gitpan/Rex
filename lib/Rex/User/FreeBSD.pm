@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::User::FreeBSD;
-$Rex::User::FreeBSD::VERSION = '0.52.1';
+{
+  $Rex::User::FreeBSD::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

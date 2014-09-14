@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Fork::Manager;
-$Rex::Fork::Manager::VERSION = '0.52.1';
+{
+  $Rex::Fork::Manager::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

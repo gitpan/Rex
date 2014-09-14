@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Interface::Shell::Csh;
-$Rex::Interface::Shell::Csh::VERSION = '0.52.1';
+{
+  $Rex::Interface::Shell::Csh::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

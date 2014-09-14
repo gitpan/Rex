@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Pkg::NetBSD;
-$Rex::Pkg::NetBSD::VERSION = '0.52.1';
+{
+  $Rex::Pkg::NetBSD::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

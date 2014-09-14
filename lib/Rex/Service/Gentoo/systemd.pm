@@ -3,7 +3,10 @@
 #
 
 package Rex::Service::Gentoo::systemd;
-$Rex::Service::Gentoo::systemd::VERSION = '0.52.1';
+{
+  $Rex::Service::Gentoo::systemd::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

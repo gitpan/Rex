@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Pkg::SunOS::OpenCSW;
-$Rex::Pkg::SunOS::OpenCSW::VERSION = '0.52.1';
+{
+  $Rex::Pkg::SunOS::OpenCSW::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

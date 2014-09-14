@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Inventory::SMBios::BaseBoard;
-$Rex::Inventory::SMBios::BaseBoard::VERSION = '0.52.1';
+{
+  $Rex::Inventory::SMBios::BaseBoard::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

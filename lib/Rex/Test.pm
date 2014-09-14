@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Test;
-$Rex::Test::VERSION = '0.52.1';
+{
+  $Rex::Test::VERSION = '0.53.1';
+}
+
 use Rex -base;
 use Data::Dumper;
 use Rex::Commands::Box;

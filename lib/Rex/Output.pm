@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Output;
-$Rex::Output::VERSION = '0.52.1';
+{
+  $Rex::Output::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 BEGIN { IPC::Shareable->use }

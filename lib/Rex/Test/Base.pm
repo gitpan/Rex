@@ -54,7 +54,10 @@ Then you can create your test files inside this directory.
 =cut
 
 package Rex::Test::Base;
-$Rex::Test::Base::VERSION = '0.52.1';
+{
+  $Rex::Test::Base::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

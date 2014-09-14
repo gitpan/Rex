@@ -58,7 +58,10 @@ Only I<open_port> and I<close_port> are idempotent.
 =cut
 
 package Rex::Commands::Iptables;
-$Rex::Commands::Iptables::VERSION = '0.52.1';
+{
+  $Rex::Commands::Iptables::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

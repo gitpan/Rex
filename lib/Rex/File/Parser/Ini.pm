@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::File::Parser::Ini;
-$Rex::File::Parser::Ini::VERSION = '0.52.1';
+{
+  $Rex::File::Parser::Ini::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

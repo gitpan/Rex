@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Inventory::Hal::Object::Net;
-$Rex::Inventory::Hal::Object::Net::VERSION = '0.52.1';
+{
+  $Rex::Inventory::Hal::Object::Net::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

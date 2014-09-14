@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Interface::Fs::OpenSSH;
-$Rex::Interface::Fs::OpenSSH::VERSION = '0.52.1';
+{
+  $Rex::Interface::Fs::OpenSSH::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

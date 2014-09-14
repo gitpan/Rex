@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Service::Gentoo;
-$Rex::Service::Gentoo::VERSION = '0.52.1';
+{
+  $Rex::Service::Gentoo::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

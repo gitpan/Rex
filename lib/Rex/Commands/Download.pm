@@ -34,7 +34,10 @@ Version <= 1.0: All these functions will not be reported.
 =cut
 
 package Rex::Commands::Download;
-$Rex::Commands::Download::VERSION = '0.52.1';
+{
+  $Rex::Commands::Download::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 use Rex::Helper::UserAgent;

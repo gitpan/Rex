@@ -2,7 +2,10 @@
 # ALT sevice control support
 #
 package Rex::Service::ALT;
-$Rex::Service::ALT::VERSION = '0.52.1';
+{
+  $Rex::Service::ALT::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

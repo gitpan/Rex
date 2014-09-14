@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Interface::Shell::Tcsh;
-$Rex::Interface::Shell::Tcsh::VERSION = '0.52.1';
+{
+  $Rex::Interface::Shell::Tcsh::VERSION = '0.53.1';
+}
+
 use Rex::Interface::Shell::Csh;
 
 use base qw(Rex::Interface::Shell::Csh);

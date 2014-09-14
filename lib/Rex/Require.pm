@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Require;
-$Rex::Require::VERSION = '0.52.1';
+{
+  $Rex::Require::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

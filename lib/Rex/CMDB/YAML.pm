@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::CMDB::YAML;
-$Rex::CMDB::YAML::VERSION = '0.52.1';
+{
+  $Rex::CMDB::YAML::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 
@@ -54,6 +57,7 @@ sub get {
   @files = map { $self->_parse_path($_) } @files;
 
   my $all = {};
+  Rex::Logger::debug(Dumper(\@files));
 
   for my $file (@files) {
     Rex::Logger::debug("CMDB - Opening $file");

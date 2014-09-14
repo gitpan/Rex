@@ -64,7 +64,10 @@ See also the Methods of Rex::Box::Base. This module inherits all methods of it.
 =cut
 
 package Rex::Box::KVM;
-$Rex::Box::KVM::VERSION = '0.52.1';
+{
+  $Rex::Box::KVM::VERSION = '0.53.1';
+}
+
 use Data::Dumper;
 use Rex::Box::Base;
 use Rex::Commands -no => [qw/auth/];

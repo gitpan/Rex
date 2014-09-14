@@ -37,7 +37,10 @@ With this module you can manage Linux services.
 =cut
 
 package Rex::Commands::Service;
-$Rex::Commands::Service::VERSION = '0.52.1';
+{
+  $Rex::Commands::Service::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

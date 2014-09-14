@@ -29,7 +29,10 @@ This module if the logging module. You can define custom logformats.
 =cut
 
 package Rex::Logger;
-$Rex::Logger::VERSION = '0.52.1';
+{
+  $Rex::Logger::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

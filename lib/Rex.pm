@@ -54,7 +54,10 @@ See L<Rex::Commands> for a list of all commands you can use.
 =cut
 
 package Rex;
-$Rex::VERSION = '0.52.1';
+{
+  $Rex::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 
@@ -122,7 +125,7 @@ BEGIN {
 
 }
 
-my $home = $ENV{'HOME'};
+my $home = $ENV{'HOME'} || "/tmp";
 if ( $^O =~ m/^MSWin/ ) {
   $home = $ENV{'USERPROFILE'};
 }
@@ -584,6 +587,18 @@ sub import {
         $found_feature = 1;
       }
 
+      if ( $add =~ m/^\d+\.\d+$/ && $add >= 0.53 ) {
+        Rex::Logger::debug("Registering CMDB as template variables.");
+        Rex::Config->set_register_cmdb_template(1);
+        $found_feature = 1;
+      }
+
+      if ( $add eq "register_cmdb_top_scope" ) {
+        Rex::Logger::debug("Registering CMDB as template variables.");
+        Rex::Config->set_register_cmdb_template(1);
+        $found_feature = 1;
+      }
+
       if ( $add eq "no_local_template_vars" ) {
         Rex::Logger::debug("activating featureset no_local_template_vars");
         $Rex::Template::BE_LOCAL = 0;
@@ -704,6 +719,10 @@ sub import {
   if ( exists $ENV{REX_REPORT_TYPE} ) {
     Rex::Logger::debug("Enabling reporting");
     Rex::Config->set_do_reporting(1);
+  }
+
+  if ( exists $ENV{REX_SUDO} && $ENV{REX_SUDO} ) {
+    Rex::global_sudo(1);
   }
 
   # we are always strict

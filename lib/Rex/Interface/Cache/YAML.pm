@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Interface::Cache::YAML;
-$Rex::Interface::Cache::YAML::VERSION = '0.52.1';
+{
+  $Rex::Interface::Cache::YAML::VERSION = '0.53.1';
+}
+
 use Rex::Interface::Cache::Base;
 use base qw(Rex::Interface::Cache::Base);
 

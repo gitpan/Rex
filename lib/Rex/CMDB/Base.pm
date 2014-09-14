@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::CMDB::Base;
-$Rex::CMDB::Base::VERSION = '0.52.1';
+{
+  $Rex::CMDB::Base::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

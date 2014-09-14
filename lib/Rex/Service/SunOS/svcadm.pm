@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Service::SunOS::svcadm;
-$Rex::Service::SunOS::svcadm::VERSION = '0.52.1';
+{
+  $Rex::Service::SunOS::svcadm::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

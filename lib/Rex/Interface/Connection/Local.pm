@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Interface::Connection::Local;
-$Rex::Interface::Connection::Local::VERSION = '0.52.1';
+{
+  $Rex::Interface::Connection::Local::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

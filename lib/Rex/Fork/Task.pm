@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Fork::Task;
-$Rex::Fork::Task::VERSION = '0.52.1';
+{
+  $Rex::Fork::Task::VERSION = '0.53.1';
+}
+
 BEGIN {
 
   use Rex::Shared::Var;

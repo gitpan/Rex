@@ -85,7 +85,10 @@ See also the Methods of Rex::Box::Base. This module inherits all methods of it.
 =cut
 
 package Rex::Box::VBox;
-$Rex::Box::VBox::VERSION = '0.52.1';
+{
+  $Rex::Box::VBox::VERSION = '0.53.1';
+}
+
 use Data::Dumper;
 use Rex::Box::Base;
 use Rex::Commands -no => [qw/auth/];
@@ -132,6 +135,8 @@ sub new {
   {
     set virtualization => { type => "VBox", headless => TRUE };
   }
+
+  $self->{get_ip_count} = 0;
 
   return $self;
 }
@@ -226,7 +231,7 @@ sub provision_vm {
   my ( $self, @tasks ) = @_;
 
   if ( !@tasks ) {
-    @tasks = @{ $self->{__tasks} };
+    @tasks = @{ $self->{__tasks} } if ( exists $self->{__tasks} );
   }
 
   $self->wait_for_ssh();
@@ -320,6 +325,8 @@ sub ip {
 
   $self->{info} = vm guestinfo => $self->{name};
 
+  if(scalar keys %{ $self->{info} } == 0) { return; }
+
   my $server = $self->{info}->{net}->[0]->{ip};
   if ( $self->{__forward_port}
     && $self->{__forward_port}->{ssh}
@@ -335,6 +342,21 @@ sub ip {
   }
 
   $self->{info}->{ip} = $server;
+
+  if( ! $server ) {
+    sleep 1;
+    $self->{get_ip_count}++;
+
+    if($self->{get_ip_count} >= 30) {
+      die "Can't get ip of VM.";
+    }
+
+    my $ip = $self->ip;
+    if($ip) {
+      $self->{get_ip_count} = 0;
+      return $ip;
+    }
+  }
 
   return $server;
 }

@@ -9,7 +9,10 @@
 #
 
 package Rex::Cloud::Amazon;
-$Rex::Cloud::Amazon::VERSION = '0.52.1';
+{
+  $Rex::Cloud::Amazon::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

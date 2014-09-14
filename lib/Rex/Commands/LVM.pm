@@ -33,7 +33,10 @@ All these functions are not idempotent.
 =cut
 
 package Rex::Commands::LVM;
-$Rex::Commands::LVM::VERSION = '0.52.1';
+{
+  $Rex::Commands::LVM::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

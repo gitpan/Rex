@@ -29,7 +29,10 @@ All these functions are not idempotent.
 =cut
 
 package Rex::Commands::Process;
-$Rex::Commands::Process::VERSION = '0.52.1';
+{
+  $Rex::Commands::Process::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

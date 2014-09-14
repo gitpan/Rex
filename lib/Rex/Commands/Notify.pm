@@ -24,7 +24,10 @@ This module exports the notify() function.
 =cut
 
 package Rex::Commands::Notify;
-$Rex::Commands::Notify::VERSION = '0.52.1';
+{
+  $Rex::Commands::Notify::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

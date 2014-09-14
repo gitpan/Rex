@@ -60,7 +60,10 @@ Version <= 1.0: All these functions will not be reported.
 =cut
 
 package Rex::Commands::Box;
-$Rex::Commands::Box::VERSION = '0.52.1';
+{
+  $Rex::Commands::Box::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 
@@ -170,6 +173,8 @@ sub box(&) {
   $self->import_vm();
 
   $self->provision_vm();
+
+  return $self->ip;
 }
 
 =item list_boxes

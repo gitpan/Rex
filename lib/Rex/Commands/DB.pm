@@ -57,10 +57,12 @@ Version <= 1.0: All these functions will not be reported.
 =cut
 
 package Rex::Commands::DB;
-$Rex::Commands::DB::VERSION = '0.52.1';
+{
+  $Rex::Commands::DB::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
-
 
 BEGIN {
   use Rex::Require;

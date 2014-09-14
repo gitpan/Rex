@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Interface::Connection::HTTP;
-$Rex::Interface::Connection::HTTP::VERSION = '0.52.1';
+{
+  $Rex::Interface::Connection::HTTP::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

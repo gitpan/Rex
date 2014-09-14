@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::Inventory::DMIDecode::Section;
-$Rex::Inventory::DMIDecode::Section::VERSION = '0.52.1';
+{
+  $Rex::Inventory::DMIDecode::Section::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 

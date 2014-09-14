@@ -5,7 +5,10 @@
 # vim: set expandtab:
 
 package Rex::CLI;
-$Rex::CLI::VERSION = '0.52.1';
+{
+  $Rex::CLI::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 
@@ -90,6 +93,7 @@ sub __run__ {
     G => { type => "string" },
     g => { type => "string" },
     z => { type => "string" },
+    O => { type => "string" },
     t => { type => "integer" },
     %more_args,
   );

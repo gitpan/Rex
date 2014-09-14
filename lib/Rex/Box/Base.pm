@@ -21,7 +21,10 @@ These methods are shared across all other Rex::Box modules.
 =cut
 
 package Rex::Box::Base;
-$Rex::Box::Base::VERSION = '0.52.1';
+{
+  $Rex::Box::Base::VERSION = '0.53.1';
+}
+
 use strict;
 use warnings;
 
