@@ -6,7 +6,7 @@
 
 package Rex::Helper::Run;
 {
-  $Rex::Helper::Run::VERSION = '0.53.1';
+  $Rex::Helper::Run::VERSION = '0.54.3';
 }
 
 use strict;
@@ -63,7 +63,7 @@ sub i_run {
   }
 
   if ( exists $option->{nohup} && $option->{nohup} ) {
-    $cmd = "nohup $cmd";
+    $cmd = "nohup $cmd >/dev/null";
     delete $option->{nohup};
   }
 

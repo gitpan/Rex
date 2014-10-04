@@ -6,7 +6,7 @@
 
 package Rex::Output::JUnit;
 {
-  $Rex::Output::JUnit::VERSION = '0.53.1';
+  $Rex::Output::JUnit::VERSION = '0.54.3';
 }
 
 use strict;

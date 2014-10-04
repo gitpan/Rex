@@ -6,7 +6,7 @@
 
 package Rex::Service::Debian;
 {
-  $Rex::Service::Debian::VERSION = '0.53.1';
+  $Rex::Service::Debian::VERSION = '0.54.3';
 }
 
 use strict;
@@ -22,14 +22,15 @@ sub new {
   bless( $self, $proto );
 
   $self->{commands} = {
-    start        => '/etc/init.d/%s start >/dev/null',
-    restart      => '/etc/init.d/%s restart >/dev/null',
-    stop         => '/etc/init.d/%s stop >/dev/null',
-    reload       => '/etc/init.d/%s reload >/dev/null',
-    status       => '/etc/init.d/%s status >/dev/null',
-    ensure_stop  => 'update-rc.d -f %s remove',
-    ensure_start => 'update-rc.d %s defaults',
-    action       => '/etc/init.d/%s %s >/dev/null',
+    start          => '/etc/init.d/%s start >/dev/null',
+    restart        => '/etc/init.d/%s restart >/dev/null',
+    stop           => '/etc/init.d/%s stop >/dev/null',
+    reload         => '/etc/init.d/%s reload >/dev/null',
+    status         => '/etc/init.d/%s status >/dev/null',
+    ensure_stop    => 'update-rc.d -f %s remove',
+    ensure_start   => 'update-rc.d %s defaults',
+    action         => '/etc/init.d/%s %s >/dev/null',
+    service_exists => '/usr/sbin/service --status-all 2>&1 | grep %s',
   };
 
   return $self;

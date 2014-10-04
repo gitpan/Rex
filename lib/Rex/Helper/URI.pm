@@ -6,7 +6,7 @@
 
 package Rex::Helper::URI;
 {
-  $Rex::Helper::URI::VERSION = '0.53.1';
+  $Rex::Helper::URI::VERSION = '0.54.3';
 }
 
 use strict;

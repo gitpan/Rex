@@ -16,7 +16,7 @@ This module is the core commands module.
 
  desc "Task description";
 
- task "taskname", sub { ... };
+ task "taskname", sub { ... };
  task "taskname", "server1", ..., "server20", sub { ... };
 
  group "group" => "server1", "server2", ...;
@@ -90,7 +90,7 @@ This module is the core commands module.
 
 package Rex::Commands;
 {
-  $Rex::Commands::VERSION = '0.53.1';
+  $Rex::Commands::VERSION = '0.54.3';
 }
 
 use strict;
@@ -314,6 +314,7 @@ sub task {
       Rex::Logger::info("Running task $task_name_save on current connection");
 
       if ( Rex::Config->get_task_call_by_method
+        && $_[0]
         && $_[0] =~ m/^[A-Za-z0-9_:]+$/
         && ref $_[1] eq "HASH" )
       {
@@ -1601,9 +1602,9 @@ sub evaluate_hostname {
   return unless $str;
 
   my ( $start, $from, $to, $dummy, $step, $end ) =
-    $str =~ m/^([0-9\.\w\-:]+)\[(\d+)..(\d+)(\/(\d+))?\]([0-9\w\.\-:]+)?$/;
+    $str =~ m/^([0-9\.\w\-:]*)\[(\d+)..(\d+)(\/(\d+))?\]([0-9\w\.\-:]+)?$/;
 
-  unless ($start) {
+  if ( !defined $start ) {
     return $str;
   }
 

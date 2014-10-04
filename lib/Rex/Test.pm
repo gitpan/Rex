@@ -6,7 +6,7 @@
 
 package Rex::Test;
 {
-  $Rex::Test::VERSION = '0.53.1';
+  $Rex::Test::VERSION = '0.54.3';
 }
 
 use Rex -base;
@@ -18,7 +18,7 @@ task run => make {
 
   my @files;
   LOCAL {
-    @files = list_files "t";
+    @files = grep { $_ =~ /\.t$/ } list_files 't';
   };
 
   for my $file (@files) {

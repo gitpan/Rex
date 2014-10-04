@@ -6,7 +6,7 @@
 
 package Rex::Inventory::DMIDecode::Bios;
 {
-  $Rex::Inventory::DMIDecode::Bios::VERSION = '0.53.1';
+  $Rex::Inventory::DMIDecode::Bios::VERSION = '0.54.3';
 }
 
 use strict;

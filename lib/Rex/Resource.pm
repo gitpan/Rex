@@ -6,7 +6,7 @@
 
 package Rex::Resource;
 {
-  $Rex::Resource::VERSION = '0.53.1';
+  $Rex::Resource::VERSION = '0.54.3';
 }
 
 use strict;
@@ -33,10 +33,11 @@ sub type { (shift)->{type}; }
 sub call {
   my ( $self, $name, %params ) = @_;
 
-  if(ref $name eq "HASH") {
+  if ( ref $name eq "HASH" ) {
+
     # multiple resource call
-    for my $n (keys %{ $name }) {
-      $self->call($n, %{ $name->{$n} });
+    for my $n ( keys %{$name} ) {
+      $self->call( $n, %{ $name->{$n} } );
     }
 
     return;

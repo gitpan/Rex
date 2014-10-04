@@ -48,7 +48,7 @@ With this module you can do file system tasks like creating a directory, removin
 
 package Rex::Commands::Fs;
 {
-  $Rex::Commands::Fs::VERSION = '0.53.1';
+  $Rex::Commands::Fs::VERSION = '0.54.3';
 }
 
 use strict;
@@ -84,7 +84,7 @@ use vars qw(%file_handles);
 This function list all entries (files, directories, ...) in a given directory and returns a array.
 
  task "ls-etc", "server01", sub {
-   my @tmp_files = grep { /\.tmp$/ } list_files("/etc");
+   my @tmp_files = grep { /\.tmp$/ } list_files("/etc");
  };
 
 This command will not be reported.

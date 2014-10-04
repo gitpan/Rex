@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::VBox::forward_port;
 {
-  $Rex::Virtualization::VBox::forward_port::VERSION = '0.53.1';
+  $Rex::Virtualization::VBox::forward_port::VERSION = '0.54.3';
 }
 
 use strict;

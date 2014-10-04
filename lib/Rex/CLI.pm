@@ -6,7 +6,7 @@
 
 package Rex::CLI;
 {
-  $Rex::CLI::VERSION = '0.53.1';
+  $Rex::CLI::VERSION = '0.54.3';
 }
 
 use strict;
@@ -561,6 +561,15 @@ CHECK_OVERWRITE: {
         if ( Rex::TaskList->create()->is_task($task) ) {
           Rex::Logger::debug("Running task: $task");
           Rex::TaskList->run($task);
+        }
+        elsif($task =~ m/^\-\-/ || $task =~ m/=/) {
+          # skip, is parameter
+        }
+        else {
+          Rex::Logger::info(
+            "No task named '$task' found. Task names are case sensitive and the module delimiter is a single colon.",
+            "error"
+          );
         }
       }
     }

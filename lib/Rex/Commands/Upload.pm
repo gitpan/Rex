@@ -26,7 +26,7 @@ With this module you can upload a local file via sftp to a remote host.
 
 package Rex::Commands::Upload;
 {
-  $Rex::Commands::Upload::VERSION = '0.53.1';
+  $Rex::Commands::Upload::VERSION = '0.54.3';
 }
 
 use strict;

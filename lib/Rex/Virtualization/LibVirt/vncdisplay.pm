@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::vncdisplay;
 {
-  $Rex::Virtualization::LibVirt::vncdisplay::VERSION = '0.53.1';
+  $Rex::Virtualization::LibVirt::vncdisplay::VERSION = '0.54.3';
 }
 
 use strict;

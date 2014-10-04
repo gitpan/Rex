@@ -304,6 +304,7 @@ lib/Rex/Virtualization/VBox/shutdown.pm
 lib/Rex/Virtualization/VBox/start.pm
 lib/Rex/Virtualization/VBox/status.pm
 t/0.31.t
+t/0.54.t
 t/01.t
 t/args.t
 t/auth.t

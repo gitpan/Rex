@@ -6,7 +6,7 @@
 
 package Rex::Interface::File::HTTP;
 {
-  $Rex::Interface::File::HTTP::VERSION = '0.53.1';
+  $Rex::Interface::File::HTTP::VERSION = '0.54.3';
 }
 
 use strict;

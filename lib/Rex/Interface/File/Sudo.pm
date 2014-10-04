@@ -6,7 +6,7 @@
 
 package Rex::Interface::File::Sudo;
 {
-  $Rex::Interface::File::Sudo::VERSION = '0.53.1';
+  $Rex::Interface::File::Sudo::VERSION = '0.54.3';
 }
 
 use strict;
@@ -45,6 +45,9 @@ sub open {
     $self->{fh} = Rex::Interface::File->create("Local");
   }
 
+  # always use current logged in user for sudo fs operations
+  Rex::get_current_connection_object()->push_sudo_options( {} );
+
   $self->{mode}    = $mode;
   $self->{file}    = $file;
   $self->{rndfile} = get_tmp_file;
@@ -70,6 +73,8 @@ sub open {
 
   $self->{fh}->open( $mode, $self->{rndfile} );
 
+  Rex::get_current_connection_object()->pop_sudo_options();
+
   return $self->{fh};
 }
 
@@ -94,9 +99,13 @@ sub close {
 
   return unless $self->{fh};
 
+  # always use current logged in user for sudo fs operations
+  Rex::get_current_connection_object()->push_sudo_options( {} );
+
   if ( exists $self->{mode}
     && ( $self->{mode} eq ">" || $self->{mode} eq ">>" ) )
   {
+
     my $exec = Rex::Interface::Exec->create;
     if ( $self->{file_stat} ) {
       my %stat = $self->_fs->stat( $self->{file} );
@@ -113,6 +122,8 @@ sub close {
   $self->{fh} = undef;
 
   $self->_fs->unlink( $self->{rndfile} );
+
+  Rex::get_current_connection_object()->pop_sudo_options();
 
   $self = undef;
 }

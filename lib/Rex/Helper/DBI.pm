@@ -6,7 +6,7 @@
 
 package Rex::Helper::DBI;
 {
-  $Rex::Helper::DBI::VERSION = '0.53.1';
+  $Rex::Helper::DBI::VERSION = '0.54.3';
 }
 
 use strict;

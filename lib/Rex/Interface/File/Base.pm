@@ -6,7 +6,7 @@
 
 package Rex::Interface::File::Base;
 {
-  $Rex::Interface::File::Base::VERSION = '0.53.1';
+  $Rex::Interface::File::Base::VERSION = '0.54.3';
 }
 
 use strict;

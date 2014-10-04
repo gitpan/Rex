@@ -6,7 +6,7 @@
 
 package Rex::Inventory::DMIDecode;
 {
-  $Rex::Inventory::DMIDecode::VERSION = '0.53.1';
+  $Rex::Inventory::DMIDecode::VERSION = '0.54.3';
 }
 
 use strict;
@@ -128,27 +128,14 @@ sub _read_dmidecode {
     @lines = @{ $self->{lines} };
   }
   else {
-    my $dmidecode = can_run("dmidecode");
-
-    unless ($dmidecode) {
-
-      #Rex::Logger::debug("Please install dmidecode on the target system.");
-      #return;
-      $dmidecode = "dmidecode";
-    }
-
-    @lines = i_run $dmidecode;
-    if ( $? != 0 ) {
+    unless ( can_run("dmidecode") ) {
       Rex::Logger::debug("Please install dmidecode on the target system.");
       return;
     }
+
+    @lines = i_run "dmidecode";
   }
   chomp @lines;
-
-  unless (@lines) {
-    Rex::Logger::debug("Please install dmidecode on the target system.");
-    return;
-  }
 
   my %section     = ();
   my $section     = "";

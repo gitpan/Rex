@@ -6,7 +6,7 @@
 
 package Rex::Service::SunOS::svcadm;
 {
-  $Rex::Service::SunOS::svcadm::VERSION = '0.53.1';
+  $Rex::Service::SunOS::svcadm::VERSION = '0.54.3';
 }
 
 use strict;

@@ -4,7 +4,7 @@
 
 package Rex::Service::Gentoo::systemd;
 {
-  $Rex::Service::Gentoo::systemd::VERSION = '0.53.1';
+  $Rex::Service::Gentoo::systemd::VERSION = '0.54.3';
 }
 
 use strict;

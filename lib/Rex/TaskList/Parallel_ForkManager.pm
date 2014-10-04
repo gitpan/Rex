@@ -6,7 +6,7 @@
 
 package Rex::TaskList::Parallel_ForkManager;
 {
-  $Rex::TaskList::Parallel_ForkManager::VERSION = '0.53.1';
+  $Rex::TaskList::Parallel_ForkManager::VERSION = '0.54.3';
 }
 
 use strict;

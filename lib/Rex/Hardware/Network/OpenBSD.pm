@@ -6,7 +6,7 @@
 
 package Rex::Hardware::Network::OpenBSD;
 {
-  $Rex::Hardware::Network::OpenBSD::VERSION = '0.53.1';
+  $Rex::Hardware::Network::OpenBSD::VERSION = '0.54.3';
 }
 
 use strict;

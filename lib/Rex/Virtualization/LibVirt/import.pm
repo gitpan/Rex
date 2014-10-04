@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::import;
 {
-  $Rex::Virtualization::LibVirt::import::VERSION = '0.53.1';
+  $Rex::Virtualization::LibVirt::import::VERSION = '0.54.3';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Cloud::OpenStack;
 {
-  $Rex::Cloud::OpenStack::VERSION = '0.53.1';
+  $Rex::Cloud::OpenStack::VERSION = '0.54.3';
 }
 
 use strict;
@@ -298,7 +298,9 @@ sub list_flavors {
 
   Rex::Logger::debug('Listing flavors');
 
-  $self->_request( GET => $nova_url . '/flavors' );
+  my $flavors = $self->_request( GET => $nova_url . '/flavors' );
+  confess "Error getting cloud flavors." if ( !exists $flavors->{flavors} );
+  return @{ $flavors->{flavors} };
 }
 
 sub list_plans { return shift->list_flavors; }

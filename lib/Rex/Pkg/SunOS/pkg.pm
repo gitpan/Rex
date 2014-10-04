@@ -6,7 +6,7 @@
 
 package Rex::Pkg::SunOS::pkg;
 {
-  $Rex::Pkg::SunOS::pkg::VERSION = '0.53.1';
+  $Rex::Pkg::SunOS::pkg::VERSION = '0.54.3';
 }
 
 use strict;

@@ -86,7 +86,7 @@ See also the Methods of Rex::Box::Base. This module inherits all methods of it.
 
 package Rex::Box::VBox;
 {
-  $Rex::Box::VBox::VERSION = '0.53.1';
+  $Rex::Box::VBox::VERSION = '0.54.3';
 }
 
 use Data::Dumper;
@@ -325,7 +325,7 @@ sub ip {
 
   $self->{info} = vm guestinfo => $self->{name};
 
-  if(scalar keys %{ $self->{info} } == 0) { return; }
+  if ( scalar keys %{ $self->{info} } == 0 ) { return; }
 
   my $server = $self->{info}->{net}->[0]->{ip};
   if ( $self->{__forward_port}
@@ -343,16 +343,16 @@ sub ip {
 
   $self->{info}->{ip} = $server;
 
-  if( ! $server ) {
+  if ( !$server ) {
     sleep 1;
     $self->{get_ip_count}++;
 
-    if($self->{get_ip_count} >= 30) {
+    if ( $self->{get_ip_count} >= 30 ) {
       die "Can't get ip of VM.";
     }
 
     my $ip = $self->ip;
-    if($ip) {
+    if ($ip) {
       $self->{get_ip_count} = 0;
       return $ip;
     }

@@ -6,7 +6,7 @@
 
 package Rex::Service::Redhat::systemd;
 {
-  $Rex::Service::Redhat::systemd::VERSION = '0.53.1';
+  $Rex::Service::Redhat::systemd::VERSION = '0.54.3';
 }
 
 use strict;
@@ -27,13 +27,14 @@ sub new {
   bless( $self, $proto );
 
   $self->{commands} = {
-    start        => 'systemctl start %s >/dev/null',
-    restart      => 'systemctl restart %s >/dev/null',
-    stop         => 'systemctl stop %s >/dev/null',
-    reload       => 'systemctl reload %s >/dev/null',
-    status       => 'systemctl status %s >/dev/null',
-    ensure_stop  => 'systemctl disable %s',
-    ensure_start => 'systemctl enable %s',
+    start          => 'systemctl start %s >/dev/null',
+    restart        => 'systemctl restart %s >/dev/null',
+    stop           => 'systemctl stop %s >/dev/null',
+    reload         => 'systemctl reload %s >/dev/null',
+    status         => 'systemctl status %s >/dev/null',
+    ensure_stop    => 'systemctl disable %s',
+    ensure_start   => 'systemctl enable %s',
+    service_exists => 'systemctl show %s | grep LoadState=loaded',
   };
 
   return $self;
@@ -47,6 +48,8 @@ sub _prepare_service_name {
   unless ( $service =~ m/\./ ) {
     $service .= ".service";
   }
+
+  $self->SUPER::_prepare_service_name($service);
 
   return $service;
 }

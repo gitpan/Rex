@@ -6,7 +6,7 @@
 
 package Rex::Cloud::Jiffybox;
 {
-  $Rex::Cloud::Jiffybox::VERSION = '0.53.1';
+  $Rex::Cloud::Jiffybox::VERSION = '0.54.3';
 }
 
 use strict;
@@ -159,7 +159,14 @@ sub run_instance {
     push( @jiffy_data, "metadata" => $data{"metadata"} );
   }
 
-  my $data = $self->_do_request( "POST", "jiffyBoxes", @jiffy_data );
+  my $data;
+  if ( exists $data{"clone_id"} ) {
+    $data = $self->_do_request( "POST", "jiffyBoxes/".$data{"clone_id"}, @jiffy_data );
+  }
+  else {
+    $data = $self->_do_request( "POST", "jiffyBoxes", @jiffy_data );
+  }
+
   my $instance_id = $data->{"result"}->{"id"};
 
   my $sleep_countdown = 10;

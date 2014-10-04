@@ -55,7 +55,7 @@ Then you can create your test files inside this directory.
 
 package Rex::Test::Base;
 {
-  $Rex::Test::Base::VERSION = '0.53.1';
+  $Rex::Test::Base::VERSION = '0.54.3';
 }
 
 use strict;
@@ -193,6 +193,7 @@ sub ok {
 
 sub finish {
   Test::More::done_testing();
+  Rex::pop_connection();
 }
 
 =back

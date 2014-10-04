@@ -4,7 +4,7 @@
 
 package Rex::Pkg::ALT;
 {
-  $Rex::Pkg::ALT::VERSION = '0.53.1';
+  $Rex::Pkg::ALT::VERSION = '0.54.3';
 }
 
 use strict;

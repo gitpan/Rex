@@ -55,7 +55,7 @@ See L<Rex::Commands> for a list of all commands you can use.
 
 package Rex;
 {
-  $Rex::VERSION = '0.53.1';
+  $Rex::VERSION = '0.54.3';
 }
 
 use strict;
@@ -76,7 +76,7 @@ use File::Basename;
 our ( @EXPORT, $VERSION, @CONNECTION_STACK, $GLOBAL_SUDO, $MODULE_PATHS,
   $WITH_EXIT_STATUS );
 
-$WITH_EXIT_STATUS = 1;    # since 0.50 activated by default
+$WITH_EXIT_STATUS = 1;          # since 0.50 activated by default
 
 my $cur_dir;
 
@@ -259,6 +259,10 @@ sub get_current_connection {
   $CONNECTION_STACK[-1];
 }
 
+sub get_current_connection_object {
+  return Rex::get_current_connection()->{conn};
+}
+
 =item is_ssh
 
 Returns 1 if the current connection is a ssh connection. 0 if not.
@@ -309,7 +313,7 @@ sub is_sudo {
   }
 
   if ( $CONNECTION_STACK[-1] ) {
-    return $CONNECTION_STACK[-1]->{"use_sudo"};
+    return $CONNECTION_STACK[-1]->{conn}->get_current_use_sudo;
   }
 
   return 0;
@@ -593,6 +597,16 @@ sub import {
         $found_feature = 1;
       }
 
+      if ( $add =~ m/^\d+\.\d+$/ && $add >= 0.54 ) {
+        Rex::Logger::debug("Add service check.");
+        Rex::Config->set_check_service_exists(1);
+
+        Rex::Logger::debug("Setting set() to not append data.");
+        Rex::Config->set_set_no_append(1);
+
+        $found_feature = 1;
+      }
+
       if ( $add eq "register_cmdb_top_scope" ) {
         Rex::Logger::debug("Registering CMDB as template variables.");
         Rex::Config->set_register_cmdb_template(1);
@@ -821,6 +835,8 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item Peter H. Ezetta
 
+=item Peter Manthey
+
 =item Piotr Karbowski
 
 =item Rao Chenlin (Chenryn)
@@ -828,6 +844,8 @@ Many thanks to the contributors for their work (alphabetical order).
 =item RenatoCRON
 
 =item Renee Bäcker
+
+=item Robert Abraham
 
 =item Samuele Tognini
 

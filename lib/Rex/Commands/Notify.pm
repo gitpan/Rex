@@ -25,7 +25,7 @@ This module exports the notify() function.
 
 package Rex::Commands::Notify;
 {
-  $Rex::Commands::Notify::VERSION = '0.53.1';
+  $Rex::Commands::Notify::VERSION = '0.54.3';
 }
 
 use strict;

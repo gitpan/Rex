@@ -8,7 +8,7 @@
 
 package Rex::Sudo::File;
 {
-  $Rex::Sudo::File::VERSION = '0.53.1';
+  $Rex::Sudo::File::VERSION = '0.54.3';
 }
 
 use strict;

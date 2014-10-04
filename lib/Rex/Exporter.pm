@@ -6,7 +6,7 @@
 
 package Rex::Exporter;
 {
-  $Rex::Exporter::VERSION = '0.53.1';
+  $Rex::Exporter::VERSION = '0.54.3';
 }
 
 use strict;

@@ -43,6 +43,7 @@ my %WriteMakefileArgs = (
     "List::MoreUtils" => 0,
     "List::Util" => 0,
     "MIME::Base64" => 0,
+    "Net::SSH2" => 0,
     "POSIX" => 0,
     "Storable" => 0,
     "Symbol" => 0,
@@ -65,7 +66,7 @@ my %WriteMakefileArgs = (
     "File::Temp" => 0,
     "Test::More" => 0
   },
-  "VERSION" => "0.53.1",
+  "VERSION" => "0.54.3",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -93,6 +94,7 @@ my %FallbackPrereqs = (
   "List::MoreUtils" => 0,
   "List::Util" => 0,
   "MIME::Base64" => 0,
+  "Net::SSH2" => 0,
   "POSIX" => 0,
   "Storable" => 0,
   "Symbol" => 0,

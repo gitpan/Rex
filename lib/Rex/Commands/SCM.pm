@@ -51,7 +51,7 @@ All these functions are not idempotent.
 
 package Rex::Commands::SCM;
 {
-  $Rex::Commands::SCM::VERSION = '0.53.1';
+  $Rex::Commands::SCM::VERSION = '0.54.3';
 }
 
 use strict;

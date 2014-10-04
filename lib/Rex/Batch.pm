@@ -6,7 +6,7 @@
 
 package Rex::Batch;
 {
-  $Rex::Batch::VERSION = '0.53.1';
+  $Rex::Batch::VERSION = '0.54.3';
 }
 
 use strict;

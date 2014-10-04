@@ -1,6 +1,6 @@
 package Rex::Hardware::VirtInfo;
 {
-  $Rex::Hardware::VirtInfo::VERSION = '0.53.1';
+  $Rex::Hardware::VirtInfo::VERSION = '0.54.3';
 }
 
 use strict;

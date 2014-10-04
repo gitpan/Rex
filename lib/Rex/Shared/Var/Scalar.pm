@@ -6,7 +6,7 @@
 
 package Rex::Shared::Var::Scalar;
 {
-  $Rex::Shared::Var::Scalar::VERSION = '0.53.1';
+  $Rex::Shared::Var::Scalar::VERSION = '0.54.3';
 }
 
 use strict;

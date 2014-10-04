@@ -34,6 +34,7 @@ requires:
   List::MoreUtils: 0
   List::Util: 0
   MIME::Base64: 0
+  Net::SSH2: 0
   POSIX: 0
   Storable: 0
   Symbol: 0
@@ -51,4 +52,4 @@ requires:
   vars: 0
   warnings: 0
   warnings::register: 0
-version: 0.53.1
+version: 0.54.3

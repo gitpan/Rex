@@ -26,7 +26,7 @@ This is just a helper function and will not be reported.
 
 package Rex::Commands::MD5;
 {
-  $Rex::Commands::MD5::VERSION = '0.53.1';
+  $Rex::Commands::MD5::VERSION = '0.54.3';
 }
 
 use strict;
@@ -38,6 +38,7 @@ use Rex::Interface::Exec;
 use Rex::Interface::File;
 use Rex::Interface::Fs;
 use Rex::Helper::Path;
+use Rex::Helper::Run;
 
 require Rex::Exporter;
 use base qw(Rex::Exporter);
@@ -92,7 +93,7 @@ sub md5 {
         $md5 = $exec->exec("perl $rnd_file \"$file\"");
       }
       else {
-        $md5 = $exec->exec("perl $rnd_file '$file'");
+        $md5 = i_run "perl $rnd_file '$file'";
       }
 
       unless ( $? == 0 ) {

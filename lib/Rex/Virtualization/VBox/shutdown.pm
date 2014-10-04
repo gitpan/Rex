@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::VBox::shutdown;
 {
-  $Rex::Virtualization::VBox::shutdown::VERSION = '0.53.1';
+  $Rex::Virtualization::VBox::shutdown::VERSION = '0.54.3';
 }
 
 use strict;

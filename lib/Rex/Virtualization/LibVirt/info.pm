@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::info;
 {
-  $Rex::Virtualization::LibVirt::info::VERSION = '0.53.1';
+  $Rex::Virtualization::LibVirt::info::VERSION = '0.54.3';
 }
 
 use strict;

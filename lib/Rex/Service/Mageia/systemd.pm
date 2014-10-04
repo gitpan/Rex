@@ -6,7 +6,7 @@
 
 package Rex::Service::Mageia::systemd;
 {
-  $Rex::Service::Mageia::systemd::VERSION = '0.53.1';
+  $Rex::Service::Mageia::systemd::VERSION = '0.54.3';
 }
 
 use strict;

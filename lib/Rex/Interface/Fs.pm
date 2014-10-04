@@ -6,7 +6,7 @@
 
 package Rex::Interface::Fs;
 {
-  $Rex::Interface::Fs::VERSION = '0.53.1';
+  $Rex::Interface::Fs::VERSION = '0.54.3';
 }
 
 use strict;
