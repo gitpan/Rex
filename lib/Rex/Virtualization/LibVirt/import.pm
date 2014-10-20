@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::import;
 {
-  $Rex::Virtualization::LibVirt::import::VERSION = '0.54.3';
+  $Rex::Virtualization::LibVirt::import::VERSION = '0.55.0';
 }
 
 use strict;
@@ -40,6 +40,11 @@ sub execute {
   mkdir "./storage";
 
   my $format = "qcow2";
+
+  my @serial_devices;
+  if ( exists $opt{serial_devices} ) {
+    @serial_devices = @{ $opt{serial_devices} };
+  }
 
   if ( $opt{file} =~ m/\.ova$/ ) {
     Rex::Logger::debug("Importing ova file. Try to convert with qemu-img");
@@ -79,6 +84,16 @@ sub execute {
   }
 
   my @network = values %{ $opt{__network} };
+  if ( scalar @network == 0 ) {
+
+    # create default network
+    push @network,
+      {
+      type    => "network",
+      network => "default",
+      };
+  }
+
   for (@network) {
     $_->{type} = "bridge"  if ( $_->{type} eq "bridged" );
     $_->{type} = "network" if ( $_->{type} eq "nat" );
@@ -96,7 +111,8 @@ sub execute {
         driver_type => $format,
       },
     ],
-    network => \@network,
+    network        => \@network,
+    serial_devices => \@serial_devices,
   );
 
   if ( exists $opt{__forward_port} ) {

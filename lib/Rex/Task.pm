@@ -29,7 +29,7 @@ The Task Object. Typically you only need this class if you want to manipulate ta
 
 package Rex::Task;
 {
-  $Rex::Task::VERSION = '0.54.3';
+  $Rex::Task::VERSION = '0.55.0';
 }
 
 use strict;

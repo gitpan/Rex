@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::shutdown;
 {
-  $Rex::Virtualization::LibVirt::shutdown::VERSION = '0.54.3';
+  $Rex::Virtualization::LibVirt::shutdown::VERSION = '0.55.0';
 }
 
 use strict;
@@ -32,7 +32,7 @@ sub execute {
     die("VM $dom not found.");
   }
 
-  i_run "virsh -c $uri shutdown $dom";
+  i_run "virsh -c $uri shutdown '$dom'";
   if ( $? != 0 ) {
     die("Error shutdown vm $dom");
   }

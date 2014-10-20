@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::info;
 {
-  $Rex::Virtualization::LibVirt::info::VERSION = '0.54.3';
+  $Rex::Virtualization::LibVirt::info::VERSION = '0.55.0';
 }
 
 use strict;
@@ -16,6 +16,7 @@ use Rex::Logger;
 use Rex::Helper::Run;
 
 use XML::Simple;
+use Rex::Virtualization::LibVirt::dumpxml;
 
 use Data::Dumper;
 
@@ -33,10 +34,10 @@ sub execute {
 
   my $xml;
 
-  my @dominfo = i_run "virsh -c $uri dominfo $vmname";
+  my @dominfo = i_run "virsh -c $uri dominfo '$vmname'";
 
   if ( $? != 0 ) {
-    die("Error running virsh dominfo $vmname");
+    die("Error running virsh dominfo '$vmname'");
   }
 
   my %ret = ();
@@ -45,6 +46,17 @@ sub execute {
   for my $line (@dominfo) {
     ( $k, $v ) = split( /:\s+/, $line );
     $ret{$k} = $v;
+  }
+
+  my $xml_ref = Rex::Virtualization::LibVirt::dumpxml->execute($vmname);
+  if ( $xml_ref && exists $xml_ref->{devices}->{serial} ) {
+    my ($agent_serial) = grep {
+           exists $_->{type}
+        && $_->{type} eq "tcp"
+        && $_->{target}->{port} == 1
+    } @{ $xml_ref->{devices}->{serial} };
+
+    $ret{has_kvm_agent_on_port} = $agent_serial->{source}->{service};
   }
 
   return \%ret;

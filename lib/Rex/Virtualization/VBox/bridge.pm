@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::VBox::bridge;
 {
-  $Rex::Virtualization::VBox::bridge::VERSION = '0.54.3';
+  $Rex::Virtualization::VBox::bridge::VERSION = '0.55.0';
 }
 
 use strict;

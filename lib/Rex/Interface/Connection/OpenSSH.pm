@@ -6,7 +6,7 @@
 
 package Rex::Interface::Connection::OpenSSH;
 {
-  $Rex::Interface::Connection::OpenSSH::VERSION = '0.54.3';
+  $Rex::Interface::Connection::OpenSSH::VERSION = '0.55.0';
 }
 
 use strict;
@@ -75,7 +75,9 @@ sub connect {
   }
   Rex::Logger::info( "Connecting to $server:$port (" . $user . ")" );
 
-  my %ssh_opts = Rex::Config->get_openssh_opt();
+  my %ssh_opts                        = Rex::Config->get_openssh_opt();
+  my %net_openssh_constructor_options = (
+    exists $ssh_opts{initialize_options} ? $ssh_opts{initialize_options} : () );
   my @ssh_opts_line;
 
   for my $key ( keys %ssh_opts ) {
@@ -105,7 +107,8 @@ sub connect {
     }
   }
 
-  $self->{ssh} = Net::OpenSSH->new(@connection_props);
+  $self->{ssh} =
+    Net::OpenSSH->new( @connection_props, %net_openssh_constructor_options );
 
   if ( !$self->{ssh} ) {
     Rex::Logger::info( "Can't connect to $server", "warn" );

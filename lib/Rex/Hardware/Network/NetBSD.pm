@@ -6,7 +6,7 @@
 
 package Rex::Hardware::Network::NetBSD;
 {
-  $Rex::Hardware::Network::NetBSD::VERSION = '0.54.3';
+  $Rex::Hardware::Network::NetBSD::VERSION = '0.55.0';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::User::NetBSD;
 {
-  $Rex::User::NetBSD::VERSION = '0.54.3';
+  $Rex::User::NetBSD::VERSION = '0.55.0';
 }
 
 use strict;

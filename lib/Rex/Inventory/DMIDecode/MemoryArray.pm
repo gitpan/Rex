@@ -6,7 +6,7 @@
 
 package Rex::Inventory::DMIDecode::MemoryArray;
 {
-  $Rex::Inventory::DMIDecode::MemoryArray::VERSION = '0.54.3';
+  $Rex::Inventory::DMIDecode::MemoryArray::VERSION = '0.55.0';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Shared::Var::Hash;
 {
-  $Rex::Shared::Var::Hash::VERSION = '0.54.3';
+  $Rex::Shared::Var::Hash::VERSION = '0.55.0';
 }
 
 use strict;

@@ -79,7 +79,7 @@ See also the Methods of Rex::Box::Base. This module inherits all methods of it.
 
 package Rex::Box::Amazon;
 {
-  $Rex::Box::Amazon::VERSION = '0.54.3';
+  $Rex::Box::Amazon::VERSION = '0.55.0';
 }
 
 use Data::Dumper;

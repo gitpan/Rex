@@ -6,7 +6,7 @@
 
 package Rex::Inventory::Proc::Cpuinfo;
 {
-  $Rex::Inventory::Proc::Cpuinfo::VERSION = '0.54.3';
+  $Rex::Inventory::Proc::Cpuinfo::VERSION = '0.55.0';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Shared::Var::Array;
 {
-  $Rex::Shared::Var::Array::VERSION = '0.54.3';
+  $Rex::Shared::Var::Array::VERSION = '0.55.0';
 }
 
 use strict;

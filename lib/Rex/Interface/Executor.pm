@@ -6,7 +6,7 @@
 
 package Rex::Interface::Executor;
 {
-  $Rex::Interface::Executor::VERSION = '0.54.3';
+  $Rex::Interface::Executor::VERSION = '0.55.0';
 }
 
 use strict;

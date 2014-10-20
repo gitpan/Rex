@@ -6,7 +6,7 @@
 
 package Rex::Helper::UserAgent;
 {
-  $Rex::Helper::UserAgent::VERSION = '0.54.3';
+  $Rex::Helper::UserAgent::VERSION = '0.55.0';
 }
 
 use strict;

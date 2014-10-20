@@ -6,7 +6,7 @@
 
 package Rex::Cron::Linux;
 {
-  $Rex::Cron::Linux::VERSION = '0.54.3';
+  $Rex::Cron::Linux::VERSION = '0.55.0';
 }
 
 use strict;

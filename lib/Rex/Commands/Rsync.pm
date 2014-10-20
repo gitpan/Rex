@@ -46,7 +46,7 @@ the execution of the rsync task.
 
 package Rex::Commands::Rsync;
 {
-  $Rex::Commands::Rsync::VERSION = '0.54.3';
+  $Rex::Commands::Rsync::VERSION = '0.55.0';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Interface::Shell::Default;
 {
-  $Rex::Interface::Shell::Default::VERSION = '0.54.3';
+  $Rex::Interface::Shell::Default::VERSION = '0.55.0';
 }
 
 use Rex::Interface::Shell::Bash;

@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::destroy;
 {
-  $Rex::Virtualization::LibVirt::destroy::VERSION = '0.54.3';
+  $Rex::Virtualization::LibVirt::destroy::VERSION = '0.55.0';
 }
 
 use strict;
@@ -32,7 +32,7 @@ sub execute {
     die("VM $dom not found.");
   }
 
-  i_run "virsh -c $uri destroy $dom";
+  i_run "virsh -c $uri destroy '$dom'";
   if ( $? != 0 ) {
     die("Error destroying vm $dom");
   }

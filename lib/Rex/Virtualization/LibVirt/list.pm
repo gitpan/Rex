@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::list;
 {
-  $Rex::Virtualization::LibVirt::list::VERSION = '0.54.3';
+  $Rex::Virtualization::LibVirt::list::VERSION = '0.55.0';
 }
 
 use strict;
@@ -26,36 +26,32 @@ sub execute {
   my @domains;
 
   if ( $arg1 eq "all" ) {
-    @domains = i_run "virsh -c $uri list --all";
+    @domains = i_run "virsh -c $uri list --all --name";
     if ( $? != 0 ) {
-      die("Error running virsh list --all");
+      die("Error running virsh list --all --name");
     }
   }
   elsif ( $arg1 eq "running" ) {
-    @domains = i_run "virsh -c $uri list";
+    @domains = i_run "virsh -c $uri list --name";
     if ( $? != 0 ) {
-      die("Error running virsh list");
+      die("Error running virsh list --name");
     }
   }
   else {
     return;
   }
 
-  ## remove header of the output
-  shift @domains;
-  shift @domains;
-
   my @ret = ();
-  for my $line (@domains) {
-    my ( $id, $name, $status ) =
-      $line =~ m:^\s{0,2}(\d+|\-)\s+([A-Za-z0-9-._]+)\s+(.*)$:;
+  for my $name (@domains) {
+    my %data = map { my ( $key, $val ) = split( /:\s*/, $_ ); ( $key, $val ); }
+      i_run "virsh -c $uri dominfo '$name'";
 
     push(
       @ret,
       {
-        id     => $id,
-        name   => $name,
-        status => $status
+        id     => $data{Id},
+        name   => $data{Name},
+        status => $data{State}
       }
     );
   }

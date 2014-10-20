@@ -55,28 +55,31 @@ See L<Rex::Commands> for a list of all commands you can use.
 
 package Rex;
 {
-  $Rex::VERSION = '0.54.3';
+  $Rex::VERSION = '0.55.0';
 }
 
 use strict;
 use warnings;
 
-use Rex::Logger;
-use Rex::Interface::Cache;
-use Data::Dumper;
-use Rex::Interface::Connection;
-use Cwd qw(getcwd);
-use Rex::Config;
-use Rex::Helper::Array;
-use Rex::Report;
-use Rex::Notify;
-use Rex::Require;
-use File::Basename;
+BEGIN {
+  use Rex::Logger;
+  use Rex::Interface::Cache;
+  use Data::Dumper;
+  use Rex::Interface::Connection;
+  use Cwd qw(getcwd);
+  use Rex::Config;
+  use Rex::Helper::Array;
+  use Rex::Report;
+  use Rex::Notify;
+  use Rex::Require;
+  use File::Basename;
+  eval { Net::SSH2->require; };
+}
 
 our ( @EXPORT, $VERSION, @CONNECTION_STACK, $GLOBAL_SUDO, $MODULE_PATHS,
   $WITH_EXIT_STATUS );
 
-$WITH_EXIT_STATUS = 1;          # since 0.50 activated by default
+$WITH_EXIT_STATUS = 1;    # since 0.50 activated by default
 
 my $cur_dir;
 
@@ -591,6 +594,12 @@ sub import {
         $found_feature = 1;
       }
 
+      if ( $add =~ m/^\d+\.\d+$/ && $add >= 0.55 ) {
+        Rex::Logger::debug("Using Net::OpenSSH if present.");
+        Rex::Config->set_use_net_openssh_if_present(1);
+        $found_feature = 1;
+      }
+
       if ( $add =~ m/^\d+\.\d+$/ && $add >= 0.53 ) {
         Rex::Logger::debug("Registering CMDB as template variables.");
         Rex::Config->set_register_cmdb_template(1);
@@ -775,6 +784,8 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item David Golovan
 
+=item Denis Silakov
+
 =item Dominik Danter
 
 =item Dominik Schulz
@@ -792,6 +803,8 @@ Many thanks to the contributors for their work (alphabetical order).
 =item Franky Van Liedekerke
 
 =item Gilles Gaudin, for writing a french howto
+
+=item Graham Todd
 
 =item Hiroaki Nakamura
 

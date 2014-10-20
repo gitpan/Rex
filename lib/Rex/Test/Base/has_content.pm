@@ -6,7 +6,7 @@
 
 package Rex::Test::Base::has_content;
 {
-  $Rex::Test::Base::has_content::VERSION = '0.54.3';
+  $Rex::Test::Base::has_content::VERSION = '0.55.0';
 }
 
 use strict;
@@ -30,7 +30,7 @@ sub new {
 sub run_test {
   my ( $self, $file, $test ) = @_;
 
-  return $self->ok(0, "has_content: $file not found") unless is_file($file);
+  return $self->ok( 0, "has_content: $file not found" ) unless is_file($file);
 
   my $content = cat $file;
   $self->ok( ( $content =~ $test ) >= 1, "Content of $file contain $test." );

@@ -65,7 +65,7 @@ See also the Methods of Rex::Box::Base. This module inherits all methods of it.
 
 package Rex::Box::KVM;
 {
-  $Rex::Box::KVM::VERSION = '0.54.3';
+  $Rex::Box::KVM::VERSION = '0.55.0';
 }
 
 use Data::Dumper;
@@ -133,7 +133,21 @@ sub import_vm {
     my $filename = basename( $self->{url} );
 
     Rex::Logger::info("Importing VM ./tmp/$filename");
-    vm import => $self->{name}, file => "./tmp/$filename", %{$self};
+
+    # define random tcp port
+    my $tcp_port = int( rand(40000) ) + 10000;
+
+    vm
+      import => $self->{name},
+      file   => "./tmp/$filename",
+      %{$self},
+      serial_devices => [
+      {
+        type => 'tcp',
+        host => '127.0.0.1',
+        port => $tcp_port,
+      }
+      ];
 
     #unlink "./tmp/$filename";
   }

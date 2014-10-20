@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::dumpxml;
 {
-  $Rex::Virtualization::LibVirt::dumpxml::VERSION = '0.54.3';
+  $Rex::Virtualization::LibVirt::dumpxml::VERSION = '0.55.0';
 }
 
 use strict;
@@ -33,10 +33,10 @@ sub execute {
 
   my $xml;
 
-  my $dumpxml = i_run "virsh -c $uri dumpxml $vmname";
+  my $dumpxml = i_run "virsh -c $uri dumpxml '$vmname'";
 
   if ( $? != 0 ) {
-    die("Error running virsh dumpxml $vmname");
+    die("Error running virsh dumpxml '$vmname'");
   }
   return XMLin($dumpxml);
 }

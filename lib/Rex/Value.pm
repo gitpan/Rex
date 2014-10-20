@@ -8,7 +8,7 @@
 
 package Rex::Value;
 {
-  $Rex::Value::VERSION = '0.54.3';
+  $Rex::Value::VERSION = '0.55.0';
 }
 
 use strict;

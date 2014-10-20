@@ -29,7 +29,7 @@ With this module you can manage the host entries in /etc/hosts.
 
 package Rex::Commands::Host;
 {
-  $Rex::Commands::Host::VERSION = '0.54.3';
+  $Rex::Commands::Host::VERSION = '0.55.0';
 }
 
 use strict;

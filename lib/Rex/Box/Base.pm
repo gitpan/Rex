@@ -22,7 +22,7 @@ These methods are shared across all other Rex::Box modules.
 
 package Rex::Box::Base;
 {
-  $Rex::Box::Base::VERSION = '0.54.3';
+  $Rex::Box::Base::VERSION = '0.55.0';
 }
 
 use strict;
@@ -319,7 +319,8 @@ sub _download {
       my $current_size   = 0;
       my $current_modulo = 0;
       my $start_time     = [ gettimeofday() ];
-      open( my $fh, ">", "./tmp/$filename" ) or die($!);
+      open( my $fh, ">", "./tmp/$filename" )
+        or die("Failed to open ./tmp/$filename for writing: $!");
       binmode $fh;
       my $resp = $ua->get(
         $self->{url},

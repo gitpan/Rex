@@ -6,7 +6,7 @@
 
 package Rex::Cloud;
 {
-  $Rex::Cloud::VERSION = '0.54.3';
+  $Rex::Cloud::VERSION = '0.55.0';
 }
 
 use strict;

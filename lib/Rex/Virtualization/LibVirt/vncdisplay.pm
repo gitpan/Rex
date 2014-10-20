@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::vncdisplay;
 {
-  $Rex::Virtualization::LibVirt::vncdisplay::VERSION = '0.54.3';
+  $Rex::Virtualization::LibVirt::vncdisplay::VERSION = '0.55.0';
 }
 
 use strict;
@@ -33,10 +33,10 @@ sub execute {
 
   my $xml;
 
-  my @vncdisplay = i_run "virsh -c $uri vncdisplay $vmname";
+  my @vncdisplay = i_run "virsh -c $uri vncdisplay '$vmname'";
 
   if ( $? != 0 ) {
-    die("Error running virsh vncdisplay $vmname");
+    die("Error running virsh vncdisplay '$vmname'");
   }
 
   return shift @vncdisplay;

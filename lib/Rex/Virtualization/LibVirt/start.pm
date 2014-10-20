@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::start;
 {
-  $Rex::Virtualization::LibVirt::start::VERSION = '0.54.3';
+  $Rex::Virtualization::LibVirt::start::VERSION = '0.55.0';
 }
 
 use strict;
@@ -35,7 +35,7 @@ sub execute {
     die("VM $dom not found.");
   }
 
-  my $output = i_run "virsh -c $uri start $dom 2>&1";
+  my $output = i_run "virsh -c $uri start '$dom' 2>&1";
   if ( $? != 0 ) {
     die("Error starting vm $dom\nError: $output");
   }

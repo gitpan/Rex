@@ -6,7 +6,7 @@
 
 package Rex::Interface::Shell;
 {
-  $Rex::Interface::Shell::VERSION = '0.54.3';
+  $Rex::Interface::Shell::VERSION = '0.55.0';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::reboot;
 {
-  $Rex::Virtualization::LibVirt::reboot::VERSION = '0.54.3';
+  $Rex::Virtualization::LibVirt::reboot::VERSION = '0.55.0';
 }
 
 use strict;
@@ -32,7 +32,7 @@ sub execute {
     die("VM $dom not found.");
   }
 
-  i_run "virsh -c $uri reboot $dom";
+  i_run "virsh -c $uri reboot '$dom'";
   if ( $? != 0 ) {
     die("Error rebooting vm $dom");
   }

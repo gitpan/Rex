@@ -6,7 +6,7 @@
 
 package Rex::Service::Debian;
 {
-  $Rex::Service::Debian::VERSION = '0.54.3';
+  $Rex::Service::Debian::VERSION = '0.55.0';
 }
 
 use strict;

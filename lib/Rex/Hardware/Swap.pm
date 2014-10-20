@@ -6,7 +6,7 @@
 
 package Rex::Hardware::Swap;
 {
-  $Rex::Hardware::Swap::VERSION = '0.54.3';
+  $Rex::Hardware::Swap::VERSION = '0.55.0';
 }
 
 use strict;
@@ -30,6 +30,10 @@ sub get {
   my $os = Rex::Hardware::Host::get_operating_system();
 
   my $convert = sub {
+
+    if ( !defined $_[0] ) {
+      return 0;
+    }
 
     if ( $_[1] eq "G" ) {
       $_[0] = $_[0] * 1024 * 1024 * 1024;
@@ -110,18 +114,18 @@ sub get {
         ( $swap_str =~ m/(\d+)([a-z])[^\d]+(\d+)([a-z])/i );
     }
 
-    &$convert( $total, $t_ent );
+    &$convert( $total, $t_ent ) if ($total);
     &$convert( $used,  $u_ent ) if ($used);
-    &$convert( $free,  $f_ent );
+    &$convert( $free,  $f_ent ) if ($free);
 
-    if ( !$used ) {
+    if ( !$used && $total && $free ) {
       $used = $total - $free;
     }
 
     $data = {
-      total => $total,
-      used  => $used,
-      free  => $free,
+      total => $total || 0,
+      used  => $used  || 0,
+      free  => $free  || 0,
     };
   }
   else {

@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::Docker::daemon;
 {
-  $Rex::Virtualization::Docker::daemon::VERSION = '0.54.3';
+  $Rex::Virtualization::Docker::daemon::VERSION = '0.55.0';
 }
 
 use strict;

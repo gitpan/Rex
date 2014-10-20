@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::option;
 {
-  $Rex::Virtualization::LibVirt::option::VERSION = '0.54.3';
+  $Rex::Virtualization::LibVirt::option::VERSION = '0.55.0';
 }
 
 use strict;
@@ -42,7 +42,7 @@ sub execute {
     }
 
     my $func = $FUNC_MAP->{$opt};
-    i_run "virsh -c $uri $func $dom $val";
+    i_run "virsh -c $uri $func '$dom' '$val'";
     if ( $? != 0 ) {
       Rex::Logger::info( "Error setting $opt to $val on $dom ($@)", "warn" );
     }

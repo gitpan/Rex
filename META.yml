@@ -38,6 +38,7 @@ requires:
   POSIX: 0
   Storable: 0
   Symbol: 0
+  Test::Builder::Module: 0
   Time::HiRes: 0
   UNIVERSAL: 0
   URI: 0
@@ -52,4 +53,4 @@ requires:
   vars: 0
   warnings: 0
   warnings::register: 0
-version: 0.54.3
+version: 0.55.0

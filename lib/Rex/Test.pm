@@ -6,7 +6,7 @@
 
 package Rex::Test;
 {
-  $Rex::Test::VERSION = '0.54.3';
+  $Rex::Test::VERSION = '0.55.0';
 }
 
 use Rex -base;
@@ -23,7 +23,8 @@ task run => make {
 
   for my $file (@files) {
     Rex::Logger::info("Running test: t/$file.");
-    eval { do "t/$file"; 1; } or do { print "Error: $@"; };
+    do "t/$file";
+    Rex::Logger::info( "Error running t/$file: $@", "error" ) if $@;
   }
 };
 

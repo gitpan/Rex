@@ -6,7 +6,7 @@
 
 package Rex::Service::SuSE::systemd;
 {
-  $Rex::Service::SuSE::systemd::VERSION = '0.54.3';
+  $Rex::Service::SuSE::systemd::VERSION = '0.55.0';
 }
 
 use strict;

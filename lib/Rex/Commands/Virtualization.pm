@@ -6,7 +6,7 @@
 
 package Rex::Commands::Virtualization;
 {
-  $Rex::Commands::Virtualization::VERSION = '0.54.3';
+  $Rex::Commands::Virtualization::VERSION = '0.55.0';
 }
 
 use strict;

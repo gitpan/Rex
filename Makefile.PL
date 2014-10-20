@@ -47,6 +47,7 @@ my %WriteMakefileArgs = (
     "POSIX" => 0,
     "Storable" => 0,
     "Symbol" => 0,
+    "Test::Builder::Module" => 0,
     "Time::HiRes" => 0,
     "UNIVERSAL" => 0,
     "URI" => 0,
@@ -66,7 +67,7 @@ my %WriteMakefileArgs = (
     "File::Temp" => 0,
     "Test::More" => 0
   },
-  "VERSION" => "0.54.3",
+  "VERSION" => "0.55.0",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -98,6 +99,7 @@ my %FallbackPrereqs = (
   "POSIX" => 0,
   "Storable" => 0,
   "Symbol" => 0,
+  "Test::Builder::Module" => 0,
   "Test::More" => 0,
   "Time::HiRes" => 0,
   "UNIVERSAL" => 0,

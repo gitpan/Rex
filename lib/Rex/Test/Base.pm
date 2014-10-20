@@ -55,17 +55,13 @@ Then you can create your test files inside this directory.
 
 package Rex::Test::Base;
 {
-  $Rex::Test::Base::VERSION = '0.54.3';
+  $Rex::Test::Base::VERSION = '0.55.0';
 }
+
+use base 'Test::Builder::Module';
 
 use strict;
 use warnings;
-
-#use Rex -base;
-BEGIN {
-  use Rex::Require;
-  Test::More->require;
-}
 
 require Rex::Commands;
 use Rex::Commands::Box;
@@ -188,11 +184,14 @@ sub run_task {
 
 sub ok {
   my ( $self, $test, $msg ) = @_;
-  Test::More::ok( $test, $msg );
+  my $tb = Rex::Test::Base->builder;
+  $tb->ok( $test, $msg );
 }
 
 sub finish {
-  Test::More::done_testing();
+  my $tb = Rex::Test::Base->builder;
+  $tb->done_testing();
+  $tb->reset();
   Rex::pop_connection();
 }
 

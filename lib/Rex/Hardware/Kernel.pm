@@ -6,7 +6,7 @@
 
 package Rex::Hardware::Kernel;
 {
-  $Rex::Hardware::Kernel::VERSION = '0.54.3';
+  $Rex::Hardware::Kernel::VERSION = '0.55.0';
 }
 
 use strict;

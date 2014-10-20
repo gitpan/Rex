@@ -26,7 +26,7 @@ With this module you can define hostgroups out of an DBI source.
 
 package Rex::Group::Lookup::DBI;
 {
-  $Rex::Group::Lookup::DBI::VERSION = '0.54.3';
+  $Rex::Group::Lookup::DBI::VERSION = '0.55.0';
 }
 
 use strict;

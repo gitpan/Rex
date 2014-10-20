@@ -6,7 +6,7 @@
 
 package Rex::Inventory::HP::ACU;
 {
-  $Rex::Inventory::HP::ACU::VERSION = '0.54.3';
+  $Rex::Inventory::HP::ACU::VERSION = '0.55.0';
 }
 
 use strict;

@@ -26,7 +26,7 @@ With this module you can define hostgroups out of an ini style file.
 
 package Rex::Group::Lookup::INI;
 {
-  $Rex::Group::Lookup::INI::VERSION = '0.54.3';
+  $Rex::Group::Lookup::INI::VERSION = '0.55.0';
 }
 
 use strict;

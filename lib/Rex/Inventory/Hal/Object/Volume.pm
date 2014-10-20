@@ -6,7 +6,7 @@
 
 package Rex::Inventory::Hal::Object::Volume;
 {
-  $Rex::Inventory::Hal::Object::Volume::VERSION = '0.54.3';
+  $Rex::Inventory::Hal::Object::Volume::VERSION = '0.55.0';
 }
 
 use strict;

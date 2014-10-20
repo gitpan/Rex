@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::create;
 {
-  $Rex::Virtualization::LibVirt::create::VERSION = '0.54.3';
+  $Rex::Virtualization::LibVirt::create::VERSION = '0.55.0';
 }
 
 use strict;
@@ -471,6 +471,17 @@ __DATA__
    <serial type="pty">
     <target port="0"/>
    </serial>
+   <% my $serial_i = 1; %>
+   <% for my $serial (@{ $serial_devices }) { %>
+   <% if($serial->{type} eq "tcp") { %>
+   <serial type='<%= $serial->{type} %>'>
+     <source mode='bind' host='<%= $serial->{host} %>' service='<%= $serial->{port} %>'/>
+     <protocol type='raw'/>
+     <target port='<%= $serial_i %>'/>
+   </serial>
+   <% } %>
+   <% $serial_i++; %>
+   <% } %>
    <console type="pty">
     <target port="0"/>
    </console>

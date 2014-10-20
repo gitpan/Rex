@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::Docker::delete;
 {
-  $Rex::Virtualization::Docker::delete::VERSION = '0.54.3';
+  $Rex::Virtualization::Docker::delete::VERSION = '0.55.0';
 }
 
 use strict;

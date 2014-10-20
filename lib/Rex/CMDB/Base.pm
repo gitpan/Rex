@@ -6,7 +6,7 @@
 
 package Rex::CMDB::Base;
 {
-  $Rex::CMDB::Base::VERSION = '0.54.3';
+  $Rex::CMDB::Base::VERSION = '0.55.0';
 }
 
 use strict;

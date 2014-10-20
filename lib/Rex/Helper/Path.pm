@@ -6,7 +6,7 @@
 
 package Rex::Helper::Path;
 {
-  $Rex::Helper::Path::VERSION = '0.54.3';
+  $Rex::Helper::Path::VERSION = '0.55.0';
 }
 
 use strict;
