@@ -6,7 +6,7 @@
 
 package Rex::Args::Single;
 {
-  $Rex::Args::Single::VERSION = '0.55.0';
+  $Rex::Args::Single::VERSION = '0.55.1';
 }
 
 use strict;

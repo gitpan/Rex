@@ -6,7 +6,7 @@
 
 package Rex::Interface::Exec::Sudo;
 {
-  $Rex::Interface::Exec::Sudo::VERSION = '0.55.0';
+  $Rex::Interface::Exec::Sudo::VERSION = '0.55.1';
 }
 
 use strict;

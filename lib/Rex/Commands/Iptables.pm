@@ -59,7 +59,7 @@ Only I<open_port> and I<close_port> are idempotent.
 
 package Rex::Commands::Iptables;
 {
-  $Rex::Commands::Iptables::VERSION = '0.55.0';
+  $Rex::Commands::Iptables::VERSION = '0.55.1';
 }
 
 use strict;

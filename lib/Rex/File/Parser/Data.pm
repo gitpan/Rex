@@ -6,7 +6,7 @@
 
 package Rex::File::Parser::Data;
 {
-  $Rex::File::Parser::Data::VERSION = '0.55.0';
+  $Rex::File::Parser::Data::VERSION = '0.55.1';
 }
 
 use strict;

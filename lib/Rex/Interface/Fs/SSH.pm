@@ -6,7 +6,7 @@
 
 package Rex::Interface::Fs::SSH;
 {
-  $Rex::Interface::Fs::SSH::VERSION = '0.55.0';
+  $Rex::Interface::Fs::SSH::VERSION = '0.55.1';
 }
 
 use strict;

@@ -1,6 +1,6 @@
 package Rex::SCM::Git;
 {
-  $Rex::SCM::Git::VERSION = '0.55.0';
+  $Rex::SCM::Git::VERSION = '0.55.1';
 }
 
 use strict;

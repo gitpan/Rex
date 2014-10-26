@@ -33,7 +33,7 @@ With this module you can get information of the routing table, current network c
 
 package Rex::Commands::Network;
 {
-  $Rex::Commands::Network::VERSION = '0.55.0';
+  $Rex::Commands::Network::VERSION = '0.55.1';
 }
 
 use strict;

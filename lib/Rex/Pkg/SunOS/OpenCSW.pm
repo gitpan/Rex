@@ -6,7 +6,7 @@
 
 package Rex::Pkg::SunOS::OpenCSW;
 {
-  $Rex::Pkg::SunOS::OpenCSW::VERSION = '0.55.0';
+  $Rex::Pkg::SunOS::OpenCSW::VERSION = '0.55.1';
 }
 
 use strict;

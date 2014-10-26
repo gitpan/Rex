@@ -28,7 +28,7 @@ With this module you can install packages and files.
 
 package Rex::Commands::Pkg;
 {
-  $Rex::Commands::Pkg::VERSION = '0.55.0';
+  $Rex::Commands::Pkg::VERSION = '0.55.1';
 }
 
 use strict;

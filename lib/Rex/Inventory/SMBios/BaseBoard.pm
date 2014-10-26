@@ -6,7 +6,7 @@
 
 package Rex::Inventory::SMBios::BaseBoard;
 {
-  $Rex::Inventory::SMBios::BaseBoard::VERSION = '0.55.0';
+  $Rex::Inventory::SMBios::BaseBoard::VERSION = '0.55.1';
 }
 
 use strict;

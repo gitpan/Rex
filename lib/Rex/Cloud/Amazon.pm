@@ -10,7 +10,7 @@
 
 package Rex::Cloud::Amazon;
 {
-  $Rex::Cloud::Amazon::VERSION = '0.55.0';
+  $Rex::Cloud::Amazon::VERSION = '0.55.1';
 }
 
 use strict;

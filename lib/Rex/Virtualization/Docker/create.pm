@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::Docker::create;
 {
-  $Rex::Virtualization::Docker::create::VERSION = '0.55.0';
+  $Rex::Virtualization::Docker::create::VERSION = '0.55.1';
 }
 
 use strict;

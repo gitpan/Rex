@@ -6,7 +6,7 @@
 
 package Rex::Constants;
 {
-  $Rex::Constants::VERSION = '0.55.0';
+  $Rex::Constants::VERSION = '0.55.1';
 }
 
 use strict;

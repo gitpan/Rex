@@ -26,7 +26,7 @@ With this module you can define hostgroups out of an yaml file.
 
 package Rex::Group::Lookup::YAML;
 {
-  $Rex::Group::Lookup::YAML::VERSION = '0.55.0';
+  $Rex::Group::Lookup::YAML::VERSION = '0.55.1';
 }
 
 use strict;

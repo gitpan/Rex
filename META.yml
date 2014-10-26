@@ -53,4 +53,8 @@ requires:
   vars: 0
   warnings: 0
   warnings::register: 0
-version: 0.55.0
+resources:
+  bugtracker: https://github.com/RexOps/Rex/issues
+  homepage: http://www.rexify.org
+  repository: https://github.com/RexOps/Rex.git
+version: 0.55.1

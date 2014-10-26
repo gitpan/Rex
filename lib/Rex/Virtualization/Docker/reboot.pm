@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::Docker::reboot;
 {
-  $Rex::Virtualization::Docker::reboot::VERSION = '0.55.0';
+  $Rex::Virtualization::Docker::reboot::VERSION = '0.55.1';
 }
 
 use strict;

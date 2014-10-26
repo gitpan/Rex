@@ -6,7 +6,7 @@
 
 package Rex::Service::OpenBSD;
 {
-  $Rex::Service::OpenBSD::VERSION = '0.55.0';
+  $Rex::Service::OpenBSD::VERSION = '0.55.1';
 }
 
 use strict;

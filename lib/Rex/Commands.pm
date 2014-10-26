@@ -90,7 +90,7 @@ This module is the core commands module.
 
 package Rex::Commands;
 {
-  $Rex::Commands::VERSION = '0.55.0';
+  $Rex::Commands::VERSION = '0.55.1';
 }
 
 use strict;

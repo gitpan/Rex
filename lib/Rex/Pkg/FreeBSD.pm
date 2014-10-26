@@ -6,7 +6,7 @@
 
 package Rex::Pkg::FreeBSD;
 {
-  $Rex::Pkg::FreeBSD::VERSION = '0.55.0';
+  $Rex::Pkg::FreeBSD::VERSION = '0.55.1';
 }
 
 use strict;

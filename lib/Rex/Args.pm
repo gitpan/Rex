@@ -6,7 +6,7 @@
 
 package Rex::Args;
 {
-  $Rex::Args::VERSION = '0.55.0';
+  $Rex::Args::VERSION = '0.55.1';
 }
 
 use strict;
@@ -117,7 +117,7 @@ sub import {
 
     $key =~ s/^--//;
 
-    if ($val) { $task_opts{$key} = $val; next; }
+    if ( defined $val ) { $task_opts{$key} = $val; next; }
     $task_opts{$key} = $KEY_VAL;
 
     $counter++;

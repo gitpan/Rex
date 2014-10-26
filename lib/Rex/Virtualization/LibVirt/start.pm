@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::start;
 {
-  $Rex::Virtualization::LibVirt::start::VERSION = '0.55.0';
+  $Rex::Virtualization::LibVirt::start::VERSION = '0.55.1';
 }
 
 use strict;

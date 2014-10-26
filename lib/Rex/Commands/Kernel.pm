@@ -30,7 +30,7 @@ All these functions are not idempotent.
 
 package Rex::Commands::Kernel;
 {
-  $Rex::Commands::Kernel::VERSION = '0.55.0';
+  $Rex::Commands::Kernel::VERSION = '0.55.1';
 }
 
 use strict;

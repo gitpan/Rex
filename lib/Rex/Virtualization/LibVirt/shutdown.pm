@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::shutdown;
 {
-  $Rex::Virtualization::LibVirt::shutdown::VERSION = '0.55.0';
+  $Rex::Virtualization::LibVirt::shutdown::VERSION = '0.55.1';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Pkg::Redhat;
 {
-  $Rex::Pkg::Redhat::VERSION = '0.55.0';
+  $Rex::Pkg::Redhat::VERSION = '0.55.1';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Report;
 {
-  $Rex::Report::VERSION = '0.55.0';
+  $Rex::Report::VERSION = '0.55.1';
 }
 
 use strict;

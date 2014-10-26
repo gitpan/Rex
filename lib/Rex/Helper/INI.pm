@@ -6,7 +6,7 @@
 
 package Rex::Helper::INI;
 {
-  $Rex::Helper::INI::VERSION = '0.55.0';
+  $Rex::Helper::INI::VERSION = '0.55.1';
 }
 
 use strict;

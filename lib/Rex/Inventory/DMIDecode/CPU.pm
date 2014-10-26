@@ -6,7 +6,7 @@
 
 package Rex::Inventory::DMIDecode::CPU;
 {
-  $Rex::Inventory::DMIDecode::CPU::VERSION = '0.55.0';
+  $Rex::Inventory::DMIDecode::CPU::VERSION = '0.55.1';
 }
 
 use strict;

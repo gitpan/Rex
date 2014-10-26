@@ -6,7 +6,7 @@
 
 package Rex::Inventory::Hal;
 {
-  $Rex::Inventory::Hal::VERSION = '0.55.0';
+  $Rex::Inventory::Hal::VERSION = '0.55.1';
 }
 
 use Rex::Inventory::Hal::Object;

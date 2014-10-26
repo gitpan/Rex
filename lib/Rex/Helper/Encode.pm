@@ -6,7 +6,7 @@
 
 package Rex::Helper::Encode;
 {
-  $Rex::Helper::Encode::VERSION = '0.55.0';
+  $Rex::Helper::Encode::VERSION = '0.55.1';
 }
 
 use strict;

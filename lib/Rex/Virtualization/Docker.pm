@@ -49,7 +49,7 @@ With this module you can manage Docker.
 
 package Rex::Virtualization::Docker;
 {
-  $Rex::Virtualization::Docker::VERSION = '0.55.0';
+  $Rex::Virtualization::Docker::VERSION = '0.55.1';
 }
 
 use strict;

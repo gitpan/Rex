@@ -6,7 +6,7 @@
 
 package Rex::Helper::Array;
 {
-  $Rex::Helper::Array::VERSION = '0.55.0';
+  $Rex::Helper::Array::VERSION = '0.55.1';
 }
 
 use strict;

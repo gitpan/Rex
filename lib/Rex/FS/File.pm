@@ -28,7 +28,7 @@ This is the File Class used by I<file_write> and I<file_read>.
 
 package Rex::FS::File;
 {
-  $Rex::FS::File::VERSION = '0.55.0';
+  $Rex::FS::File::VERSION = '0.55.1';
 }
 
 use strict;

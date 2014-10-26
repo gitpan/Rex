@@ -6,7 +6,7 @@
 
 package Rex::Inventory;
 {
-  $Rex::Inventory::VERSION = '0.55.0';
+  $Rex::Inventory::VERSION = '0.55.1';
 }
 
 use strict;

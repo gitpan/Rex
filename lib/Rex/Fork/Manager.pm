@@ -6,7 +6,7 @@
 
 package Rex::Fork::Manager;
 {
-  $Rex::Fork::Manager::VERSION = '0.55.0';
+  $Rex::Fork::Manager::VERSION = '0.55.1';
 }
 
 use strict;

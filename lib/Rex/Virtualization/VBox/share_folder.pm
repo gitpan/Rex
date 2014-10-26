@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::VBox::share_folder;
 {
-  $Rex::Virtualization::VBox::share_folder::VERSION = '0.55.0';
+  $Rex::Virtualization::VBox::share_folder::VERSION = '0.55.1';
 }
 
 use strict;

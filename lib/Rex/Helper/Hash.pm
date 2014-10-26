@@ -6,7 +6,7 @@
 
 package Rex::Helper::Hash;
 {
-  $Rex::Helper::Hash::VERSION = '0.55.0';
+  $Rex::Helper::Hash::VERSION = '0.55.1';
 }
 
 use strict;

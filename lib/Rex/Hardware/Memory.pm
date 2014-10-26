@@ -6,7 +6,7 @@
 
 package Rex::Hardware::Memory;
 {
-  $Rex::Hardware::Memory::VERSION = '0.55.0';
+  $Rex::Hardware::Memory::VERSION = '0.55.1';
 }
 
 use strict;

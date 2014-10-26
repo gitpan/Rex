@@ -54,7 +54,7 @@ Version <= 1.0: All these functions will not be reported.
 
 package Rex::Commands::Cloud;
 {
-  $Rex::Commands::Cloud::VERSION = '0.55.0';
+  $Rex::Commands::Cloud::VERSION = '0.55.1';
 }
 
 use strict;

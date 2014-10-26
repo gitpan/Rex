@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::VBox::destroy;
 {
-  $Rex::Virtualization::VBox::destroy::VERSION = '0.55.0';
+  $Rex::Virtualization::VBox::destroy::VERSION = '0.55.1';
 }
 
 use strict;

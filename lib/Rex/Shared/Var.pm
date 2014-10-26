@@ -6,7 +6,7 @@
 
 package Rex::Shared::Var;
 {
-  $Rex::Shared::Var::VERSION = '0.55.0';
+  $Rex::Shared::Var::VERSION = '0.55.1';
 }
 
 use strict qw(vars subs);

@@ -6,7 +6,7 @@
 
 package Rex::Helper::SSH2;
 {
-  $Rex::Helper::SSH2::VERSION = '0.55.0';
+  $Rex::Helper::SSH2::VERSION = '0.55.1';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Inventory::DMIDecode;
 {
-  $Rex::Inventory::DMIDecode::VERSION = '0.55.0';
+  $Rex::Inventory::DMIDecode::VERSION = '0.55.1';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Test::Base::has_content;
 {
-  $Rex::Test::Base::has_content::VERSION = '0.55.0';
+  $Rex::Test::Base::has_content::VERSION = '0.55.1';
 }
 
 use strict;

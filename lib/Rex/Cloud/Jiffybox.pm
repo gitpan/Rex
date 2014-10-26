@@ -6,7 +6,7 @@
 
 package Rex::Cloud::Jiffybox;
 {
-  $Rex::Cloud::Jiffybox::VERSION = '0.55.0';
+  $Rex::Cloud::Jiffybox::VERSION = '0.55.1';
 }
 
 use strict;
