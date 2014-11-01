@@ -6,7 +6,7 @@
 
 package Rex::Pkg::Gentoo;
 {
-  $Rex::Pkg::Gentoo::VERSION = '0.55.1';
+  $Rex::Pkg::Gentoo::VERSION = '0.55.2';
 }
 
 use strict;

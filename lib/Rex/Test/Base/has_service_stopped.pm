@@ -6,7 +6,7 @@
 
 package Rex::Test::Base::has_service_stopped;
 {
-  $Rex::Test::Base::has_service_stopped::VERSION = '0.55.1';
+  $Rex::Test::Base::has_service_stopped::VERSION = '0.55.2';
 }
 
 use strict;

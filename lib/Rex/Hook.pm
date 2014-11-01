@@ -6,7 +6,7 @@
 
 package Rex::Hook;
 {
-  $Rex::Hook::VERSION = '0.55.1';
+  $Rex::Hook::VERSION = '0.55.2';
 }
 
 use strict;

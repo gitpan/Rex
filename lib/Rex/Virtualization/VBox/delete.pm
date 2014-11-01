@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::VBox::delete;
 {
-  $Rex::Virtualization::VBox::delete::VERSION = '0.55.1';
+  $Rex::Virtualization::VBox::delete::VERSION = '0.55.2';
 }
 
 use strict;

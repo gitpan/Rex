@@ -27,7 +27,7 @@ All these functions will not be reported. These functions don't change things.
 
 package Rex::Commands::Gather;
 {
-  $Rex::Commands::Gather::VERSION = '0.55.1';
+  $Rex::Commands::Gather::VERSION = '0.55.2';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::blklist;
 {
-  $Rex::Virtualization::LibVirt::blklist::VERSION = '0.55.1';
+  $Rex::Virtualization::LibVirt::blklist::VERSION = '0.55.2';
 }
 
 use strict;

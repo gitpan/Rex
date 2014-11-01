@@ -30,7 +30,7 @@ All these functions are not idempotent.
 
 package Rex::Commands::Process;
 {
-  $Rex::Commands::Process::VERSION = '0.55.1';
+  $Rex::Commands::Process::VERSION = '0.55.2';
 }
 
 use strict;

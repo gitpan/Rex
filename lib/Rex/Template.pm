@@ -25,7 +25,7 @@ This is a simple template engine for configuration files.
 
 package Rex::Template;
 {
-  $Rex::Template::VERSION = '0.55.1';
+  $Rex::Template::VERSION = '0.55.2';
 }
 
 use strict;

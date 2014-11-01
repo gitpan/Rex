@@ -22,7 +22,7 @@ With this module you can specify own configuration parameters for your modules.
 
 package Rex::Config;
 {
-  $Rex::Config::VERSION = '0.55.1';
+  $Rex::Config::VERSION = '0.55.2';
 }
 
 use strict;

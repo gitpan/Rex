@@ -57,4 +57,4 @@ resources:
   bugtracker: https://github.com/RexOps/Rex/issues
   homepage: http://www.rexify.org
   repository: https://github.com/RexOps/Rex.git
-version: 0.55.1
+version: 0.55.2

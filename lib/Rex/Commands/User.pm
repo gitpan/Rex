@@ -37,7 +37,7 @@ With this module you can manage user and groups.
 
 package Rex::Commands::User;
 {
-  $Rex::Commands::User::VERSION = '0.55.1';
+  $Rex::Commands::User::VERSION = '0.55.2';
 }
 
 use strict;

@@ -1,6 +1,6 @@
 package Rex::SCM::Subversion;
 {
-  $Rex::SCM::Subversion::VERSION = '0.55.1';
+  $Rex::SCM::Subversion::VERSION = '0.55.2';
 }
 
 use strict;

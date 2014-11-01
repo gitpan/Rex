@@ -6,7 +6,7 @@
 
 package Rex::Notify;
 {
-  $Rex::Notify::VERSION = '0.55.1';
+  $Rex::Notify::VERSION = '0.55.2';
 }
 
 use strict;

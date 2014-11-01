@@ -26,7 +26,7 @@ With this module you can run a command.
 
 package Rex::Commands::Run;
 {
-  $Rex::Commands::Run::VERSION = '0.55.1';
+  $Rex::Commands::Run::VERSION = '0.55.2';
 }
 
 use strict;

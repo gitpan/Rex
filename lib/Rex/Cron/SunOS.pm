@@ -6,7 +6,7 @@
 
 package Rex::Cron::SunOS;
 {
-  $Rex::Cron::SunOS::VERSION = '0.55.1';
+  $Rex::Cron::SunOS::VERSION = '0.55.2';
 }
 
 use strict;

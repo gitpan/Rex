@@ -35,7 +35,7 @@ With this module you can define transactions and rollback szenarios on failure.
 
 package Rex::Transaction;
 {
-  $Rex::Transaction::VERSION = '0.55.1';
+  $Rex::Transaction::VERSION = '0.55.2';
 }
 
 use strict;

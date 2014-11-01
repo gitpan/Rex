@@ -29,7 +29,7 @@ With this module you can tail a file
 
 package Rex::Commands::Tail;
 {
-  $Rex::Commands::Tail::VERSION = '0.55.1';
+  $Rex::Commands::Tail::VERSION = '0.55.2';
 }
 
 use strict;

@@ -33,7 +33,7 @@ This function don't persists the entries in /etc/sysctl.conf.
 
 package Rex::Commands::Sysctl;
 {
-  $Rex::Commands::Sysctl::VERSION = '0.55.1';
+  $Rex::Commands::Sysctl::VERSION = '0.55.2';
 }
 
 use strict;

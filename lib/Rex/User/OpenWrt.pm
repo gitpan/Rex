@@ -6,7 +6,7 @@
 
 package Rex::User::OpenWrt;
 {
-  $Rex::User::OpenWrt::VERSION = '0.55.1';
+  $Rex::User::OpenWrt::VERSION = '0.55.2';
 }
 
 use strict;

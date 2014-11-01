@@ -6,7 +6,7 @@
 
 package Rex::Interface::Connection::HTTPS;
 {
-  $Rex::Interface::Connection::HTTPS::VERSION = '0.55.1';
+  $Rex::Interface::Connection::HTTPS::VERSION = '0.55.2';
 }
 
 use Rex::Interface::Connection::HTTP;

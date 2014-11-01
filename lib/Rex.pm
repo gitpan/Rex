@@ -55,7 +55,7 @@ See L<Rex::Commands> for a list of all commands you can use.
 
 package Rex;
 {
-  $Rex::VERSION = '0.55.1';
+  $Rex::VERSION = '0.55.2';
 }
 
 use strict;

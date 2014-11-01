@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::delete;
 {
-  $Rex::Virtualization::LibVirt::delete::VERSION = '0.55.1';
+  $Rex::Virtualization::LibVirt::delete::VERSION = '0.55.2';
 }
 
 use strict;

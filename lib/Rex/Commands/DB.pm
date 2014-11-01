@@ -58,7 +58,7 @@ Version <= 1.0: All these functions will not be reported.
 
 package Rex::Commands::DB;
 {
-  $Rex::Commands::DB::VERSION = '0.55.1';
+  $Rex::Commands::DB::VERSION = '0.55.2';
 }
 
 use strict;

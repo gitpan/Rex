@@ -6,7 +6,7 @@
 
 package Rex::Commands::JobControl;
 {
-  $Rex::Commands::JobControl::VERSION = '0.55.1';
+  $Rex::Commands::JobControl::VERSION = '0.55.2';
 }
 
 use strict;

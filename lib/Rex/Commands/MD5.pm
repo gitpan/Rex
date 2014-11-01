@@ -26,7 +26,7 @@ This is just a helper function and will not be reported.
 
 package Rex::Commands::MD5;
 {
-  $Rex::Commands::MD5::VERSION = '0.55.1';
+  $Rex::Commands::MD5::VERSION = '0.55.2';
 }
 
 use strict;

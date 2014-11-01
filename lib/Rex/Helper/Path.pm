@@ -6,7 +6,7 @@
 
 package Rex::Helper::Path;
 {
-  $Rex::Helper::Path::VERSION = '0.55.1';
+  $Rex::Helper::Path::VERSION = '0.55.2';
 }
 
 use strict;
@@ -46,6 +46,7 @@ sub get_file_path {
 
   my $fix_path = sub {
     my ($path) = @_;
+    $path =~ s:^\./::;
     if ($ends_with_slash) {
       if ( $path !~ m/\/$/ ) {
         return "$path/";
@@ -60,7 +61,7 @@ sub get_file_path {
   }
 
   # check if a file in $BASE overwrites the module file
-  # first get the absoltue path to the rexfile
+  # first get the absolute path to the rexfile
 
   $::rexfile ||= $0;
 

@@ -6,7 +6,7 @@
 
 package Rex::Service::Redhat::systemd;
 {
-  $Rex::Service::Redhat::systemd::VERSION = '0.55.1';
+  $Rex::Service::Redhat::systemd::VERSION = '0.55.2';
 }
 
 use strict;

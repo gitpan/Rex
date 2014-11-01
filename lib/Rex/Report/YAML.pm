@@ -6,7 +6,7 @@
 
 package Rex::Report::YAML;
 {
-  $Rex::Report::YAML::VERSION = '0.55.1';
+  $Rex::Report::YAML::VERSION = '0.55.2';
 }
 
 use strict;

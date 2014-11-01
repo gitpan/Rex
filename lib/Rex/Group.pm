@@ -6,7 +6,7 @@
 
 package Rex::Group;
 {
-  $Rex::Group::VERSION = '0.55.1';
+  $Rex::Group::VERSION = '0.55.2';
 }
 
 use strict;

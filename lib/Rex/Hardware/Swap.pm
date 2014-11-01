@@ -6,7 +6,7 @@
 
 package Rex::Hardware::Swap;
 {
-  $Rex::Hardware::Swap::VERSION = '0.55.1';
+  $Rex::Hardware::Swap::VERSION = '0.55.2';
 }
 
 use strict;

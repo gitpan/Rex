@@ -6,7 +6,7 @@
 
 package Rex::Hardware::Host;
 {
-  $Rex::Hardware::Host::VERSION = '0.55.1';
+  $Rex::Hardware::Host::VERSION = '0.55.2';
 }
 
 use strict;

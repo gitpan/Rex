@@ -6,7 +6,7 @@
 
 package Rex::Inventory::SMBios::Bios;
 {
-  $Rex::Inventory::SMBios::Bios::VERSION = '0.55.1';
+  $Rex::Inventory::SMBios::Bios::VERSION = '0.55.2';
 }
 
 use strict;

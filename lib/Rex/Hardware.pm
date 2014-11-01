@@ -27,7 +27,7 @@ This module is the base class for hardware/information gathering.
 
 package Rex::Hardware;
 {
-  $Rex::Hardware::VERSION = '0.55.1';
+  $Rex::Hardware::VERSION = '0.55.2';
 }
 
 use strict;

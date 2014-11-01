@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::VBox::reboot;
 {
-  $Rex::Virtualization::VBox::reboot::VERSION = '0.55.1';
+  $Rex::Virtualization::VBox::reboot::VERSION = '0.55.2';
 }
 
 use strict;

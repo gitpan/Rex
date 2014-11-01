@@ -6,7 +6,7 @@
 
 package Rex::Helper::System;
 {
-  $Rex::Helper::System::VERSION = '0.55.1';
+  $Rex::Helper::System::VERSION = '0.55.2';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::User::SunOS;
 {
-  $Rex::User::SunOS::VERSION = '0.55.1';
+  $Rex::User::SunOS::VERSION = '0.55.2';
 }
 
 use strict;

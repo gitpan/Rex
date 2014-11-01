@@ -6,7 +6,7 @@
 
 package Rex::Pkg::Mageia;
 {
-  $Rex::Pkg::Mageia::VERSION = '0.55.1';
+  $Rex::Pkg::Mageia::VERSION = '0.55.2';
 }
 
 use strict;

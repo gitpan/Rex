@@ -34,7 +34,7 @@ All these functions are not idempotent.
 
 package Rex::Commands::LVM;
 {
-  $Rex::Commands::LVM::VERSION = '0.55.1';
+  $Rex::Commands::LVM::VERSION = '0.55.2';
 }
 
 use strict;
