@@ -6,7 +6,7 @@
 
 package Rex::Output::Base;
 {
-  $Rex::Output::Base::VERSION = '0.55.2';
+  $Rex::Output::Base::VERSION = '0.55.3';
 }
 
 sub write { die "Must be implemented by inheriting class" }

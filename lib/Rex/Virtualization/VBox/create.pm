@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::VBox::create;
 {
-  $Rex::Virtualization::VBox::create::VERSION = '0.55.2';
+  $Rex::Virtualization::VBox::create::VERSION = '0.55.3';
 }
 
 use strict;

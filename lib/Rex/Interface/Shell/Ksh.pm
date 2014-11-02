@@ -6,7 +6,7 @@
 
 package Rex::Interface::Shell::Ksh;
 {
-  $Rex::Interface::Shell::Ksh::VERSION = '0.55.2';
+  $Rex::Interface::Shell::Ksh::VERSION = '0.55.3';
 }
 
 use strict;

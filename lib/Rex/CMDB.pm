@@ -28,7 +28,7 @@ This module exports a function to access a CMDB via a common interface.
 
 package Rex::CMDB;
 {
-  $Rex::CMDB::VERSION = '0.55.2';
+  $Rex::CMDB::VERSION = '0.55.3';
 }
 
 use strict;

@@ -31,7 +31,7 @@ All these functions are not idempotent.
 
 package Rex::Commands::Partition;
 {
-  $Rex::Commands::Partition::VERSION = '0.55.2';
+  $Rex::Commands::Partition::VERSION = '0.55.3';
 }
 
 use strict;

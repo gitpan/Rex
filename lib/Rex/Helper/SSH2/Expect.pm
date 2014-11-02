@@ -53,7 +53,7 @@ L<Net::SSH2>
 
 package Rex::Helper::SSH2::Expect;
 {
-  $Rex::Helper::SSH2::Expect::VERSION = '0.55.2';
+  $Rex::Helper::SSH2::Expect::VERSION = '0.55.3';
 }
 
 use strict;

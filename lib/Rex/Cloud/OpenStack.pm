@@ -6,7 +6,7 @@
 
 package Rex::Cloud::OpenStack;
 {
-  $Rex::Cloud::OpenStack::VERSION = '0.55.2';
+  $Rex::Cloud::OpenStack::VERSION = '0.55.3';
 }
 
 use strict;

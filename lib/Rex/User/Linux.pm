@@ -6,7 +6,7 @@
 
 package Rex::User::Linux;
 {
-  $Rex::User::Linux::VERSION = '0.55.2';
+  $Rex::User::Linux::VERSION = '0.55.3';
 }
 
 use strict;

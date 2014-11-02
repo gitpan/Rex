@@ -38,7 +38,7 @@ With this module you can manage Linux services.
 
 package Rex::Commands::Service;
 {
-  $Rex::Commands::Service::VERSION = '0.55.2';
+  $Rex::Commands::Service::VERSION = '0.55.3';
 }
 
 use strict;

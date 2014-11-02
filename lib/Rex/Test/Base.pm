@@ -55,7 +55,7 @@ Then you can create your test files inside this directory.
 
 package Rex::Test::Base;
 {
-  $Rex::Test::Base::VERSION = '0.55.2';
+  $Rex::Test::Base::VERSION = '0.55.3';
 }
 
 use base 'Test::Builder::Module';

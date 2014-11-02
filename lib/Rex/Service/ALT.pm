@@ -3,7 +3,7 @@
 #
 package Rex::Service::ALT;
 {
-  $Rex::Service::ALT::VERSION = '0.55.2';
+  $Rex::Service::ALT::VERSION = '0.55.3';
 }
 
 use strict;

@@ -22,7 +22,7 @@ These methods are shared across all other Rex::Box modules.
 
 package Rex::Box::Base;
 {
-  $Rex::Box::Base::VERSION = '0.55.2';
+  $Rex::Box::Base::VERSION = '0.55.3';
 }
 
 use strict;

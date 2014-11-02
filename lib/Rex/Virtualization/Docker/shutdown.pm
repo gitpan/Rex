@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::Docker::shutdown;
 {
-  $Rex::Virtualization::Docker::shutdown::VERSION = '0.55.2';
+  $Rex::Virtualization::Docker::shutdown::VERSION = '0.55.3';
 }
 
 use strict;

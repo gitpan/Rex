@@ -6,7 +6,7 @@
 
 package Rex::Fork::Task;
 {
-  $Rex::Fork::Task::VERSION = '0.55.2';
+  $Rex::Fork::Task::VERSION = '0.55.3';
 }
 
 BEGIN {

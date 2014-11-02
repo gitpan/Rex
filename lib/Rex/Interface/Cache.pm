@@ -6,7 +6,7 @@
 
 package Rex::Interface::Cache;
 {
-  $Rex::Interface::Cache::VERSION = '0.55.2';
+  $Rex::Interface::Cache::VERSION = '0.55.3';
 }
 
 use strict;

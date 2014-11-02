@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::VBox::guestinfo;
 {
-  $Rex::Virtualization::VBox::guestinfo::VERSION = '0.55.2';
+  $Rex::Virtualization::VBox::guestinfo::VERSION = '0.55.3';
 }
 
 use strict;

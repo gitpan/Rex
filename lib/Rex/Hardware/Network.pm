@@ -6,7 +6,7 @@
 
 package Rex::Hardware::Network;
 {
-  $Rex::Hardware::Network::VERSION = '0.55.2';
+  $Rex::Hardware::Network::VERSION = '0.55.3';
 }
 
 use strict;

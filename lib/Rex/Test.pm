@@ -6,7 +6,7 @@
 
 package Rex::Test;
 {
-  $Rex::Test::VERSION = '0.55.2';
+  $Rex::Test::VERSION = '0.55.3';
 }
 
 use Rex -base;

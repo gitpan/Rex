@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::Docker::info;
 {
-  $Rex::Virtualization::Docker::info::VERSION = '0.55.2';
+  $Rex::Virtualization::Docker::info::VERSION = '0.55.3';
 }
 
 use strict;

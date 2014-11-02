@@ -6,7 +6,7 @@
 
 package Rex::Args::Integer;
 {
-  $Rex::Args::Integer::VERSION = '0.55.2';
+  $Rex::Args::Integer::VERSION = '0.55.3';
 }
 
 use strict;

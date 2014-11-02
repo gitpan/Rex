@@ -6,7 +6,7 @@
 
 package Rex::Interface::Shell::Csh;
 {
-  $Rex::Interface::Shell::Csh::VERSION = '0.55.2';
+  $Rex::Interface::Shell::Csh::VERSION = '0.55.3';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Service::Ubuntu;
 {
-  $Rex::Service::Ubuntu::VERSION = '0.55.2';
+  $Rex::Service::Ubuntu::VERSION = '0.55.3';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Service::Base;
 {
-  $Rex::Service::Base::VERSION = '0.55.2';
+  $Rex::Service::Base::VERSION = '0.55.3';
 }
 
 use strict;

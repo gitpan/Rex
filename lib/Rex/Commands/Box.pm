@@ -61,7 +61,7 @@ Version <= 1.0: All these functions will not be reported.
 
 package Rex::Commands::Box;
 {
-  $Rex::Commands::Box::VERSION = '0.55.2';
+  $Rex::Commands::Box::VERSION = '0.55.3';
 }
 
 use strict;

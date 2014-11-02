@@ -30,7 +30,7 @@ This module if the logging module. You can define custom logformats.
 
 package Rex::Logger;
 {
-  $Rex::Logger::VERSION = '0.55.2';
+  $Rex::Logger::VERSION = '0.55.3';
 }
 
 use strict;

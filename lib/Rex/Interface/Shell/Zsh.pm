@@ -6,7 +6,7 @@
 
 package Rex::Interface::Shell::Zsh;
 {
-  $Rex::Interface::Shell::Zsh::VERSION = '0.55.2';
+  $Rex::Interface::Shell::Zsh::VERSION = '0.55.3';
 }
 
 use strict;

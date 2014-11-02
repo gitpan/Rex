@@ -52,7 +52,7 @@ With this module you can manage LibVirt.
 
 package Rex::Virtualization::LibVirt;
 {
-  $Rex::Virtualization::LibVirt::VERSION = '0.55.2';
+  $Rex::Virtualization::LibVirt::VERSION = '0.55.3';
 }
 
 use strict;

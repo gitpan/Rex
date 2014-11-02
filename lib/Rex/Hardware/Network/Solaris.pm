@@ -6,7 +6,7 @@
 
 package Rex::Hardware::Network::Solaris;
 {
-  $Rex::Hardware::Network::Solaris::VERSION = '0.55.2';
+  $Rex::Hardware::Network::Solaris::VERSION = '0.55.3';
 }
 
 use strict;

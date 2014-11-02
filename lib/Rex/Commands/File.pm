@@ -60,7 +60,7 @@ With this module you can manipulate files.
 
 package Rex::Commands::File;
 {
-  $Rex::Commands::File::VERSION = '0.55.2';
+  $Rex::Commands::File::VERSION = '0.55.3';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Pkg::SuSE;
 {
-  $Rex::Pkg::SuSE::VERSION = '0.55.2';
+  $Rex::Pkg::SuSE::VERSION = '0.55.3';
 }
 
 use strict;

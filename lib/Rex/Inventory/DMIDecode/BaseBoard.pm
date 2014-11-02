@@ -6,7 +6,7 @@
 
 package Rex::Inventory::DMIDecode::BaseBoard;
 {
-  $Rex::Inventory::DMIDecode::BaseBoard::VERSION = '0.55.2';
+  $Rex::Inventory::DMIDecode::BaseBoard::VERSION = '0.55.3';
 }
 
 use strict;

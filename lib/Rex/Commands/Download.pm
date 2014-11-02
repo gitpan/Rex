@@ -35,7 +35,7 @@ Version <= 1.0: All these functions will not be reported.
 
 package Rex::Commands::Download;
 {
-  $Rex::Commands::Download::VERSION = '0.55.2';
+  $Rex::Commands::Download::VERSION = '0.55.3';
 }
 
 use strict;

@@ -4,7 +4,7 @@
 
 package Rex::Service::ALT::systemd;
 {
-  $Rex::Service::ALT::systemd::VERSION = '0.55.2';
+  $Rex::Service::ALT::systemd::VERSION = '0.55.3';
 }
 
 use strict;

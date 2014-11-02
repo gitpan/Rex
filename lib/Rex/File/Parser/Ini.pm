@@ -6,7 +6,7 @@
 
 package Rex::File::Parser::Ini;
 {
-  $Rex::File::Parser::Ini::VERSION = '0.55.2';
+  $Rex::File::Parser::Ini::VERSION = '0.55.3';
 }
 
 use strict;

@@ -86,7 +86,7 @@ See also the Methods of Rex::Box::Base. This module inherits all methods of it.
 
 package Rex::Box::VBox;
 {
-  $Rex::Box::VBox::VERSION = '0.55.2';
+  $Rex::Box::VBox::VERSION = '0.55.3';
 }
 
 use Data::Dumper;

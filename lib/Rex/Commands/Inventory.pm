@@ -30,7 +30,7 @@ All these functions will not be reported. These functions don't change things.
 
 package Rex::Commands::Inventory;
 {
-  $Rex::Commands::Inventory::VERSION = '0.55.2';
+  $Rex::Commands::Inventory::VERSION = '0.55.3';
 }
 
 use strict;

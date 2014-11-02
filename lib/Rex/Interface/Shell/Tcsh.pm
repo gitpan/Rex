@@ -6,7 +6,7 @@
 
 package Rex::Interface::Shell::Tcsh;
 {
-  $Rex::Interface::Shell::Tcsh::VERSION = '0.55.2';
+  $Rex::Interface::Shell::Tcsh::VERSION = '0.55.3';
 }
 
 use Rex::Interface::Shell::Csh;

@@ -6,7 +6,7 @@
 
 package Rex::Args::String;
 {
-  $Rex::Args::String::VERSION = '0.55.2';
+  $Rex::Args::String::VERSION = '0.55.3';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::Interface::Cache::YAML;
 {
-  $Rex::Interface::Cache::YAML::VERSION = '0.55.2';
+  $Rex::Interface::Cache::YAML::VERSION = '0.55.3';
 }
 
 use Rex::Interface::Cache::Base;

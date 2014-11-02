@@ -6,7 +6,7 @@
 
 package Rex::Hardware::Network::Darwin;
 {
-  $Rex::Hardware::Network::Darwin::VERSION = '0.55.2';
+  $Rex::Hardware::Network::Darwin::VERSION = '0.55.3';
 }
 
 use strict;

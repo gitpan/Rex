@@ -6,7 +6,7 @@
 
 package Rex::CMDB::YAML;
 {
-  $Rex::CMDB::YAML::VERSION = '0.55.2';
+  $Rex::CMDB::YAML::VERSION = '0.55.3';
 }
 
 use strict;

@@ -6,7 +6,7 @@
 
 package Rex::TaskList::Base;
 {
-  $Rex::TaskList::Base::VERSION = '0.55.2';
+  $Rex::TaskList::Base::VERSION = '0.55.3';
 }
 
 use strict;

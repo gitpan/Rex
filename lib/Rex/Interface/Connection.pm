@@ -6,7 +6,7 @@
 
 package Rex::Interface::Connection;
 {
-  $Rex::Interface::Connection::VERSION = '0.55.2';
+  $Rex::Interface::Connection::VERSION = '0.55.3';
 }
 
 use strict;

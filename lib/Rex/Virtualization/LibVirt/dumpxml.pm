@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::dumpxml;
 {
-  $Rex::Virtualization::LibVirt::dumpxml::VERSION = '0.55.2';
+  $Rex::Virtualization::LibVirt::dumpxml::VERSION = '0.55.3';
 }
 
 use strict;

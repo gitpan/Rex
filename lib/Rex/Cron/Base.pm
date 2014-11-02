@@ -6,7 +6,7 @@
 
 package Rex::Cron::Base;
 {
-  $Rex::Cron::Base::VERSION = '0.55.2';
+  $Rex::Cron::Base::VERSION = '0.55.3';
 }
 
 use strict;

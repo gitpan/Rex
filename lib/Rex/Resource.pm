@@ -6,7 +6,7 @@
 
 package Rex::Resource;
 {
-  $Rex::Resource::VERSION = '0.55.2';
+  $Rex::Resource::VERSION = '0.55.3';
 }
 
 use strict;

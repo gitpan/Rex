@@ -6,7 +6,7 @@
 
 package Rex::Box;
 {
-  $Rex::Box::VERSION = '0.55.2';
+  $Rex::Box::VERSION = '0.55.3';
 }
 
 use strict;

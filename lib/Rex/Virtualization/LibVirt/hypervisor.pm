@@ -6,7 +6,7 @@
 
 package Rex::Virtualization::LibVirt::hypervisor;
 {
-  $Rex::Virtualization::LibVirt::hypervisor::VERSION = '0.55.2';
+  $Rex::Virtualization::LibVirt::hypervisor::VERSION = '0.55.3';
 }
 
 use strict;

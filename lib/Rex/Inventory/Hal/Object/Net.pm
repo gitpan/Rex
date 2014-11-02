@@ -6,7 +6,7 @@
 
 package Rex::Inventory::Hal::Object::Net;
 {
-  $Rex::Inventory::Hal::Object::Net::VERSION = '0.55.2';
+  $Rex::Inventory::Hal::Object::Net::VERSION = '0.55.3';
 }
 
 use strict;
