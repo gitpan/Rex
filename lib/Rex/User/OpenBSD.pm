@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::User::OpenBSD;
-{
-  $Rex::User::OpenBSD::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 use Rex::Commands::Run;
@@ -79,7 +78,7 @@ sub create_user {
     $cmd .= " -d " . $data->{home};
   }
 
-  if ( $should_create_home && !defined $uid ) {    #useradd mode
+  if ( $should_create_home && !defined $uid ) { #useradd mode
     $cmd .= " -m ";
   }
 

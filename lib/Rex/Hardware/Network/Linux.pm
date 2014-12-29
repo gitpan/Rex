@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Hardware::Network::Linux;
-{
-  $Rex::Hardware::Network::Linux::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 use Rex::Helper::Run;
@@ -216,7 +215,7 @@ sub route {
   }
 
   shift @route;
-  shift @route;    # remove first 2 lines
+  shift @route; # remove first 2 lines
 
   for my $route_entry (@route) {
     my ( $dest, $gw, $genmask, $flags, $mss, $window, $irtt, $iface ) =

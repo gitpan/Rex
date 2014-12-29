@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Cron::Linux;
-{
-  $Rex::Cron::Linux::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Cron::Base;
 use base qw(Rex::Cron::Base);

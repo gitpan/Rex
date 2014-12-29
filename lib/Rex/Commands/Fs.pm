@@ -10,7 +10,7 @@ Rex::Commands::Fs - Filesystem commands
 
 =head1 DESCRIPTION
 
-With this module you can do file system tasks like creating a directory, removing files, move files, and more.
+With this module you can do file system tasks like creating a directory, deleting files, moving files, and more.
 
 =head1 SYNOPSIS
 
@@ -47,12 +47,11 @@ With this module you can do file system tasks like creating a directory, removin
 =cut
 
 package Rex::Commands::Fs;
-{
-  $Rex::Commands::Fs::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 use Data::Dumper;
@@ -334,7 +333,7 @@ sub mkdir {
 
     &chown( $owner, $dir ) if $owner;
     &chgrp( $group, $dir ) if $group;
-    &chmod( $mode, $dir ) if $owner;
+    &chmod( $mode, $dir ) if $mode;
   }
   else {
     my @splitted_dir;
@@ -373,7 +372,7 @@ sub mkdir {
 
         &chown( $owner, $str_part ) if $owner;
         &chgrp( $group, $str_part ) if $group;
-        &chmod( $mode, $str_part ) if $owner;
+        &chmod( $mode, $str_part ) if $mode;
       }
     }
   }
@@ -962,7 +961,7 @@ sub mount {
   Rex::get_current_connection()->{reporter}
     ->report_resource_start( type => "mount", name => "$mount_point" );
 
-  $option->{ensure} ||= "present";    # default
+  $option->{ensure} ||= "present"; # default
 
   if ( $option->{ensure} eq "absent" ) {
     &umount(
@@ -990,7 +989,7 @@ sub mount {
 
     my $cmd = sprintf(
       "mount %s %s %s %s",
-      $option->{"fs"} ? "-t " . $option->{"fs"} : "",    # file system
+      $option->{"fs"} ? "-t " . $option->{"fs"} : "", # file system
       $option->{"options"}
       ? " -o " . join( ",", @{ $option->{"options"} } )
       : "",
@@ -1133,12 +1132,10 @@ sub umount {
   }
 
   if ($already_mounted) {
+    $exec->exec("umount $mount_point");
+    if ( $? != 0 ) { die("Umount failed of $mount_point"); }
     $changed = 1;
   }
-
-  $exec->exec("umount $mount_point");
-
-  if ( $? != 0 ) { die("Umount failed of $mount_point"); }
 
   if ($changed) {
     if ( exists $option{on_change} && ref $option{on_change} eq "CODE" ) {

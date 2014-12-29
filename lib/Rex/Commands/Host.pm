@@ -28,12 +28,11 @@ With this module you can manage the host entries in /etc/hosts.
 =cut
 
 package Rex::Commands::Host;
-{
-  $Rex::Commands::Host::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 use Rex::Commands::Run;

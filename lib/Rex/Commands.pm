@@ -89,12 +89,11 @@ This module is the core commands module.
 =cut
 
 package Rex::Commands;
-{
-  $Rex::Commands::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 use Rex::TaskList;
@@ -110,7 +109,7 @@ use vars
 use base qw(Rex::Exporter);
 
 @EXPORT = qw(task desc group
-  user password port sudo_password public_key private_key pass_auth key_auth krb5_auth no_ssh fallback_authentication
+  user password port sudo_password public_key private_key pass_auth key_auth krb5_auth no_ssh
   get_random batch timeout max_connect_retries parallelism proxy_command
   do_task run_task run_batch needs
   exit
@@ -313,6 +312,8 @@ sub task {
     *{"${class}::$task_name_save"} = sub {
       Rex::Logger::info("Running task $task_name_save on current connection");
 
+      Rex::Hook::run_hook( task => "before_execute", $task_name_save, @_ );
+
       if ( Rex::Config->get_task_call_by_method
         && $_[0]
         && $_[0] =~ m/^[A-Za-z0-9_:]+$/
@@ -332,6 +333,8 @@ sub task {
           $code->(@_);
         }
       }
+
+      Rex::Hook::run_hook( task => "after_execute", $task_name_save, @_ );
     };
     use strict;
   }
@@ -345,12 +348,18 @@ sub task {
       "Registering task (not main namespace): ${class}::$task_name_save");
     my $code = $_[-2];
     *{"${class}::$task_name_save"} = sub {
+      Rex::Logger::info("Running task $task_name_save on current connection");
+
+      Rex::Hook::run_hook( task => "before_execute", $task_name_save, @_ );
+
       if ( ref( $_[0] ) eq "HASH" ) {
         $code->(@_);
       }
       else {
         $code->( {@_} );
       }
+
+      Rex::Hook::run_hook( task => "after_execute", $task_name_save, @_ );
     };
 
     use strict;
@@ -388,6 +397,64 @@ Or with the expression syntax:
 You can also specify server options after a server name with a hash reference:
 
  group "servergroup", "www1" => { user => "other" }, "www2";
+
+These expressions are allowed:
+
+=over 4
+
+=item * \d+..\d+ (range)
+
+E.g. 1..3 or 111..222. The first number is the start and the second number is the
+end for numbering the servers.
+
+  group "name", "www[1..3]"
+
+Will create these servernames
+
+  www1, www2, www3
+
+=item * \d+..\d+/\d+ (range with step)
+
+Is similar to the variant above. But here a "step" is defined. When you omit the
+step (like in the variant above), the step is 1.
+
+E.g. 1..5/2 or 111..133/11.
+
+  group "name", "www[1..5/2]"
+
+Will create these servernames
+
+  www1, www3, www5
+
+Whereas 
+
+  group "name", "www[111..133/11]"
+
+will create these servernames
+
+  www111, www122, www133
+
+=item * \d+,\d+,\d+ (list)
+
+With this variant you can define fixed values.
+
+  group "name", "www[1,3,7,01]"
+
+Will create these servernames
+
+  www1, www3, www7, www01
+
+=item * Mixed list, range and range with step
+
+You can mix the three variants above
+
+  www[1..3,5,9..21/3]
+
+=>
+
+  www1, www2, www3, www5, www9, www12, www15, www18, www21
+
+=back
 
 =cut
 
@@ -958,7 +1025,7 @@ sub needs {
 # register needs in main namespace
 {
   my ($caller_pkg) = caller(1);
-  if ( $caller_pkg eq "Rex::CLI" ) {
+  if ( $caller_pkg eq "Rex::CLI" || $caller_pkg eq "main" ) {
     no strict 'refs';
     *{"main::needs"} = \&needs;
     use strict;
@@ -1111,7 +1178,7 @@ sub path {
 
 =item set($key, $value)
 
-Set a configuration parameter. These Variables can be used in templates as well.
+Set a configuration parameter. These variables can be used in templates as well.
 
  set database => "db01";
 
@@ -1601,12 +1668,49 @@ sub evaluate_hostname {
   my $str = shift;
   return unless $str;
 
-  my ( $start, $from, $to, $dummy, $step, $end ) =
-    $str =~ m/^([0-9\.\w\-:]*)\[(\d+)..(\d+)(\/(\d+))?\]([0-9\w\.\-:]+)?$/;
+  # e.g. server[0..4/2].domain.com
+  my ( $start, $rule, $end ) = $str =~ m{
+    ^
+      ([0-9\.\w\-:]*)                 # prefix (e.g. server)
+      \[                              # rule -> 0..4 | 0..4/2 | 0,2,4
+        (
+          (?: \d+ \.\. \d+                # range-rule e.g.  0..4
+            (?:\/ \d+ )?              #   step for range-rule
+          ) |
+          (?:
+            (?:
+              \d+ (?:,\s*)?
+            ) |
+            (?: \d+ \.\. \d+
+              (?: \/ \d+ )?
+              (?:,\s*)?
+            )
+          )+        # list
+        )
+      \]                              # end of rule
+      ([0-9\w\.\-:]+)?                # suffix (e.g. .domain.com)
+    $
+  }xms;
 
-  if ( !defined $start ) {
+  if ( !defined $rule ) {
     return $str;
   }
+
+  my @ret;
+  if ( $rule =~ m/,/ ) {
+    @ret = _evaluate_hostname_list( $start, $rule, $end );
+  }
+  else {
+    @ret = _evaluate_hostname_range( $start, $rule, $end );
+  }
+
+  return @ret;
+}
+
+sub _evaluate_hostname_range {
+  my ( $start, $rule, $end ) = @_;
+
+  my ( $from, $to, $step ) = $rule =~ m{(\d+) \.\. (\d+) (?:/(\d+))?}xms;
 
   $end  ||= '';
   $step ||= 1;
@@ -1620,6 +1724,26 @@ sub evaluate_hostname {
   for ( ; $from <= $to ; $from += $step ) {
     my $format = "%0" . $strict_length . "i";
     push @ret, $start . sprintf( $format, $from ) . $end;
+  }
+
+  return @ret;
+}
+
+sub _evaluate_hostname_list {
+  my ( $start, $rule, $end ) = @_;
+
+  my @values = split /,\s*/, $rule;
+
+  $end ||= '';
+
+  my @ret;
+  for my $value (@values) {
+    if ( $value =~ m{\d+\.\.\d+(?:/\d+)?} ) {
+      push @ret, _evaluate_hostname_range( $start, $value, $end );
+    }
+    else {
+      push @ret, "$start$value$end";
+    }
   }
 
   return @ret;

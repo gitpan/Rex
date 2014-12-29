@@ -7,12 +7,11 @@
 ###### DEPRECATED
 
 package Rex::Sudo::File;
-{
-  $Rex::Sudo::File::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex;
 use Rex::Commands;

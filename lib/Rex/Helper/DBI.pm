@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Helper::DBI;
-{
-  $Rex::Helper::DBI::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 BEGIN {
   use Rex::Require;

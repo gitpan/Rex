@@ -78,16 +78,17 @@ See also the Methods of Rex::Box::Base. This module inherits all methods of it.
 =cut
 
 package Rex::Box::Amazon;
-{
-  $Rex::Box::Amazon::VERSION = '0.55.3';
-}
 
+use strict;
+use warnings;
 use Data::Dumper;
 use Rex::Box::Base;
 use Rex::Commands -no => [qw/auth/];
 use Rex::Commands::Run;
 use Rex::Commands::Fs;
 use Rex::Commands::Cloud;
+
+our $VERSION = '0.56.0'; # VERSION
 
 BEGIN {
   LWP::UserAgent->use;
@@ -241,7 +242,7 @@ sub list_boxes {
          $_->{name}
       && $_->{state} ne "terminated"
       && $_->{state} ne "shutting-down"
-  } @vms;    # only vms with names...
+  } @vms; # only vms with names...
 
   return @ret;
 }

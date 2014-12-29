@@ -25,12 +25,11 @@ This is just a helper function and will not be reported.
 =cut
 
 package Rex::Commands::MD5;
-{
-  $Rex::Commands::MD5::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 require Rex::Commands;

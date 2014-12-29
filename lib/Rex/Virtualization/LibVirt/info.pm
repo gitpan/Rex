@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::LibVirt::info;
-{
-  $Rex::Virtualization::LibVirt::info::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 use Rex::Helper::Run;
@@ -48,15 +47,23 @@ sub execute {
     $ret{$k} = $v;
   }
 
-  my $xml_ref = Rex::Virtualization::LibVirt::dumpxml->execute($vmname);
-  if ( $xml_ref && exists $xml_ref->{devices}->{serial} ) {
-    my ($agent_serial) = grep {
-           exists $_->{type}
-        && $_->{type} eq "tcp"
-        && $_->{target}->{port} == 1
-    } @{ $xml_ref->{devices}->{serial} };
+  if (Rex::Config::get_use_rex_kvm_agent) {
+    my $xml_ref = Rex::Virtualization::LibVirt::dumpxml->execute($vmname);
+    if ( $xml_ref
+      && exists $xml_ref->{devices}->{serial}
+      && ref $xml_ref->{devices}->{serial} eq "ARRAY" )
+    {
+      my ($agent_serial) = grep {
+             exists $_->{type}
+          && $_->{type} eq "tcp"
+          && $_->{target}->{port} == 1
+      } @{ $xml_ref->{devices}->{serial} };
 
-    $ret{has_kvm_agent_on_port} = $agent_serial->{source}->{service};
+#TODO: $xml_ref->{devices}->{serial} is an arrayref if there are multiple devices, hashref otherwise
+#TODO: it might be a better idea to name the serial device and match by its name here
+
+      $ret{has_kvm_agent_on_port} = $agent_serial->{source}->{service};
+    }
   }
 
   return \%ret;

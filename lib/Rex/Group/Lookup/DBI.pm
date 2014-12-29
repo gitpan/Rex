@@ -25,12 +25,11 @@ With this module you can define hostgroups out of an DBI source.
 =cut
 
 package Rex::Group::Lookup::DBI;
-{
-  $Rex::Group::Lookup::DBI::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex -base;
 use Carp;
@@ -73,7 +72,7 @@ use Rex::Helper::DBI;
 =cut
 
 sub groups_dbi {
-  my ( $dsn, %option ) = @_;    # $user, $pass, $sql) = @_;
+  my ( $dsn, %option ) = @_; # $user, $pass, $sql) = @_;
 
   confess "You have to define the sql." if ( !exists $option{sql} );
 

@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Group;
-{
-  $Rex::Group::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 
@@ -37,7 +36,7 @@ sub get_servers {
   my @servers = map { ref( $_->to_s ) eq "CODE" ? &{ $_->to_s } : $_ }
     @{ $self->{servers} };
 
-  return @servers;
+  return uniq @servers;
 }
 
 sub set_auth {
@@ -68,7 +67,7 @@ sub create_group {
 
   my @server_obj;
   for ( my $i = 0 ; $i <= $#server ; $i++ ) {
-    next if ref $server[$i] eq 'HASH';    # already processed by previous loop
+    next if ref $server[$i] eq 'HASH'; # already processed by previous loop
 
     # if argument is already a Rex::Group::Entry::Server
     if ( ref( $server[$i] ) eq "Rex::Group::Entry::Server" ) {

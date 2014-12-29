@@ -29,12 +29,11 @@ All these functions are not idempotent.
 =cut
 
 package Rex::Commands::SimpleCheck;
-{
-  $Rex::Commands::SimpleCheck::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use IO::Socket;
 

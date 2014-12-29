@@ -27,12 +27,11 @@ This is the File Class used by I<file_write> and I<file_read>.
 =cut
 
 package Rex::FS::File;
-{
-  $Rex::FS::File::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use constant DEFAULT_READ_LEN => 64;
 

@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Helper::Misc;
-{
-  $Rex::Helper::Misc::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 sub get_random {
   my $count = shift;

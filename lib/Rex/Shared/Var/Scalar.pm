@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Shared::Var::Scalar;
-{
-  $Rex::Shared::Var::Scalar::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Fcntl qw(:DEFAULT :flock);
 use Data::Dumper;
@@ -64,7 +63,6 @@ sub __lock(&) {
 
 sub __store {
   my $ref = shift;
-  print Dumper($ref);
   store( $ref, "vars.db" );
 }
 

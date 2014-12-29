@@ -10,7 +10,7 @@ Rex::Logger - Logging Module
 
 =head1 DESCRIPTION
 
-This module if the logging module. You can define custom logformats.
+This module is the logging module. You can define custom logformats.
 
 =head1 SYNOPSIS
 
@@ -29,12 +29,11 @@ This module if the logging module. You can define custom logformats.
 =cut
 
 package Rex::Logger;
-{
-  $Rex::Logger::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 #use Rex;
 

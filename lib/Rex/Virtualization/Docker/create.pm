@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::Docker::create;
-{
-  $Rex::Virtualization::Docker::create::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 use Rex::Commands::Gather;
@@ -45,7 +44,8 @@ sub execute {
 
   my $options = _format_opts($opts);
 
-  my $id = i_run "docker run -d $options $opts->{'image'} $opts->{'command'}";
+  my @out = i_run "docker run -d $options $opts->{'image'} $opts->{'command'}";
+  my $id  = pop @out;
 
   return $id;
 }
@@ -74,7 +74,7 @@ sub _format_opts {
     $opts->{"cpus"} = 0;
   }
 
-  my $str = "-name $opts->{'name'} -m $opts->{'memory'} -c $opts->{'cpus'} ";
+  my $str = "--name $opts->{'name'} -m $opts->{'memory'} -c $opts->{'cpus'} ";
 
   # -e=[]
   # Set environment variables
@@ -91,7 +91,7 @@ sub _format_opts {
   # -privileged=false
   # Give extended privileges to this container
   if ( exists $opts->{"privileged"} ) {
-    $str .= "-privileged $opts->{'privileged'} ";
+    $str .= "--privileged $opts->{'privileged'} ";
   }
 
   # -p=[]
@@ -103,13 +103,13 @@ sub _format_opts {
   # -expose=[]
   # Expose a port from the container without publishing it to your host
   if ( exists $opts->{"expose_port"} ) {
-    $str .= "-expose $opts->{'expose_port'} ";
+    $str .= "--expose $opts->{'expose_port'} ";
   }
 
   # -dns=[]
   # Set custom dns servers for the container
   if ( exists $opts->{"dns"} ) {
-    $str .= '-dns ' . join( '-dns ', @{ $opts->{'dns'} } ) . ' ';
+    $str .= '--dns ' . join( '-dns ', @{ $opts->{'dns'} } ) . ' ';
   }
 
   # -v=[]:
@@ -122,19 +122,19 @@ sub _format_opts {
   # -volumes-from=""
   # Mount all volumes from the given container(s)
   if ( exists $opts->{"volumes-from"} ) {
-    $str .= "-volumes-from \"$opts->{'volumes-from'}\" ";
+    $str .= "--volumes-from \"$opts->{'volumes-from'}\" ";
   }
 
   # -lxc-conf=[]
   # Add custom lxc options -lxc-conf="lxc.cgroup.cpuset.cpus = 0,1"
   if ( exists $opts->{"lxc-conf"} ) {
-    $str .= "-lxc-conf \"$opts->{'lxc-conf'}\" ";
+    $str .= "--lxc-conf \"$opts->{'lxc-conf'}\" ";
   }
 
   # -link=""
   # Add link to another container (name:alias)
   if ( exists $opts->{"link"} ) {
-    $str .= '-link ' . join( '-link ', @{ $opts->{'linke'} } ) . ' ';
+    $str .= '--link ' . join( '-link ', @{ $opts->{'link'} } ) . ' ';
   }
 
   return $str;

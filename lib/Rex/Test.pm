@@ -5,13 +5,14 @@
 # vim: set expandtab:
 
 package Rex::Test;
-{
-  $Rex::Test::VERSION = '0.55.3';
-}
 
+use strict;
+use warnings;
 use Rex -base;
 use Data::Dumper;
 use Rex::Commands::Box;
+
+our $VERSION = '0.56.0'; # VERSION
 
 desc 'Run tests specified with --test=testfile (default: t/*.t)';
 task run => make {

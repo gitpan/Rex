@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Profiler;
-{
-  $Rex::Profiler::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Time::HiRes qw(gettimeofday tv_interval);
 

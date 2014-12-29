@@ -59,13 +59,12 @@ With this module you can manipulate files.
 =cut
 
 package Rex::Commands::File;
-{
-  $Rex::Commands::File::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
 use Fcntl;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 use Data::Dumper;
@@ -384,7 +383,7 @@ sub file {
     }
     1;
   } or do {
-    die("Before-Hook failed. Canceling file() action: $@");
+    die("Before hook failed. Cancelling file() action: $@");
   };
   ##############################
 
@@ -446,7 +445,7 @@ sub file {
 
       # md5 sums are the same, delete tmp.
       $fs->unlink($tmp_file_name);
-      $need_md5 = 0;    # we don't need to execute on_change hook
+      $need_md5 = 0; # we don't need to execute on_change hook
 
       Rex::get_current_connection()->{reporter}->report(
         changed => 0,
@@ -614,46 +613,49 @@ sub file {
     }
   }
 
-  if ($need_md5) {
-    eval { $new_md5 = md5($file); };
-  }
+  if ( $option->{ensure} ne "absent" ) {
 
-  my %stat_old = $fs->stat($file);
+    if ($need_md5) {
+      eval { $new_md5 = md5($file); };
+    }
+    my %stat_old = $fs->stat($file);
 
-  if ( exists $option->{"mode"} ) {
-    $fs->chmod( $option->{"mode"}, $file );
-  }
+    if ( exists $option->{"mode"} ) {
+      $fs->chmod( $option->{"mode"}, $file );
+    }
 
-  if ( exists $option->{"group"} ) {
-    $fs->chgrp( $option->{"group"}, $file );
-  }
+    if ( exists $option->{"group"} ) {
+      $fs->chgrp( $option->{"group"}, $file );
+    }
 
-  if ( exists $option->{"owner"} ) {
-    $fs->chown( $option->{"owner"}, $file );
-  }
+    if ( exists $option->{"owner"} ) {
+      $fs->chown( $option->{"owner"}, $file );
+    }
 
-  my %stat_new = $fs->stat($file);
+    my %stat_new = $fs->stat($file);
 
-  if ( %stat_old && %stat_new && $stat_old{mode} ne $stat_new{mode} ) {
-    Rex::get_current_connection()->{reporter}->report(
-      changed => 1,
-      message =>
-        "File-System permissions changed from $stat_old{mode} to $stat_new{mode}.",
-    );
-  }
+    if ( %stat_old && %stat_new && $stat_old{mode} ne $stat_new{mode} ) {
+      Rex::get_current_connection()->{reporter}->report(
+        changed => 1,
+        message =>
+          "File-System permissions changed from $stat_old{mode} to $stat_new{mode}.",
+      );
+    }
 
-  if ( %stat_old && %stat_new && $stat_old{uid} ne $stat_new{uid} ) {
-    Rex::get_current_connection()->{reporter}->report(
-      changed => 1,
-      message => "Owner changed from $stat_old{uid} to $stat_new{uid}.",
-    );
-  }
+    if ( %stat_old && %stat_new && $stat_old{uid} ne $stat_new{uid} ) {
+      Rex::get_current_connection()->{reporter}->report(
+        changed => 1,
+        message => "Owner changed from $stat_old{uid} to $stat_new{uid}.",
+      );
+    }
 
-  if ( %stat_old && %stat_new && $stat_old{gid} ne $stat_new{gid} ) {
-    Rex::get_current_connection()->{reporter}->report(
-      changed => 1,
-      message => "Group changed from $stat_old{gid} to $stat_new{gid}.",
-    );
+    if ( %stat_old && %stat_new && $stat_old{gid} ne $stat_new{gid} ) {
+      Rex::get_current_connection()->{reporter}->report(
+        changed => 1,
+        message => "Group changed from $stat_old{gid} to $stat_new{gid}.",
+      );
+    }
+
   }
 
   my $on_change_done = 0;
@@ -684,7 +686,7 @@ sub file {
     &$on_change($file);
   }
 
-  #### check and run before hook
+  #### check and run after hook
   Rex::Hook::run_hook( file => "after", @_, $__ret );
   ##############################
 

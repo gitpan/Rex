@@ -5,19 +5,18 @@
 # vim: set expandtab:
 
 package Rex::Interface::Shell;
-{
-  $Rex::Interface::Shell::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 
 sub create {
   my ( $class, $shell ) = @_;
 
-  $shell =~ s/[\r\n]//gms;    # sometimes there are some wired things...
+  $shell =~ s/[\r\n]//gms; # sometimes there are some wired things...
 
   my $klass = "Rex::Interface::Shell::\u$shell";
   eval "use $klass";

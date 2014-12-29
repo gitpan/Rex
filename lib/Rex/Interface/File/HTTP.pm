@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Interface::File::HTTP;
-{
-  $Rex::Interface::File::HTTP::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Data::Dumper;
 

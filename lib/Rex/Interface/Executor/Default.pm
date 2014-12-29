@@ -5,13 +5,13 @@
 # vim: set expandtab:
 
 package Rex::Interface::Executor::Default;
-{
-  $Rex::Interface::Executor::Default::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
 
+our $VERSION = '0.56.0'; # VERSION
+
+use Rex::Hook;
 use Rex::Logger;
 use Data::Dumper;
 
@@ -42,16 +42,23 @@ sub exec {
   my $ret;
   eval {
     my $code = $task->code;
+
+    Rex::Hook::run_hook( task => "before_execute", $task->name, @_ );
+
     $ret = &$code($opts);
+
+    Rex::Hook::run_hook( task => "after_execute", $task->name, @_ );
   };
 
   my %opts = Rex::Args->getopts;
   if ($@) {
+    my $error = $@;
     if ( exists $opts{o} ) {
       Rex::Output->get->add( $task->name, error => 1, msg => $@ );
     }
     else {
-      Rex::Logger::info( "Error executing task: $@", "error" );
+      Rex::Logger::info( "Error executing task:", "error" );
+      Rex::Logger::info( "$error",                "error" );
       die($@);
     }
   }

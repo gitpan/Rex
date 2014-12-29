@@ -25,12 +25,11 @@ With this module you can run a command.
 =cut
 
 package Rex::Commands::Run;
-{
-  $Rex::Commands::Run::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 #require Exporter;
 require Rex::Exporter;
@@ -61,6 +60,7 @@ use base qw(Rex::Exporter);
 @EXPORT = qw(run can_run sudo);
 
 =item run($command [, $callback])
+
 =item run($command_description, command => $command, %options)
 
 This function will execute the given command and returns the output. In
@@ -90,7 +90,17 @@ Supported options are:
     queues the command, to be executed upon notification (see below)
   env           => { var1 => $value1, ..., varN => $valueN }
     sets environment variables in the environment of the command
-
+  timeout       => value
+    sets the timeout for the command to be run
+  auto_die      => TRUE
+    die if the command returns with a non-zero exit code
+    it can be set globally via the exec_autodie feature flag
+  command       => $command_to_run
+    if set, run tries to execute the specified command and the first argument
+    becomes an identifier for the run block (e.g. to be triggered with notify)
+  creates       => $file_to_create
+    tries to create $file_to_create upon execution
+    skips execution if the file already exists
 
 Examples:
 
@@ -107,7 +117,7 @@ and notify it when you want to run it.
    notify "run", "extract-something";  # now the command gets executed
  };
 
-If you only want to run a command if an other command succeed or fail, you can use
+If you only want to run a command if another command succeeds or fails, you can use
 I<only_if> or I<unless> option.
 
  run "some-command",
@@ -116,7 +126,7 @@ I<only_if> or I<unless> option.
  run "some-other-command",
    unless => "ps -ef | grep -q httpd";    # only run if httpd is not running
 
-If you want to set custom environment variables you can do this like this:
+If you want to set custom environment variables you can do it like this:
 
  run "my_command",
 
@@ -131,9 +141,9 @@ If you want to end the command upon receiving a certain output:
    
 =cut
 
-our $LAST_OUTPUT;    # this variable stores the last output of a run.
-    # so that it is possible to get for example the output of an apt-get update
-    # that is called through >> install "foo" <<
+our $LAST_OUTPUT; # this variable stores the last output of a run.
+ # so that it is possible to get for example the output of an apt-get update
+ # that is called through >> install "foo" <<
 
 sub run {
   my $cmd = shift;
@@ -177,7 +187,7 @@ sub run {
   Rex::get_current_connection()->{reporter}
     ->report_resource_start( type => "run", name => $res_cmd );
 
-  my $changed = 1;    # default for run() is 1
+  my $changed = 1; # default for run() is 1
 
   if ( exists $option->{creates} ) {
     my $fs = Rex::Interface::Fs->create();
@@ -194,7 +204,7 @@ sub run {
       Rex::Logger::debug(
         "Don't executing $cmd because $option->{only_if} return $?.");
       $changed = 0;
-      $?       = 0;    # reset $?
+      $?       = 0; # reset $?
     }
   }
 
@@ -253,7 +263,7 @@ sub run {
         if ( Rex::Config->get_verbose_run );
     }
     elsif ( $? != 0 && $? != 300 ) {
-      Rex::Logger::info( "Error executing $cmd: Return-Code: $?", "warn" )
+      Rex::Logger::info( "Error executing $cmd: Return code: $?", "warn" )
         if ( Rex::Config->get_verbose_run );
     }
     elsif ( $? == 0 ) {
@@ -271,7 +281,7 @@ sub run {
 
     Rex::get_current_connection()->{reporter}->report(
       changed => 1,
-      message => "Command ($cmd) executed. Return-Code: $?"
+      message => "Command ($cmd) executed. Return code: $?"
     );
   }
   else {
@@ -347,7 +357,7 @@ You can use this function to run one command with sudo privileges or to turn on 
      mode  => 640;
  };
 
-Or, if you don't turning sudo globally on.
+Or, if you didn't enable sudo globally:
 
  task prepare => sub {
    file "/tmp/foo.txt",

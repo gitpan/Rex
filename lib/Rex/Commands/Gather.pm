@@ -12,7 +12,7 @@ Rex::Commands::Gather - Hardware and Information gathering
 
 With this module you can gather hardware and software information.
 
-All these functions will not be reported. These functions don't change things.
+All these functions will not be reported. These functions don't modify anything.
 
 =head1 SYNOPSIS
 
@@ -26,12 +26,11 @@ All these functions will not be reported. These functions don't change things.
 =cut
 
 package Rex::Commands::Gather;
-{
-  $Rex::Commands::Gather::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Data::Dumper;
 use Rex::Hardware;

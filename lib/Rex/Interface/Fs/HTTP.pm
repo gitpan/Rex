@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Interface::Fs::HTTP;
-{
-  $Rex::Interface::Fs::HTTP::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Commands;
 use Rex::Interface::Exec;

@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Hardware::Host;
-{
-  $Rex::Hardware::Host::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex;
 use Rex::Commands::Run;
@@ -175,7 +174,7 @@ sub get_operating_system {
   }
 
   my $os_string = i_run("uname -s");
-  return $os_string;    # return the plain os
+  return $os_string; # return the plain os
 
 }
 

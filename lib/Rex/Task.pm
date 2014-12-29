@@ -28,14 +28,13 @@ The Task Object. Typically you only need this class if you want to manipulate ta
 =cut
 
 package Rex::Task;
-{
-  $Rex::Task::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
 use Data::Dumper;
 use Time::HiRes qw(time);
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 use Rex::TaskList;
@@ -482,7 +481,7 @@ sub run_hook {
   my ( $self, $server, $hook ) = @_;
 
   for my $code ( @{ $self->{$hook} } ) {
-    if ( $hook eq "after" ) {    # special case for after hooks
+    if ( $hook eq "after" ) { # special case for after hooks
       &$code(
         $$server,
         ( $self->{"__was_authenticated"} ? undef : 1 ),

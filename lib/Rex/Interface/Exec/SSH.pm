@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Interface::Exec::SSH;
-{
-  $Rex::Interface::Exec::SSH::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Helper::SSH2;
 use File::Basename 'basename';
@@ -119,7 +118,7 @@ sub _get_shell {
   my ($self) = @_;
 
   my ($shell_path) = $self->_exec("echo \$SHELL");
-  $shell_path ||= '/bin/sh';    # fallback to /bin/sh
+  $shell_path ||= '/bin/sh'; # fallback to /bin/sh
   chomp $shell_path;
 
   my $used_shell = basename($shell_path);

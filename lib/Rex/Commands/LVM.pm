@@ -33,12 +33,11 @@ All these functions are not idempotent.
 =cut
 
 package Rex::Commands::LVM;
-{
-  $Rex::Commands::LVM::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 use base qw(Rex::Exporter);
@@ -50,7 +49,7 @@ use Rex::Commands::Run;
 
 =item pvs
 
-Get Information of all your physical volumes.
+Get Information for all your physical volumes.
 
  use Data::Dumper;
  use Rex::Commands::LVM;
@@ -100,7 +99,7 @@ sub pvs {
 
 =item vgs
 
-Get Information of all your volume groups.
+Get Information for all your volume groups.
 
  use Data::Dumper;
  use Rex::Commands::LVM;
@@ -157,7 +156,7 @@ sub vgs {
 
 =item lvs
 
-Get Information of all your logical volumes.
+Get Information for all your logical volumes.
 
  use Data::Dumper;
  use Rex::Commands::LVM;

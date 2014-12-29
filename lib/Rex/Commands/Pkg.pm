@@ -27,12 +27,11 @@ With this module you can install packages and files.
 =cut
 
 package Rex::Commands::Pkg;
-{
-  $Rex::Commands::Pkg::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Pkg;
 use Rex::Logger;
@@ -112,7 +111,7 @@ sub pkg {
   elsif ( $option{ensure} =~ m/^\d/ ) {
 
     # looks like a version
-    &update( package => $package, { version => $option{ensure} } );
+    &install( package => $package, { version => $option{ensure} } );
   }
   else {
     die("Unknown ensure parameter: $option{ensure}.");
@@ -404,7 +403,7 @@ sub install {
     # if we're being asked to install a single package
     if ( @{$package} == 1 ) {
       my $pkg_to_install = shift @{$package};
-      unless ( $pkg->is_installed($pkg_to_install) ) {
+      unless ( $pkg->is_installed( $pkg_to_install, $option ) ) {
         Rex::Logger::info("Installing $pkg_to_install.");
 
         #### check and run before_change hook
@@ -425,15 +424,14 @@ sub install {
     else {
       my @pkgCandidates;
       for my $pkg_to_install ( @{$package} ) {
-        unless ( $pkg->is_installed($pkg_to_install) ) {
+        unless ( $pkg->is_installed( $pkg_to_install, $option ) ) {
           push @pkgCandidates, $pkg_to_install;
         }
       }
 
       if (@pkgCandidates) {
         Rex::Logger::info("Installing @pkgCandidates");
-        $pkg->bulk_install( \@pkgCandidates, $option )
-          ;    # here, i think $option is useless in its current form.
+        $pkg->bulk_install( \@pkgCandidates, $option ); # here, i think $option is useless in its current form.
         $changed = 1;
       }
     }

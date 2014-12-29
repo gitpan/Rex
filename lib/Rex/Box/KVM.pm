@@ -64,10 +64,9 @@ See also the Methods of Rex::Box::Base. This module inherits all methods of it.
 =cut
 
 package Rex::Box::KVM;
-{
-  $Rex::Box::KVM::VERSION = '0.55.3';
-}
 
+use strict;
+use warnings;
 use Data::Dumper;
 use Rex::Box::Base;
 use Rex::Commands -no => [qw/auth/];
@@ -75,6 +74,8 @@ use Rex::Commands::Run;
 use Rex::Commands::Fs;
 use Rex::Commands::Virtualization;
 use Rex::Commands::SimpleCheck;
+
+our $VERSION = '0.56.0'; # VERSION
 
 BEGIN {
   LWP::UserAgent->use;
@@ -134,20 +135,29 @@ sub import_vm {
 
     Rex::Logger::info("Importing VM ./tmp/$filename");
 
-    # define random tcp port
-    my $tcp_port = int( rand(40000) ) + 10000;
-
-    vm
+    my @options = (
       import => $self->{name},
       file   => "./tmp/$filename",
       %{$self},
-      serial_devices => [
-      {
-        type => 'tcp',
-        host => '127.0.0.1',
-        port => $tcp_port,
-      }
-      ];
+    );
+
+    if (Rex::Config::get_use_rex_kvm_agent) {
+      my $tcp_port = int( rand(40000) ) + 10000;
+
+      push @options, 'serial_devices',
+        [
+        {
+          type => 'tcp',
+          host => '127.0.0.1',
+          port => $tcp_port,
+        },
+        ];
+
+      Rex::Logger::info(
+        "Binding a serial device to TCP port $tcp_port for rex-kvm-agent");
+    }
+
+    vm @options;
 
     #unlink "./tmp/$filename";
   }

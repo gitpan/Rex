@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::User::Linux;
-{
-  $Rex::User::Linux::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 require Rex::Commands;
@@ -117,7 +116,7 @@ sub create_user {
   }
 
   if ( !$use_default_home_policy ) {
-    if ( !defined $uid ) {    #useradd mode
+    if ( !defined $uid ) { #useradd mode
       if ($should_create_home) {
         $cmd .= " -m ";
       }
@@ -125,7 +124,7 @@ sub create_user {
         $cmd .= " -M ";
       }
     }
-    else {                    #usermod mode
+    else {                 #usermod mode
       $cmd .= " -m " if ( exists $data->{home} );
     }
   }

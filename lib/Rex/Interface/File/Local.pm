@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Interface::File::Local;
-{
-  $Rex::Interface::File::Local::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Interface::File::Base;
 use base qw(Rex::Interface::File::Base);

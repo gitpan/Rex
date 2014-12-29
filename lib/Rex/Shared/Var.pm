@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Shared::Var;
-{
-  $Rex::Shared::Var::VERSION = '0.55.3';
-}
 
 use strict qw(vars subs);
-use warnings::register;
+use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Exporter;
 use base qw(Exporter);

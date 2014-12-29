@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::TaskList::Parallel_ForkManager;
-{
-  $Rex::TaskList::Parallel_ForkManager::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Data::Dumper;
 use Rex::Logger;
@@ -94,7 +93,7 @@ sub run {
       } or do {
 
         # exit with error
-        $? = 255 if !$?;    # unknown error
+        $? = 255 if !$?; # unknown error
         exit $?;
       };
       $fm->finish;

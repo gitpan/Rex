@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Inventory::SMBios::Section;
-{
-  $Rex::Inventory::SMBios::Section::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Exporter;
 use base qw(Exporter);

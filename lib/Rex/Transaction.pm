@@ -10,7 +10,7 @@ Rex::Transaction - Transaction support.
 
 =head1 DESCRIPTION
 
-With this module you can define transactions and rollback szenarios on failure.
+With this module you can define transactions and rollback scenarios on failure.
 
 =head1 SYNOPSIS
 
@@ -34,12 +34,11 @@ With this module you can define transactions and rollback szenarios on failure.
 =cut
 
 package Rex::Transaction;
-{
-  $Rex::Transaction::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Exporter;
 

@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Helper::SSH2;
-{
-  $Rex::Helper::SSH2::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Exporter;
 use Data::Dumper;
@@ -31,7 +30,7 @@ sub net_ssh2_exec {
 
   # REQUIRE_TTY can be turned off by feature no_tty
   if ( !Rex::Config->get_no_tty ) {
-    $chan->pty("xterm");    # set to xterm, due to problems with vt100.
+    $chan->pty("xterm"); # set to xterm, due to problems with vt100.
      # if vt100 sometimes the restart of services doesn't work and need a sleep .000001 after the command...
      # strange bug...
     $chan->pty_size( 4000, 80 );

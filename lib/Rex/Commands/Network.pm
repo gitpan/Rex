@@ -32,12 +32,11 @@ With this module you can get information of the routing table, current network c
 =cut
 
 package Rex::Commands::Network;
-{
-  $Rex::Commands::Network::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 use Rex::Commands::Run;

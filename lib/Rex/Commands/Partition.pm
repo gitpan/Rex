@@ -30,12 +30,11 @@ All these functions are not idempotent.
 =cut
 
 package Rex::Commands::Partition;
-{
-  $Rex::Commands::Partition::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 use base qw(Rex::Exporter);
@@ -135,7 +134,7 @@ Create a partition with mountpoint $mountpoint.
 sub partition {
   my ( $mountpoint, %option ) = @_;
 
-  $option{type} ||= "primary";    # primary is default
+  $option{type} ||= "primary"; # primary is default
 
   # info:
   # disk size, partition start, partition end is in MB
@@ -150,30 +149,27 @@ sub partition {
 
   my $disk = $option{ondisk};
 
-  my @output_lines = grep { /^\s+\d+/ } run "parted /dev/$disk print";
+  my @output_lines = grep { /^\s+\d+/ } run "parted /dev/$disk unit kB print";
 
   my $last_partition_end = 1;
   my $unit;
   if (@output_lines) {
-    ( $last_partition_end, $unit ) = ( $output_lines[-1] =~
-        m/\s+[\d\.]+[a-z]+\s+[\d\.]+[a-z]+\s+([\d\.]+)(kB|MB|GB)/i );
-    if ( $unit eq "GB" ) {
-      $last_partition_end =
-        sprintf( "%i", ( ( $last_partition_end * 1000 ) + 1 ) );
-    }    # * 1000 because of parted, +1 to round up
-    if ( $unit eq "kB" ) {
-      $last_partition_end =
-        sprintf( "%i", ( ( $last_partition_end / 1000 ) + 1 ) );
-    }    # / 1000 because of parted, +1 to round up
+    ($last_partition_end) = $output_lines[-1] =~ m/
+        ^\s*[\d]       # partition number
+        \s+[\d\.]+kB   # partition start
+        \s+([\d\.]+)kB # partition end
+      /ix;
+
+    # convert kB to MB
+    # / 1000 because of parted, + 1 to round up
+    $last_partition_end =
+      sprintf( "%i", ( ( $last_partition_end / 1000 ) + 1 ) );
   }
 
-  Rex::Logger::info("Last parition ending at $last_partition_end");
+  Rex::Logger::info("Last partition ends at $last_partition_end");
   my $next_partition_start = $last_partition_end;
-  my $next_partition_end   = $option{size} + $last_partition_end;
-
-  if ( $option{grow} ) {
-    $next_partition_end = "-- -1";
-  }
+  my $next_partition_end =
+    $option{grow} ? "-- -1" : $last_partition_end + $option{size};
 
   run
     "parted -s /dev/$disk mkpart $option{type} $next_partition_start $next_partition_end";
@@ -213,7 +209,7 @@ sub partition {
 
   my $found_part = 0;
   while ( $found_part == 0 ) {
-    Rex::Logger::debug("Waiting on /dev/$disk$part_num to appear...");
+    Rex::Logger::debug("Waiting for /dev/$disk$part_num to appear...");
 
     run "ls -l /dev/$disk$part_num";
     if ( $? == 0 ) { $found_part = 1; last; }

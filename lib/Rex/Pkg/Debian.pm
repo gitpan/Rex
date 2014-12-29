@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Pkg::Debian;
-{
-  $Rex::Pkg::Debian::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Commands::Run;
 use Rex::Helper::Run;
@@ -45,8 +44,7 @@ sub new {
 sub bulk_install {
   my ( $self, $packages_aref, $option ) = @_;
 
-  delete $option->{version}
-    ;    # makes no sense to specify the same version for several packages
+  delete $option->{version}; # makes no sense to specify the same version for several packages
 
   $self->update( "@{$packages_aref}", $option );
 

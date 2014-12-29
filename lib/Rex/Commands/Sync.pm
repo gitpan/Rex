@@ -46,12 +46,11 @@ This module can sync directories between your Rex system and your servers withou
 =cut
 
 package Rex::Commands::Sync;
-{
-  $Rex::Commands::Sync::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 use base qw(Rex::Exporter);
@@ -65,6 +64,8 @@ use Rex::Commands::Fs;
 use Rex::Commands::File;
 use Rex::Commands::Download;
 use Rex::Helper::Path;
+use Rex::Helper::Glob 'glob_to_regex';
+use Rex::Helper::Encode;
 use JSON::XS;
 
 @EXPORT = qw(sync_up sync_down);
@@ -119,30 +120,14 @@ sub sync_up {
   my $excludes = $options->{exclude} ||= [];
   $excludes = [$excludes] unless ref($excludes) eq 'ARRAY';
 
-  my @excluded_files;
-  foreach my $ex (@$excludes) {
-    LOCAL {
-      if ( is_dir $ex) {
-        map {
-          push( @excluded_files,
-            sprintf( '/%s', File::Spec->canonpath("$ex/$_->{name}") ) )
-        } _get_local_files($ex);
-      }
-      else {
-        foreach my $path ( glob $ex ) {
-          push( @excluded_files,
-            sprintf( '/%s', File::Spec->canonpath($path) ) );
-        }
-      }
-    };
-  }
+  my @excluded_files = map { glob_to_regex($_) } @{$excludes};
 
   #
   # fifth, upload the different files
   #
 
   for my $file (@diff) {
-    next if grep { $_ eq $file->{name} } @excluded_files;
+    next if grep { $file->{name} =~ $_ } @excluded_files;
 
     my ($dir)        = ( $file->{path} =~ m/(.*)\/[^\/]+$/ );
     my ($remote_dir) = ( $file->{name} =~ m/\/(.*)\/[^\/]+$/ );
@@ -263,30 +248,14 @@ sub sync_down {
   my $excludes = $options->{exclude} ||= [];
   $excludes = [$excludes] unless ref($excludes) eq 'ARRAY';
 
-  my @excluded_files;
-  foreach my $ex (@$excludes) {
-    LOCAL {
-      if ( is_dir $ex) {
-        map {
-          push( @excluded_files,
-            sprintf( '/%s', File::Spec->canonpath("$ex/$_->{name}") ) )
-        } _get_local_files($ex);
-      }
-      else {
-        foreach my $path ( glob $ex ) {
-          push( @excluded_files,
-            sprintf( '/%s', File::Spec->canonpath($path) ) );
-        }
-      }
-    };
-  }
+  my @excluded_files = map { glob_to_regex($_); } @{$excludes};
 
   #
-  # fifth, upload the different files
+  # fifth, download the different files
   #
 
   for my $file (@diff) {
-    next if grep { $_ eq $file->{name} } @excluded_files;
+    next if grep { $file->{name} =~ $_ } @excluded_files;
 
     my ($dir)        = ( $file->{path} =~ m/(.*)\/[^\/]+$/ );
     my ($remote_dir) = ( $file->{name} =~ m/\/(.*)\/[^\/]+$/ );
@@ -384,6 +353,7 @@ my @tree = ();
 
 for my $dir (@dirs) {
   opendir(my $dh, $dir) or die($!);
+  $dir = join("/", map { $_ =~ s/([\@\$\% ])/\\\$1/g; $_; } split(/\//, $dir));
   while(my $entry = readdir($dh)) {
     next if($entry eq ".");
     next if($entry eq "..");
@@ -396,7 +366,8 @@ for my $dir (@dirs) {
     my $name = "$dir/$entry";
     $name =~ s/^\Q$dest\E//;
 
-    my $md5 = qx{md5sum $dir/$entry \| awk ' { print \$1 } '};
+    my $t_entry = quotemeta($entry);
+    my $md5 = qx{md5sum $dir/$t_entry \| awk ' { print \$1 } '};
 
     chomp $md5;
 
@@ -411,42 +382,9 @@ for my $dir (@dirs) {
 
 print to_json(\@tree);
 
-sub to_json {
-  my ($ref) = @_;
-
-  my $s = "";
-
-  if(ref $ref eq "ARRAY") {
-    $s .= "[";
-    for my $itm (@{ $ref }) {
-      if(substr($s, -1) ne "[") {
-        $s .= ",";
-      }
-      $s .= to_json($itm);
-    }
-    return $s . "]";
-  }
-  elsif(ref $ref eq "HASH") {
-    $s .= "{";
-    for my $key (keys %{ $ref }) {
-      if(substr($s, -1) ne "{") {
-        $s .= ",";
-      }
-      $s .= "\"$key\": " . to_json($ref->{$key});
-    }
-    return $s . "}";
-  }
-  else {
-    if($ref =~ /^\d+$/) {
-      return $ref;
-    }
-    else {
-      $ref =~ s/'/\\\'/g;
-      return "\"$ref\"";
-    }
-  }
-}
     |;
+
+    $script .= func_to_json();
 
     my $rnd_file = get_tmp_file;
     file $rnd_file, content => $script;

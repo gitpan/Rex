@@ -5,9 +5,12 @@
 # vim: set expandtab:
 
 package Rex::Fork::Task;
-{
-  $Rex::Fork::Task::VERSION = '0.55.3';
-}
+
+use strict;
+use warnings;
+use POSIX ":sys_wait_h";
+
+our $VERSION = '0.56.0'; # VERSION
 
 BEGIN {
 
@@ -15,10 +18,6 @@ BEGIN {
   share qw(@PROCESS_LIST);
 
 }
-
-use strict;
-use warnings;
-use POSIX ":sys_wait_h";
 
 sub new {
   my $that  = shift;

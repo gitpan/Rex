@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::LibVirt::guestinfo;
-{
-  $Rex::Virtualization::LibVirt::guestinfo::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Data::Dumper;
 use Rex::Logger;
@@ -39,7 +38,9 @@ sub execute {
 
   my @ifaces;
 
-  if ( exists $info->{has_kvm_agent_on_port} && $info->{has_kvm_agent_on_port} )
+  if ( Rex::Config::get_use_rex_kvm_agent
+    && exists $info->{has_kvm_agent_on_port}
+    && $info->{has_kvm_agent_on_port} )
   {
 
     my $got_ip = 0;

@@ -34,14 +34,13 @@ Version <= 1.0: All these functions will not be reported.
 =cut
 
 package Rex::Commands::Download;
-{
-  $Rex::Commands::Download::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
 use Rex::Helper::UserAgent;
 use Carp;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use vars qw($has_wget $has_curl $has_lwp);
 

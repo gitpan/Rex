@@ -9,12 +9,11 @@
 #
 
 package Rex::Cloud::Amazon;
-{
-  $Rex::Cloud::Amazon::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 use Rex::Cloud::Base;
@@ -140,7 +139,7 @@ sub run_instance {
     $self->attach_volume(
       volume_id   => $data{"volume"},
       instance_id => $ref->{"instancesSet"}->{"item"}->{"instanceId"},
-      name => "/dev/sdh",    # default for new instances
+      name => "/dev/sdh", # default for new instances
     );
   }
 

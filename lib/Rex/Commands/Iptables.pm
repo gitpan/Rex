@@ -58,12 +58,11 @@ Only I<open_port> and I<close_port> are idempotent.
 =cut
 
 package Rex::Commands::Iptables;
-{
-  $Rex::Commands::Iptables::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 use Data::Dumper;
@@ -296,7 +295,7 @@ sub iptables {
 
 =item is_nat_gateway
 
-This function create a nat gateway for the device the default route points to.
+This function creates a NAT gateway for the device the default route points to.
 
  task "make-gateway", sub {
    is_nat_gateway;

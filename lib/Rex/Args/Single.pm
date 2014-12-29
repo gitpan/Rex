@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Args::Single;
-{
-  $Rex::Args::Single::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 sub get { return 1; }
 

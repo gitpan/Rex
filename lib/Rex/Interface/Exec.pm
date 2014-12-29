@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Interface::Exec;
-{
-  $Rex::Interface::Exec::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex;
 
@@ -18,8 +17,9 @@ sub create {
   my ( $class, $type ) = @_;
 
   unless ($type) {
-    $type = Rex::get_current_connection()->{conn}
-      ->get_connection_type;    #Rex::Commands::task()->get_connection_type;
+    $type = Rex::get_current_connection()->{conn}->get_connection_type;
+
+    #Rex::Commands::task()->get_connection_type;
   }
 
   my $class_name = "Rex::Interface::Exec::$type";

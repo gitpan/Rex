@@ -21,17 +21,17 @@ With this module you can specify own configuration parameters for your modules.
 =cut
 
 package Rex::Config;
-{
-  $Rex::Config::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use File::Spec;
 use Rex::Logger;
 use YAML;
 use Data::Dumper;
+use Rex::Require;
 
 our (
   $user,                     $password,
@@ -61,6 +61,8 @@ our (
   $task_call_by_method,      $fallback_auth,
   $register_cmdb_template,   $check_service_exists,
   $set_no_append,            $use_net_openssh_if_present,
+  $use_template_ng,          $use_rex_kvm_agent,
+  $autodie,
 
 );
 
@@ -72,6 +74,15 @@ our (
   bash   => "bash",
 );
 
+sub set_autodie {
+  my $class = shift;
+  $autodie = shift;
+}
+
+sub get_autodie {
+  return $autodie;
+}
+
 sub set_use_net_openssh_if_present {
   my $class = shift;
   $use_net_openssh_if_present = shift;
@@ -79,6 +90,24 @@ sub set_use_net_openssh_if_present {
 
 sub get_use_net_openssh_if_present {
   return $use_net_openssh_if_present;
+}
+
+sub set_use_rex_kvm_agent {
+  my $class = shift;
+  $use_rex_kvm_agent = shift;
+}
+
+sub get_use_rex_kvm_agent {
+  return $use_rex_kvm_agent;
+}
+
+sub set_use_template_ng {
+  my $class = shift;
+  $use_template_ng = shift;
+}
+
+sub get_use_template_ng {
+  return $use_template_ng;
 }
 
 sub set_set_no_append {
@@ -732,6 +761,17 @@ sub set_template_function {
 sub get_template_function {
   if ( ref($template_function) eq "CODE" ) {
     return $template_function;
+  }
+
+  if ( Rex::Template::NG->is_loadable && get_use_template_ng() ) {
+
+    # new template engine
+    return sub {
+      my ( $content, $template_vars ) = @_;
+      Rex::Template::NG->require;
+      my $t = Rex::Template::NG->new;
+      return $t->parse( $content, %{$template_vars} );
+    };
   }
 
   return sub {

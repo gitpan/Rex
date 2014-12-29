@@ -27,12 +27,11 @@ With this module you can define hostgroups out of a command.
 =cut
 
 package Rex::Group::Lookup::Command;
-{
-  $Rex::Group::Lookup::Command::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 use Rex -base;

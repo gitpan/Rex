@@ -5,11 +5,12 @@
 # vim: set expandtab:
 
 package Rex::Interface::Shell::Tcsh;
-{
-  $Rex::Interface::Shell::Tcsh::VERSION = '0.55.3';
-}
 
+use strict;
+use warnings;
 use Rex::Interface::Shell::Csh;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use base qw(Rex::Interface::Shell::Csh);
 

@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::Docker::daemon;
-{
-  $Rex::Virtualization::Docker::daemon::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 use Rex::Helper::Run;
@@ -18,8 +17,8 @@ use Rex::Helper::Run;
 sub execute {
   my ( $class, %opt ) = @_;
 
-  my $bind = $opt{bind} // '0.0.0.0';
-  my $host = $opt{host} // 'unix:///var/run/docker.sock';
+  my $bind = defined $opt{bind} ? $opt{bind} : '0.0.0.0';
+  my $host = defined $opt{host} ? $opt{host} : 'unix:///var/run/docker.sock';
 
   Rex::Logger::debug("starting docker daemon");
 

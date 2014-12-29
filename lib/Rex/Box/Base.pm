@@ -21,12 +21,11 @@ These methods are shared across all other Rex::Box modules.
 =cut
 
 package Rex::Box::Base;
-{
-  $Rex::Box::Base::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Commands -no => [qw/auth/];
 use Rex::Commands::Run;

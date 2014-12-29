@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Inventory::DMIDecode::SystemInformation;
-{
-  $Rex::Inventory::DMIDecode::SystemInformation::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Inventory::DMIDecode::Section;
 use base qw(Rex::Inventory::DMIDecode::Section);

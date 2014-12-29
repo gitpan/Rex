@@ -16,7 +16,7 @@ Version <= 1.0: All these functions will not be reported.
 
 All these functions are not idempotent.
 
-This function don't persists the entries in /etc/sysctl.conf.
+This function doesn't persist the entries in /etc/sysctl.conf.
 
 =head1 SYNOPSIS
 
@@ -32,12 +32,11 @@ This function don't persists the entries in /etc/sysctl.conf.
 =cut
 
 package Rex::Commands::Sysctl;
-{
-  $Rex::Commands::Sysctl::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 use Rex::Commands::Run;

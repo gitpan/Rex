@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Helper::URI;
-{
-  $Rex::Helper::URI::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 sub encode {
   my ($part) = @_;

@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Interface::Connection::SSH;
-{
-  $Rex::Interface::Connection::SSH::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 BEGIN {
   use Rex::Require;
@@ -83,7 +82,7 @@ CON_SSH:
     goto CON_SSH
       if (
       $fail_connect < Rex::Config->get_max_connect_fails( server => $server ) )
-      ;    # try connecting 3 times
+      ; # try connecting 3 times
 
     Rex::Logger::info( "Can't connect to $server", "warn" );
 

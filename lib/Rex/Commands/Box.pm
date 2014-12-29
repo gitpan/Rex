@@ -60,12 +60,11 @@ Version <= 1.0: All these functions will not be reported.
 =cut
 
 package Rex::Commands::Box;
-{
-  $Rex::Commands::Box::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use YAML;
 use Data::Dumper;

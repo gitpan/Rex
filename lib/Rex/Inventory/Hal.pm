@@ -5,15 +5,14 @@
 # vim: set expandtab:
 
 package Rex::Inventory::Hal;
-{
-  $Rex::Inventory::Hal::VERSION = '0.55.3';
-}
 
 use Rex::Inventory::Hal::Object;
 use Rex::Commands::Run;
 use Rex::Helper::Run;
 use Rex::Commands::Gather;
 use Rex::Logger;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Data::Dumper;
 

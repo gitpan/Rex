@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Virtualization;
-{
-  $Rex::Virtualization::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 use Rex::Config;

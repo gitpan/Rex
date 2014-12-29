@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Interface::Fs::SSH;
-{
-  $Rex::Interface::Fs::SSH::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Fcntl qw(:DEFAULT :mode);
 use Rex::Helper::Encode;
@@ -94,7 +93,12 @@ sub unlink {
   my $sftp = Rex::get_sftp();
   for my $file (@files) {
     Rex::Commands::profiler()->start("unlink: $file");
-    eval { $sftp->unlink($file); };
+    eval {
+      $sftp->unlink($file);
+      1;
+    } or do {
+      die "Error unlinking file: $file." if ( Rex::Config->get_autodie );
+    };
     Rex::Commands::profiler()->end("unlink: $file");
   }
 }
@@ -110,6 +114,9 @@ sub mkdir {
   $sftp->mkdir($dir);
   if ( $self->is_dir($dir) ) {
     $ret = 1;
+  }
+  else {
+    die "Error creating directory: $dir." if ( Rex::Config->get_autodie );
   }
 
   Rex::Commands::profiler()->end("mkdir: $dir");
@@ -138,6 +145,7 @@ sub is_readable {
   my ( $self, $file ) = @_;
 
   Rex::Commands::profiler()->start("is_readable: $file");
+  ($file) = $self->_normalize_path($file);
 
   my $exec = Rex::Interface::Exec->create;
   $exec->exec("perl -le 'if(-r \"$file\") { exit 0; } exit 1'");
@@ -151,6 +159,7 @@ sub is_writable {
   my ( $self, $file ) = @_;
 
   Rex::Commands::profiler()->start("is_writable: $file");
+  ($file) = $self->_normalize_path($file);
 
   my $exec = Rex::Interface::Exec->create;
   $exec->exec("perl -le 'if(-w \"$file\") { exit 0; } exit 1'");
@@ -181,15 +190,21 @@ sub rename {
   my $ret;
 
   Rex::Commands::profiler()->start("rename: $old -> $new");
+  ($old) = $self->_normalize_path($old);
+  ($new) = $self->_normalize_path($new);
 
   # don't use rename() doesn't work with different file systems / partitions
   my $exec = Rex::Interface::Exec->create;
-  $exec->exec("/bin/mv '$old' '$new'");
+  $exec->exec("/bin/mv $old $new");
 
   if ( ( !$self->is_file($old) && !$self->is_dir($old) )
     && ( $self->is_file($new) || $self->is_dir($new) ) )
   {
     $ret = 1;
+  }
+  else {
+    die "Error renaming file or directory ($old -> $new)."
+      if ( Rex::Config->get_autodie );
   }
 
   Rex::Commands::profiler()->end("rename: $old -> $new");

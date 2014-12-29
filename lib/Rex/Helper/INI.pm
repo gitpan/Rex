@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Helper::INI;
-{
-  $Rex::Helper::INI::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 BEGIN { String::Escape->use('string2hash'); }
 

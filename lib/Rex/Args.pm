@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Args;
-{
-  $Rex::Args::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use vars qw(%task_opts %rex_opts);
 use Rex::Logger;
@@ -54,8 +53,7 @@ sub import {
           $type = $args{$name_param}->{type};
 
           Rex::Logger::debug("  is a $type");
-          shift
-            @params;   # remove the next parameter, because it must be an option
+          shift @params; # remove the next parameter, because it must be an option
 
           if (
             !exists $ARGV[0]

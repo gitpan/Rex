@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Interface::Connection::OpenSSH;
-{
-  $Rex::Interface::Connection::OpenSSH::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 BEGIN {
   use Rex::Require;
@@ -98,7 +97,7 @@ sub connect {
 
     # do nothing here
   }
-  else {    # for key auth, and others
+  else { # for key auth, and others
     Rex::Logger::debug(
       "OpenSSH: key_auth or not defined: $server:$port - $user");
     push @connection_props, key_path => $private_key;

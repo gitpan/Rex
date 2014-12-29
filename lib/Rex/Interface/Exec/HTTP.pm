@@ -5,13 +5,12 @@
 # vim: set expandtab:
 
 package Rex::Interface::Exec::HTTP;
-{
-  $Rex::Interface::Exec::HTTP::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
 use Rex::Commands;
+
+our $VERSION = '0.56.0'; # VERSION
 
 sub new {
   my $that  = shift;

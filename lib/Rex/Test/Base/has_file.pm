@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Test::Base::has_file;
-{
-  $Rex::Test::Base::has_file::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex -base;
 use base qw(Rex::Test::Base);

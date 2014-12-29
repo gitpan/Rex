@@ -5,12 +5,13 @@
 # vim: set expandtab:
 
 package Rex::Interface::Connection::HTTPS;
-{
-  $Rex::Interface::Connection::HTTPS::VERSION = '0.55.3';
-}
 
+use strict;
+use warnings;
 use Rex::Interface::Connection::HTTP;
 use base qw(Rex::Interface::Connection::HTTP);
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 

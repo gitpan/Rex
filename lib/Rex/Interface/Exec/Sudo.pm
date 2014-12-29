@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Interface::Exec::Sudo;
-{
-  $Rex::Interface::Exec::Sudo::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Config;
 use Rex::Interface::Exec::Local;
@@ -58,7 +57,7 @@ sub exec {
     $exec = Rex::Interface::Exec->create("Local");
     $file = Rex::Interface::File->create("Local");
   }
-  $shell = Rex::Interface::Shell->create("Sh");    # we're using sh for sudo
+  $shell = Rex::Interface::Shell->create("Sh"); # we're using sh for sudo
 
 ######## envs setzen. aber erst nachdem wir wissen ob wir sh forcen duerfen
   # if(exists $option->{env}) {

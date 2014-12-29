@@ -50,12 +50,11 @@ All these functions are not idempotent.
 =cut
 
 package Rex::Commands::SCM;
-{
-  $Rex::Commands::SCM::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 use Rex::Config;

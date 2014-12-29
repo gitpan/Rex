@@ -26,12 +26,11 @@ This module is the base class for hardware/information gathering.
 =cut
 
 package Rex::Hardware;
-{
-  $Rex::Hardware::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 

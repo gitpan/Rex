@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Helper::Path;
-{
-  $Rex::Helper::Path::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use File::Spec;
 use File::Basename qw(dirname);

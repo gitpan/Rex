@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Resource::Common;
-{
-  $Rex::Resource::Common::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Exporter;
 require Rex::Config;
@@ -32,10 +31,6 @@ sub emit {
     current_resource()->changed(1);
   }
 }
-
-=item resource($name, $function)
-
-=cut
 
 sub resource {
   my ( $name, $function ) = @_;

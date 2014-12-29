@@ -37,12 +37,11 @@ With this module you can manage Linux services.
 =cut
 
 package Rex::Commands::Service;
-{
-  $Rex::Commands::Service::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 
@@ -318,7 +317,7 @@ sub old_service {
 
   elsif ( $action eq "stop" ) {
 
-    if ( $srvc->status($service) ) {    # it runs
+    if ( $srvc->status($service) ) { # it runs
       $changed = 1;
       if ( $srvc->stop($service) ) {
         Rex::Logger::info("Service $service stopped.");

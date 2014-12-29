@@ -28,12 +28,11 @@ With this module you can tail a file
 =cut
 
 package Rex::Commands::Tail;
-{
-  $Rex::Commands::Tail::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 use Data::Dumper;
@@ -53,7 +52,7 @@ This function will tail the given file.
    tail "/var/log/syslog";
  };
 
-Or, if you want to format the output by yourself, you can define a callback function.
+If you want to control the output format, you can define a callback function:
 
  task "syslog", "server01", sub {
    tail "/var/log/syslog", sub {

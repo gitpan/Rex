@@ -54,11 +54,10 @@ Then you can create your test files inside this directory.
 =cut
 
 package Rex::Test::Base;
-{
-  $Rex::Test::Base::VERSION = '0.55.3';
-}
 
 use base 'Test::Builder::Module';
+
+our $VERSION = '0.56.0'; # VERSION
 
 use strict;
 use warnings;
@@ -148,7 +147,7 @@ sub redirect_port {
 
 =item run_task($task)
 
-The task to run on the test vm.
+The task to run on the test vm. You can run multiple tasks by passing an array reference.
 
 =cut
 
@@ -170,7 +169,13 @@ sub run_task {
     $box->forward_port( ssh => [ $self->{redirect_port}, 22 ] );
 
     $box->auth( %{ $self->{auth} } );
-    $box->setup($task);
+
+    if ( ref $task eq 'ARRAY' ) {
+      $box->setup(@$task);
+    }
+    else {
+      $box->setup($task);
+    }
   };
 
   $self->{box} = $box;
@@ -205,9 +210,9 @@ sub finish {
 
 Test if the content of $file matches against $regexp.
 
-=item has_package($package)
+=item has_package($package, $version)
 
-Test if the package $package is installed.
+Test if the package $package is installed, optionally at $version.
 
 =item has_file($file)
 
@@ -220,6 +225,18 @@ Test if the service $service is running.
 =item has_service_stopped($service)
 
 Test if the service $service is stopped.
+
+=item has_stat($file, $stat)
+
+Test if the file $file has properties described in hash reference $stat. List of supported checks:
+
+=over 4
+
+=item - group
+
+=item - owner
+
+=back
 
 =back
 

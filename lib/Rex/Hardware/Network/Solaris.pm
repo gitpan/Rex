@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Hardware::Network::Solaris;
-{
-  $Rex::Hardware::Network::Solaris::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 use Rex::Commands::Run;
@@ -62,9 +61,9 @@ sub route {
   }
 
   shift @route;
-  shift @route;    # remove first 2 lines
+  shift @route; # remove first 2 lines
   shift @route;
-  shift @route;    # remove first 2 lines
+  shift @route; # remove first 2 lines
 
   for my $route_entry (@route) {
 

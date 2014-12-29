@@ -5,13 +5,12 @@
 # vim: set expandtab:
 
 package Rex::Inventory::Hal::Object::Volume;
-{
-  $Rex::Inventory::Hal::Object::Volume::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
 use Data::Dumper;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Inventory::Hal::Object;
 use base qw(Rex::Inventory::Hal::Object);

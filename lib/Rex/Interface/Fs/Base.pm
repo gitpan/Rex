@@ -5,14 +5,14 @@
 # vim: set expandtab:
 
 package Rex::Interface::Fs::Base;
-{
-  $Rex::Interface::Fs::Base::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
 
+our $VERSION = '0.56.0'; # VERSION
+
 use Rex::Interface::Exec;
+require File::Spec::Unix;
 
 sub new {
   my $that  = shift;
@@ -40,21 +40,29 @@ sub download    { die("Must be implemented by Interface Class"); }
 
 sub is_symlink {
   my ( $self, $path ) = @_;
+  ($path) = $self->_normalize_path($path);
 
   $self->_exec("/bin/sh -c '[ -L \"$path\" ]'");
   my $ret = $?;
 
   if ( $ret == 0 ) { return 1; }
+
+  die "Error testing for symlink. ($path)" if ( Rex::Config->get_autodie );
 }
 
 sub ln {
   my ( $self, $from, $to ) = @_;
 
   Rex::Logger::debug("Symlinking files: $to -> $from");
+  ($from) = $self->_normalize_path($from);
+  ($to)   = $self->_normalize_path($to);
+
   my $exec = Rex::Interface::Exec->create;
-  $exec->exec("ln -snf '$from' '$to'");
+  $exec->exec("ln -snf $from $to");
 
   if ( $? == 0 ) { return 1; }
+
+  die "Error creating symlink. ($from -> $to)" if ( Rex::Config->get_autodie );
 }
 
 sub rmdir {
@@ -67,6 +75,9 @@ sub rmdir {
   $exec->exec( "/bin/rm -rf " . join( " ", @dirs ) );
 
   if ( $? == 0 ) { return 1; }
+
+  die( "Error removing directory: " . join( ", ", @dirs ) )
+    if ( Rex::Config->get_autodie );
 }
 
 sub chown {
@@ -83,6 +94,9 @@ sub chown {
   $exec->exec("chown $recursive $user $file");
 
   if ( $? == 0 ) { return 1; }
+
+  die("Error running chown $recursive $user $file")
+    if ( Rex::Config->get_autodie );
 }
 
 sub chgrp {
@@ -99,6 +113,9 @@ sub chgrp {
   $exec->exec("chgrp $recursive $group $file");
 
   if ( $? == 0 ) { return 1; }
+
+  die("Error running chgrp $recursive $group $file")
+    if ( Rex::Config->get_autodie );
 }
 
 sub chmod {
@@ -115,6 +132,9 @@ sub chmod {
   $exec->exec("chmod $recursive $mode $file");
 
   if ( $? == 0 ) { return 1; }
+
+  die("Error running chmod $recursive $mode $file")
+    if ( Rex::Config->get_autodie );
 }
 
 sub cp {
@@ -126,16 +146,37 @@ sub cp {
   $exec->exec("cp -R $source $dest");
 
   if ( $? == 0 ) { return 1; }
+
+  die("Error copying $source -> $dest") if ( Rex::Config->get_autodie );
 }
 
 sub _normalize_path {
   my ( $self, @dirs ) = @_;
 
-  for (@dirs) {
-    s/ /\\ /g;
+  my @ret;
+  for my $d (@dirs) {
+    my @t;
+    if (Rex::is_ssh) {
+      @t = File::Spec::Unix->splitdir($d);
+    }
+    else {
+      @t = File::Spec->splitdir($d);
+    }
+    push( @ret, File::Spec::Unix->catfile( map { $self->_quotepath($_) } @t ) );
   }
 
-  return @dirs;
+  #  for (@dirs) {
+  #    s/ /\\ /g;
+  #  }
+
+  return @ret;
+}
+
+sub _quotepath {
+  my ( $self, $p ) = @_;
+  $p =~ s/([\@\$\% ])/\\$1/g;
+
+  return $p;
 }
 
 sub _exec {

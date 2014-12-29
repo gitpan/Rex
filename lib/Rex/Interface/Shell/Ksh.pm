@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Interface::Shell::Ksh;
-{
-  $Rex::Interface::Shell::Ksh::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Interface::Shell::Bash;
 

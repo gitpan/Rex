@@ -5,14 +5,13 @@
 # vim: set expandtab:
 
 package Rex::Output;
-{
-  $Rex::Output::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
 BEGIN { IPC::Shareable->use }
 use base 'Rex::Output::Base';
+
+our $VERSION = '0.56.0'; # VERSION
 
 use vars qw($output_object);
 my $handle = tie $output_object, 'IPC::Shareable', undef, { destroy => 1 };

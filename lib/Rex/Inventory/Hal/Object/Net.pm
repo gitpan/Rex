@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Inventory::Hal::Object::Net;
-{
-  $Rex::Inventory::Hal::Object::Net::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Inventory::Hal::Object;
 use base qw(Rex::Inventory::Hal::Object);

@@ -12,7 +12,7 @@ Rex::Commands::Inventory - Get an inventory of your systems
 
 With this module you can get an inventory of your system.
 
-All these functions will not be reported. These functions don't change things.
+All these functions will not be reported. These functions don't modify anything.
 
 =head1 SYNOPSIS
 
@@ -29,12 +29,11 @@ All these functions will not be reported. These functions don't change things.
 =cut
 
 package Rex::Commands::Inventory;
-{
-  $Rex::Commands::Inventory::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Inventory;
 

@@ -24,12 +24,11 @@ This is a simple template engine for configuration files.
 =cut
 
 package Rex::Template;
-{
-  $Rex::Template::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Config;
 use Rex::Logger;
@@ -225,7 +224,7 @@ sub _normalize_var_name {
 
 =item is_defined($variable, $default_value)
 
-This function will check if $variable is defined. If it is defined it will return the value of $variable. If not, it will return $default_value.
+This function will check if $variable is defined. If yes, it will return the value of $variable, otherwise it will return $default_value.
 
 You can use this function inside your templates.
 

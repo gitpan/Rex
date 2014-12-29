@@ -54,12 +54,11 @@ See L<Rex::Commands> for a list of all commands you can use.
 =cut
 
 package Rex;
-{
-  $Rex::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 BEGIN {
   use Rex::Logger;
@@ -76,10 +75,10 @@ BEGIN {
   eval { Net::SSH2->require; };
 }
 
-our ( @EXPORT, $VERSION, @CONNECTION_STACK, $GLOBAL_SUDO, $MODULE_PATHS,
+our ( @EXPORT, @CONNECTION_STACK, $GLOBAL_SUDO, $MODULE_PATHS,
   $WITH_EXIT_STATUS );
 
-$WITH_EXIT_STATUS = 1;    # since 0.50 activated by default
+$WITH_EXIT_STATUS = 1; # since 0.50 activated by default
 
 my $cur_dir;
 
@@ -402,7 +401,7 @@ sub connect {
     );
 
     unless ( $conn->is_connected ) {
-      die("Connetion error or refused.");
+      die("Connection error or refused.");
     }
 
     # push a remote connection
@@ -596,6 +595,12 @@ sub import {
         $found_feature = 1;
       }
 
+      if ( $add =~ m/^\d+\.\d+$/ && $add >= 0.56 ) {
+        Rex::Logger::debug("Activating autodie.");
+        Rex::Config->set_autodie(1);
+        $found_feature = 1;
+      }
+
       if ( $add =~ m/^\d+\.\d+$/ && $add >= 0.55 ) {
         Rex::Logger::debug("Using Net::OpenSSH if present.");
         Rex::Config->set_use_net_openssh_if_present(1);
@@ -615,6 +620,19 @@ sub import {
         Rex::Logger::debug("Setting set() to not append data.");
         Rex::Config->set_set_no_append(1);
 
+        $found_feature = 1;
+      }
+
+      if ( $add eq "rex_kvm_agent" ) {
+        Rex::Logger::debug(
+          "Activating experimental support for rex-kvm-agent.");
+        Rex::Config->set_use_rex_kvm_agent(1);
+        $found_feature = 1;
+      }
+
+      if ( $add eq "template_ng" ) {
+        Rex::Logger::debug("Activating experimental new template engine.");
+        Rex::Config->set_use_template_ng(1);
         $found_feature = 1;
       }
 
@@ -774,6 +792,8 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item Boris Däppen
 
+=item Brian Manning
+
 =item Cameron Daniel
 
 =item Chris Steigmeier
@@ -864,6 +884,8 @@ Many thanks to the contributors for their work (alphabetical order).
 
 =item Samuele Tognini
 
+=item Sascha Askani
+
 =item Sascha Guenther
 
 =item Simon Bertrang
@@ -879,6 +901,11 @@ Many thanks to the contributors for their work (alphabetical order).
 =item Tomohiro Hosaka
 
 =back
+
+=head1 LICENSE
+
+Rex is a free software, licensed under:
+The Apache License, Version 2.0, January 2004
 
 =cut
 

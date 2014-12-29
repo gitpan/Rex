@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Helper::Run;
-{
-  $Rex::Helper::Run::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Exporter;
 use base qw(Exporter);

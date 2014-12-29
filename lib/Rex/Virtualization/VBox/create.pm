@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Virtualization::VBox::create;
-{
-  $Rex::Virtualization::VBox::create::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 use Rex::Commands::Gather;
@@ -30,7 +29,7 @@ sub execute {
 
   my $opts = \%opt;
   $opts->{name} = $name;
-  $opts->{type} ||= "Linux26";    # default to Linux 2.6
+  $opts->{type} ||= "Linux26"; # default to Linux 2.6
 
   unless ($opts) {
     die("You have to define the create options!");

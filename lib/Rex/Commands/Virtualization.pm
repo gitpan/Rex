@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Commands::Virtualization;
-{
-  $Rex::Commands::Virtualization::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 use base qw(Rex::Exporter);
@@ -85,7 +84,7 @@ All these functions are not idempotent.
 
 =item vm($action => $name, %option)
 
-This module exports only the I<vm> function. You can manage everything with this function.
+This module only exports the I<vm> function. You can manage everything with this function.
 
 =back
 
@@ -180,6 +179,13 @@ This is the same as above, but with all options in use.
           slot    => "0x03",
           function => "0x0",
         },
+      },
+    ],
+    serial_devices => [
+      {
+        type => 'tcp',
+        host => '127.0.0.1',
+        port => 12345,
       },
     ];
 

@@ -5,12 +5,11 @@
 # vim: set expandtab:
 
 package Rex::Hardware::Network::FreeBSD;
-{
-  $Rex::Hardware::Network::FreeBSD::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Logger;
 use Rex::Helper::Run;

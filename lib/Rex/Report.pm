@@ -5,13 +5,12 @@
 # vim: set expandtab:
 
 package Rex::Report;
-{
-  $Rex::Report::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
 use Data::Dumper;
+
+our $VERSION = '0.56.0'; # VERSION
 
 my $report;
 

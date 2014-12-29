@@ -5,14 +5,13 @@
 # vim: set expandtab:
 
 package Rex::Pkg::Base;
-{
-  $Rex::Pkg::Base::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
 use Rex::Helper::Run;
 use Rex::Interface::Exec;
+
+our $VERSION = '0.56.0'; # VERSION
 
 sub new {
   my $that  = shift;
@@ -26,18 +25,23 @@ sub new {
 
 sub is_installed {
 
-  my ( $self, $pkg ) = @_;
+  my ( $self, $pkg, $option ) = @_;
+  my $version = $option->{version};
 
-  Rex::Logger::debug("Checking if $pkg is installed");
+  Rex::Logger::debug(
+    "Checking if $pkg" . ( $version ? "-$version" : "" ) . " is installed" );
 
   my @pkg_info = grep { $_->{name} eq $pkg } $self->get_installed();
+  @pkg_info = grep { $_->{version} eq $version } @pkg_info if defined $version;
 
   unless (@pkg_info) {
-    Rex::Logger::debug("$pkg is NOT installed.");
+    Rex::Logger::debug(
+      "$pkg" . ( $version ? "-$version" : "" ) . " is NOT installed." );
     return 0;
   }
 
-  Rex::Logger::debug("$pkg is installed.");
+  Rex::Logger::debug(
+    "$pkg" . ( $version ? "-$version" : "" ) . " is installed." );
   return 1;
 
 }
@@ -45,7 +49,7 @@ sub is_installed {
 sub install {
   my ( $self, $pkg, $option ) = @_;
 
-  if ( $self->is_installed($pkg) && !$option->{"version"} ) {
+  if ( $self->is_installed( $pkg, $option ) ) {
     Rex::Logger::info("$pkg is already installed");
     return 1;
   }
@@ -60,7 +64,7 @@ sub update {
 
   my $version = $option->{'version'} || '';
 
-  Rex::Logger::debug("Installing $pkg / $version");
+  Rex::Logger::debug( "Installing $pkg" . ( $version ? "-$version" : "" ) );
   my $cmd = sprintf $self->{commands}->{install}, $pkg;
 
   if ( exists $option->{version} ) {

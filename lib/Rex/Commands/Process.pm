@@ -29,12 +29,11 @@ All these functions are not idempotent.
 =cut
 
 package Rex::Commands::Process;
-{
-  $Rex::Commands::Process::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 require Rex::Exporter;
 use Data::Dumper;
@@ -50,7 +49,7 @@ use base qw(Rex::Exporter);
 
 =item kill($pid, $sig)
 
-Will kill the given process id. If $sig is specified it will kill with this.
+Will kill the given process id. If $sig is specified it will kill with the given signal.
 
  task "kill", "server01", sub {
    kill 9931;
@@ -71,7 +70,7 @@ sub kill {
 
 =item killall($name, $sig)
 
-Will kill the given process. If $sig is specified it will kill with this.
+Will kill the given process. If $sig is specified it will kill with the given signal.
 
  task "kill-apaches", "server01", sub {
    killall "apache2";

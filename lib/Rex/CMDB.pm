@@ -27,12 +27,11 @@ This module exports a function to access a CMDB via a common interface.
 =cut
 
 package Rex::CMDB;
-{
-  $Rex::CMDB::VERSION = '0.55.3';
-}
 
 use strict;
 use warnings;
+
+our $VERSION = '0.56.0'; # VERSION
 
 use Rex::Commands;
 use Rex::Value;
