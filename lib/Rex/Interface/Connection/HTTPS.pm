@@ -11,7 +11,7 @@ use warnings;
 use Rex::Interface::Connection::HTTP;
 use base qw(Rex::Interface::Connection::HTTP);
 
-our $VERSION = '0.56.0'; # VERSION
+our $VERSION = '0.56.1'; # VERSION
 
 use Rex::Logger;
 

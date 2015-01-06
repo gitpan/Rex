@@ -9,7 +9,7 @@ package Rex::Args;
 use strict;
 use warnings;
 
-our $VERSION = '0.56.0'; # VERSION
+our $VERSION = '0.56.1'; # VERSION
 
 use vars qw(%task_opts %rex_opts);
 use Rex::Logger;

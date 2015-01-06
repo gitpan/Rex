@@ -9,7 +9,7 @@ package Rex::Output::Base;
 use strict;
 use warnings;
 
-our $VERSION = '0.56.0'; # VERSION
+our $VERSION = '0.56.1'; # VERSION
 
 sub write { die "Must be implemented by inheriting class" }
 sub add   { die "Must be implemented by inheriting class" }

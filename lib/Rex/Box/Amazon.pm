@@ -88,7 +88,7 @@ use Rex::Commands::Run;
 use Rex::Commands::Fs;
 use Rex::Commands::Cloud;
 
-our $VERSION = '0.56.0'; # VERSION
+our $VERSION = '0.56.1'; # VERSION
 
 BEGIN {
   LWP::UserAgent->use;

@@ -9,7 +9,7 @@ package Rex::Inventory::SMBios::Bios;
 use strict;
 use warnings;
 
-our $VERSION = '0.56.0'; # VERSION
+our $VERSION = '0.56.1'; # VERSION
 
 use Rex::Inventory::SMBios::Section;
 use base qw(Rex::Inventory::SMBios::Section);

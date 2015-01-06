@@ -9,7 +9,7 @@ package Rex::Interface::Connection::Local;
 use strict;
 use warnings;
 
-our $VERSION = '0.56.0'; # VERSION
+our $VERSION = '0.56.1'; # VERSION
 
 use Rex::Interface::Connection::Base;
 use Rex::Group::Entry::Server;

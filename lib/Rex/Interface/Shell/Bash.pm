@@ -9,7 +9,7 @@ package Rex::Interface::Shell::Bash;
 use strict;
 use warnings;
 
-our $VERSION = '0.56.0'; # VERSION
+our $VERSION = '0.56.1'; # VERSION
 
 use Rex::Interface::Shell::Base;
 use base qw(Rex::Interface::Shell::Base);

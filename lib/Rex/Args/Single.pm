@@ -9,7 +9,7 @@ package Rex::Args::Single;
 use strict;
 use warnings;
 
-our $VERSION = '0.56.0'; # VERSION
+our $VERSION = '0.56.1'; # VERSION
 
 sub get { return 1; }
 

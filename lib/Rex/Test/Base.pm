@@ -57,7 +57,7 @@ package Rex::Test::Base;
 
 use base 'Test::Builder::Module';
 
-our $VERSION = '0.56.0'; # VERSION
+our $VERSION = '0.56.1'; # VERSION
 
 use strict;
 use warnings;

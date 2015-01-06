@@ -12,7 +12,7 @@ use Rex -base;
 use Data::Dumper;
 use Rex::Commands::Box;
 
-our $VERSION = '0.56.0'; # VERSION
+our $VERSION = '0.56.1'; # VERSION
 
 desc 'Run tests specified with --test=testfile (default: t/*.t)';
 task run => make {

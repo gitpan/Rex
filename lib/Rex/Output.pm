@@ -11,7 +11,7 @@ use warnings;
 BEGIN { IPC::Shareable->use }
 use base 'Rex::Output::Base';
 
-our $VERSION = '0.56.0'; # VERSION
+our $VERSION = '0.56.1'; # VERSION
 
 use vars qw($output_object);
 my $handle = tie $output_object, 'IPC::Shareable', undef, { destroy => 1 };

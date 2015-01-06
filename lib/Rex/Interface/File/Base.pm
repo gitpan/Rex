@@ -9,7 +9,7 @@ package Rex::Interface::File::Base;
 use strict;
 use warnings;
 
-our $VERSION = '0.56.0'; # VERSION
+our $VERSION = '0.56.1'; # VERSION
 
 sub new {
   my $that  = shift;

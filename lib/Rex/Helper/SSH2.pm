@@ -9,7 +9,7 @@ package Rex::Helper::SSH2;
 use strict;
 use warnings;
 
-our $VERSION = '0.56.0'; # VERSION
+our $VERSION = '0.56.1'; # VERSION
 
 require Exporter;
 use Data::Dumper;
